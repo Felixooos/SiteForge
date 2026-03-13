@@ -45,6 +45,59 @@ initBucket();
 // Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Auth middleware for admin routes
+async function requireAdmin(req, res, next) {
+  // Allow public access to login page and global config
+  if (req.path === '/admin/login.html' || req.path === '/admin/api/global' || req.path.startsWith('/admin/css') || req.path.startsWith('/admin/js')) {
+    return next();
+  }
+
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).send(`
+      <!DOCTYPE html>
+      <html><head><meta charset="utf-8"><script>window.location.href="/admin/login.html";</script></head>
+      <body>Redirection...</body></html>
+    `);
+  }
+
+  try {
+    if (!supabase) {
+      return res.status(500).send('Supabase non configuré');
+    }
+
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return res.status(401).send(`
+        <!DOCTYPE html>
+        <html><head><meta charset="utf-8"><script>sessionStorage.removeItem("siteforge_admin_token");window.location.href="/admin/login.html";</script></head>
+        <body>Session expirée...</body></html>
+      `);
+    }
+
+    // Check admin status
+    const { data: etudiant } = await supabase
+      .from('etudiants')
+      .select('is_admin, super_admin')
+      .eq('email', user.email)
+      .single();
+
+    if (!etudiant || (!etudiant.is_admin && !etudiant.super_admin)) {
+      return res.status(403).send('Accès refusé : droits administrateur requis');
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error('Auth error:', err);
+    res.status(401).send('Erreur d\'authentification');
+  }
+}
+
+app.use('/admin', requireAdmin);
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

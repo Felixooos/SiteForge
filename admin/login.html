@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔒 Admin Login - SiteForge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo-icon {
+      font-size: 60px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #c33;
+      font-size: 14px;
+      display: none;
+    }
+    .error.show { display: block; }
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .back-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <div class="logo-icon">🔒</div>
+      <h1>Admin Login</h1>
+      <p class="subtitle">Accès réservé aux administrateurs</p>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="username" placeholder="admin@example.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn" id="loginBtn">🔓 Se connecter</button>
+    </form>
+
+    <div class="back-link">
+      <a href="/">← Retour au portail</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // Fetch global config
+    const globalRes = await fetch('/admin/api/global');
+    const globalConfig = await globalRes.json();
+
+    if (!globalConfig.supabaseUrl || !globalConfig.supabaseAnonKey) {
+      document.getElementById('error').textContent = '⚠️ Configuration Supabase manquante. Configurez-la d\'abord.';
+      document.getElementById('error').classList.add('show');
+      document.getElementById('loginForm').style.display = 'none';
+    } else {
+      const supabase = createClient(globalConfig.supabaseUrl, globalConfig.supabaseAnonKey);
+
+      // Check if already logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Check if user is admin
+        const isAdmin = await checkAdminStatus(supabase, session.user);
+        if (isAdmin) {
+          window.location.href = '/admin/';
+        }
+      }
+
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('error');
+        const btn = document.getElementById('loginBtn');
+
+        errorDiv.classList.remove('show');
+        btn.disabled = true;
+        btn.textContent = '⏳ Connexion...';
+
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (error) throw error;
+
+          // Check if user is admin
+          const isAdmin = await checkAdminStatus(supabase, data.user);
+          
+          if (!isAdmin) {
+            await supabase.auth.signOut();
+            throw new Error('Accès refusé : vous n\'êtes pas administrateur');
+          }
+
+          // Store session token
+          sessionStorage.setItem('siteforge_admin_token', data.session.access_token);
+          
+          // Redirect to admin
+          window.location.href = '/admin/';
+        } catch (err) {
+          errorDiv.textContent = '❌ ' + (err.message || 'Erreur de connexion');
+          errorDiv.classList.add('show');
+          btn.disabled = false;
+          btn.textContent = '🔓 Se connecter';
+        }
+      });
+
+      async function checkAdminStatus(supabase, user) {
+        // Check in etudiants table (reusing your existing structure)
+        const { data, error } = await supabase
+          .from('etudiants')
+          .select('is_admin, super_admin')
+          .eq('email', user.email)
+          .single();
+
+        if (error || !data) return false;
+        return data.is_admin || data.super_admin;
+      }
+    }
+  </script>
+</body>
+</html>

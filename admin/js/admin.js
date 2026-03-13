@@ -1,5 +1,28 @@
 /* ==================== SiteForge Admin JS ==================== */
 
+// Auth helper - inject token in all requests
+const authFetch = (url, options = {}) => {
+  const token = sessionStorage.getItem('siteforge_admin_token');
+  if (!token && !url.includes('/api/global')) {
+    window.location.href = '/admin/login.html';
+    return Promise.reject('No token');
+  }
+  
+  options.headers = {
+    ...options.headers,
+    'Authorization': `Bearer ${token}`
+  };
+  
+  return authFetch(url, options).then(res => {
+    if (res.status === 401) {
+      sessionStorage.removeItem('siteforge_admin_token');
+      window.location.href = '/admin/login.html';
+      throw new Error('Unauthorized');
+    }
+    return res;
+  });
+};
+
 // State
 let currentProjectId = null;
 let config = null;
@@ -42,6 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
+  // Logout button
+  document.getElementById('btn-logout')?.addEventListener('click', () => {
+    if (confirm('Se déconnecter ?')) {
+      sessionStorage.removeItem('siteforge_admin_token');
+      window.location.href = '/admin/login.html';
+    }
+  });
+
   // New project button
   document.getElementById('btn-new-project').addEventListener('click', () => {
     document.getElementById('modal-new-project').classList.remove('hidden');
@@ -64,7 +95,7 @@ function setupEventListeners() {
   const modalGlobal = document.getElementById('modal-global-settings');
   document.getElementById('btn-global-settings').addEventListener('click', async () => {
     try {
-      const res = await fetch('/admin/api/global');
+      const res = await authFetch('/admin/api/global');
       const g = await res.json();
       document.getElementById('global-supabase-url').value = g.supabaseUrl || '';
       document.getElementById('global-supabase-anon').value = g.supabaseAnonKey || '';
@@ -80,7 +111,7 @@ function setupEventListeners() {
       supabaseUrl: document.getElementById('global-supabase-url').value.trim(),
       supabaseAnonKey: document.getElementById('global-supabase-anon').value.trim()
     };
-    const res = await fetch('/admin/api/global', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const res = await authFetch('/admin/api/global', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (res.ok) { closeGlobal(); toast('Paramètres globaux sauvegardés !', 'success'); refreshPreview(); }
     else { toast('Erreur lors de la sauvegarde', 'error'); }
   });
@@ -181,7 +212,7 @@ function setupEventListeners() {
 
 // ==================== PROJECT MANAGEMENT ====================
 async function loadProjects() {
-  const res = await fetch('/admin/api/projects');
+  const res = await authFetch('/admin/api/projects');
   const projects = await res.json();
   const grid = document.getElementById('projects-grid');
   const empty = document.getElementById('no-projects');
@@ -213,7 +244,7 @@ async function createProject() {
   const name = document.getElementById('input-project-name').value.trim();
   if (!name) return;
 
-  const res = await fetch('/admin/api/projects', {
+  const res = await authFetch('/admin/api/projects', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name })
@@ -234,13 +265,13 @@ async function createProject() {
 
 async function deleteProject(id, name) {
   if (!confirm(`Supprimer le projet "${name}" ? Cette action est irréversible.`)) return;
-  await fetch(`/admin/api/projects/${id}`, { method: 'DELETE' });
+  await authFetch(`/admin/api/projects/${id}`, { method: 'DELETE' });
   toast('Projet supprimé', 'success');
   loadProjects();
 }
 
 async function openProject(id) {
-  const res = await fetch(`/admin/api/projects/${id}`);
+  const res = await authFetch(`/admin/api/projects/${id}`);
   if (!res.ok) { toast('Erreur de chargement', 'error'); return; }
 
   const data = await res.json();
@@ -259,7 +290,7 @@ async function openProject(id) {
 
   // Check if deployed online
   document.getElementById('deploy-bar').classList.add('hidden');
-  fetch(`/admin/api/deploy-url/${id}`).then(r => r.json()).then(data => {
+  authFetch(`/admin/api/deploy-url/${id}`).then(r => r.json()).then(data => {
     if (data.url) showDeployUrl(data.url);
   }).catch(() => {});
 }
@@ -572,7 +603,7 @@ function createUploadField(label, currentUrl, onChange) {
     if (!file) return;
     const formData = new FormData();
     formData.append('image', file);
-    const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+    const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
     if (res.ok) {
       const { url } = await res.json();
       onChange(url);
@@ -872,7 +903,7 @@ function createPolesEditor(poles) {
         if (!file) return;
         const formData = new FormData();
         formData.append('image', file);
-        const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+        const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
         if (res.ok) {
           const { url } = await res.json();
           memberList[parseInt(el.dataset.mi)].photo = url;
@@ -926,7 +957,7 @@ function createPolesEditor(poles) {
         if (!file) return;
         const formData = new FormData();
         formData.append('image', file);
-        const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+        const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
         if (res.ok) {
           const { url } = await res.json();
           poles[parseInt(el.dataset.i)].image = url;
@@ -982,7 +1013,7 @@ async function deleteUpload(oldUrl) {
   const filename = oldUrl.split('/').pop();
   if (!filename) return;
   try {
-    await fetch(`/admin/api/projects/${currentProjectId}/uploads/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+    await authFetch(`/admin/api/projects/${currentProjectId}/uploads/${encodeURIComponent(filename)}`, { method: 'DELETE' });
   } catch (e) { /* ignore */ }
 }
 
@@ -1205,7 +1236,7 @@ function createGoodiesEditor(items) {
         const oldUrl = items[i].image;
         const formData = new FormData();
         formData.append('image', file);
-        const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+        const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
         if (res.ok) {
           const { url } = await res.json();
           if (oldUrl) deleteUpload(oldUrl);
@@ -1364,7 +1395,7 @@ function createGalleryEditor(images) {
     for (const file of e.target.files) {
       const formData = new FormData();
       formData.append('image', file);
-      const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+      const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
       if (res.ok) {
         const { url } = await res.json();
         images.push({ url, caption: '', blur: 0, overlayText: '', overlayPosition: 'center', overlayFontSize: 18, hoverAnim: 'zoom', hoverIntensity: 5, contAnim: 'none', contIntensity: 5, photoSize: 100, countdown: { mode: 'none', value: '' } });
@@ -1488,7 +1519,7 @@ function createVideosEditor(videos) {
         const oldThumb = videos[i].thumbnail;
         const formData = new FormData();
         formData.append('image', file);
-        const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+        const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
         if (res.ok) {
           const { url } = await res.json();
           if (oldThumb) deleteUpload(oldThumb);
@@ -1670,7 +1701,7 @@ async function saveProject() {
   if (elAdmins) config.siteConfig.adminEmails = elAdmins.value.split(',').map(s => s.trim()).filter(Boolean);
   if (elGate) config.siteConfig.enableAuthGate = elGate.checked;
 
-  const res = await fetch(`/admin/api/projects/${currentProjectId}`, {
+  const res = await authFetch(`/admin/api/projects/${currentProjectId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(config)
@@ -1706,7 +1737,7 @@ async function publishSite() {
   await saveProject();
 
   toast('Publication en cours...', 'success');
-  const res = await fetch(`/admin/api/projects/${currentProjectId}/publish`, { method: 'POST' });
+  const res = await authFetch(`/admin/api/projects/${currentProjectId}/publish`, { method: 'POST' });
   if (res.ok) {
     const data = await res.json();
     toast('Site publié ! En ligne → ' + data.url, 'success');
@@ -1731,7 +1762,7 @@ async function deploySite() {
 
   toast('Déploiement en ligne (Supabase)...', 'success');
   try {
-    const res = await fetch(`/admin/api/projects/${currentProjectId}/deploy`, { method: 'POST' });
+    const res = await authFetch(`/admin/api/projects/${currentProjectId}/deploy`, { method: 'POST' });
     const data = await res.json();
     if (res.ok) {
       toast(`Déployé ! ${data.uploaded} fichiers en ligne`, 'success');
@@ -1763,7 +1794,7 @@ async function handleUpload(e, zone) {
   const formData = new FormData();
   formData.append('image', file);
 
-  const res = await fetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
+  const res = await authFetch(`/admin/api/projects/${currentProjectId}/upload`, { method: 'POST', body: formData });
   if (res.ok) {
     const { url } = await res.json();
     const path = zone.dataset.path;
@@ -1876,3 +1907,4 @@ window.addEventListener('message', (event) => {
     toast(`📝 Édition: ${section.label}`, 'success');
   }
 });
+
