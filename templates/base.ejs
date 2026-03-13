@@ -755,6 +755,54 @@
     .profil-change-pwd h4 { margin-bottom: 10px; font-size: 0.95rem; }
     .profil-change-pwd input { width: 100%; padding: 10px 14px; border: 2px solid rgba(0,0,0,0.1); border-radius: 8px; margin-bottom: 8px; font-family: var(--font-body); }
     .profil-change-pwd button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: var(--primary); color: var(--text-light); font-family: var(--font-body); }
+
+    /* ===== DÉFIS ===== */
+    .defis-admin-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+    .defis-btn-action { padding: 10px 22px; border-radius: 12px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+    .defis-btn-add { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
+    .defis-btn-add:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,197,94,0.4); }
+    .defis-btn-publish { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 15px rgba(59,130,246,0.3); }
+    .defis-btn-publish:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+    .defis-tabs { display: flex; gap: 8px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; padding: 6px; background: rgba(0,0,0,0.03); border-radius: 16px; }
+    .defis-tab { padding: 10px 24px; border-radius: 12px; border: none; background: transparent; color: var(--text); font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.95rem; }
+    .defis-tab:hover { background: rgba(0,0,0,0.05); }
+    .defis-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+    .defis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .defis-empty { text-align: center; padding: 60px 20px; color: var(--text); opacity: 0.5; font-size: 1.1rem; }
+    .defi-card { background: linear-gradient(135deg, var(--card-bg), var(--card-bg-end)); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.3s ease; position: relative; border-left: 4px solid var(--primary); }
+    .defi-card:hover { transform: translateX(5px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+    .defi-card.defi-completed { opacity: 0.75; border-left-color: #22c55e; }
+    .defi-card.defi-completed::before { content: '\2713'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 5rem; opacity: 0.06; color: #22c55e; font-weight: 900; pointer-events: none; }
+    .defi-card.defi-terminated { opacity: 0.5; filter: grayscale(0.4); pointer-events: none; border-left-color: #9ca3af; }
+    .defi-card.defi-draft { border: 2px dashed #f59e0b; border-left: 4px dashed #f59e0b; background: linear-gradient(135deg, rgba(245,158,11,0.05), rgba(245,158,11,0.02)); }
+    .defi-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 12px; }
+    .defi-card-title { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--text); flex: 1; line-height: 1.4; }
+    .defi-badge { padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; color: white; white-space: nowrap; flex-shrink: 0; }
+    .defi-draft-badge { display: inline-block; font-size: 0.75rem; padding: 2px 8px; background: rgba(245,158,11,0.15); color: #f59e0b; border-radius: 8px; font-weight: 600; margin-left: 8px; }
+    .defi-card-desc { color: var(--text); opacity: 0.7; line-height: 1.6; font-size: 0.9rem; margin-bottom: 15px; }
+    .defi-card-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .defi-card-status { font-size: 0.85rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+    .defi-card-status.validated { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .defi-card-status.pending { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .defi-card-status.terminated { background: rgba(156,163,175,0.15); color: #9ca3af; }
+    .defi-card-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+    .defi-card-actions button { padding: 7px 16px; border-radius: 10px; border: none; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .defi-btn-validate { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; pointer-events: all; }
+    .defi-btn-validate:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(34,197,94,0.3); }
+    .defi-btn-menu { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px 8px; border-radius: 8px; color: var(--text); opacity: 0.5; position: absolute; top: 12px; right: 12px; transition: all 0.2s; pointer-events: all; }
+    .defi-btn-menu:hover { opacity: 1; background: rgba(0,0,0,0.05); }
+    .defi-validated-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .defi-validated-tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 10px; background: rgba(34,197,94,0.1); color: #22c55e; font-weight: 600; }
+    .defis-difficulty-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .defis-diff-btn { padding: 10px 18px; border: 2px solid #d1d5db; border-radius: 12px; background: transparent; color: var(--text); font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+    .defis-diff-btn:hover { transform: scale(1.05); }
+    .defis-menu-option { display: block; width: 100%; padding: 16px 20px; border: none; background: none; text-align: left; font-size: 1rem; cursor: pointer; transition: background 0.2s; color: var(--text); border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .defis-menu-option:last-child { border-bottom: none; }
+    .defis-menu-option:hover { background: rgba(0,0,0,0.04); }
+    .defis-menu-danger { color: #ef4444; }
+    .defis-menu-danger:hover { background: rgba(239,68,68,0.06); }
+    .defis-validate-info { font-size: 0.85rem; color: var(--text); opacity: 0.7; margin-top: 4px; }
+    @keyframes defis-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   </style>
 </head>
 <body>
