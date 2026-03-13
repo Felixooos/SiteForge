@@ -1769,173 +1769,233 @@ document.querySelectorAll('.profil-accordion-header').forEach(h => {
     const grid = document.getElementById('defis-grid');
     if (!grid) return;
 
-    // Load challenges: super_admin/admin see all, users see only published
-    let query = sb.from('challenges').select('*').eq('site_id', SITE_ID).eq('admin_deleted', false);
+    let query = sb.from('challenges').select('*').eq('site_id', SITE_ID);
     if (!isAdmin && !isSuperAdmin) {
-      query = query.eq('published', true);
+      query = query.eq('published', true).eq('admin_deleted', false);
+    } else {
+      query = query.eq('admin_deleted', false);
     }
-    const { data: defis } = await query.order('created_at', { ascending: false });
+    const { data: defis, error: defisErr } = await query.order('created_at', { ascending: false });
+    if (defisErr) { console.error('loadDefis error:', defisErr); }
 
-    // Load validations for current user + all validations for admin view
     const { data: allValidations } = await sb.from('challenge_validations').select('*').eq('site_id', SITE_ID);
 
     grid.innerHTML = '';
     if (!defis || defis.length === 0) {
-      grid.innerHTML = '<div class="classement-empty">Aucun défi disponible</div>';
+      grid.innerHTML = '<div class="defis-empty">Aucun défi disponible pour le moment</div>';
       return;
     }
 
-    defis.forEach(defi => {
-      const myValidation = (allValidations || []).find(v => v.challenge_id === defi.id && v.user_email === currentEmail);
-      const defiValidations = (allValidations || []).filter(v => v.challenge_id === defi.id);
+    // Update publish button counter
+    const unpubCount = defis.filter(d => !d.published).length;
+    const syncBtn = document.getElementById('btn-defis-sync');
+    if (syncBtn) {
+      syncBtn.textContent = unpubCount > 0 ? '📢 Publier (' + unpubCount + ')' : '📢 Publier';
+      syncBtn.style.animation = unpubCount > 0 ? 'defis-pulse 2s infinite' : 'none';
+    }
+
+    const cats = <%- JSON.stringify((config.sections.find(s => s.type === 'defis') || { config: { categories: [] } }).config.categories || []) %>;
+
+    defis.forEach(function(defi) {
+      const myValidation = (allValidations || []).find(function(v) { return v.challenge_id === defi.id && v.user_email === currentEmail; });
+      const defiValidations = (allValidations || []).filter(function(v) { return v.challenge_id === defi.id; });
       const isDraft = !defi.published;
+      const isTerminated = defi.terminated;
+      const isCompleted = !!myValidation;
 
       const div = document.createElement('div');
-      div.className = 'defi-card' + (isDraft ? ' defi-card-draft' : '');
-      div.dataset.points = defi.points;
+      let cardClass = 'defi-card';
+      if (isCompleted) cardClass += ' defi-completed';
+      if (isTerminated) cardClass += ' defi-terminated';
+      if (isDraft) cardClass += ' defi-draft';
+      div.className = cardClass;
+      div.dataset.points = String(defi.points);
 
-      // Badge color from categories config or default
-      let badgeColor = 'var(--primary)';
-      const cats = <%- JSON.stringify((config.sections.find(s => s.type === 'defis') || { config: { categories: [] } }).config.categories || []) %>;
-      const matchCat = cats.find(c => c.points === defi.points);
-      if (matchCat) badgeColor = matchCat.color;
+      const matchCat = cats.find(function(c) { return c.points === defi.points; });
+      const badgeColor = matchCat ? matchCat.color : 'var(--primary)';
 
+      // Status
       let statusHtml = '';
-      if (myValidation) {
+      if (isTerminated) {
+        statusHtml = '<span class="defi-card-status terminated">🔒 Terminé</span>';
+      } else if (isCompleted) {
         statusHtml = '<span class="defi-card-status validated">✅ Validé</span>';
+      } else if (isDraft) {
+        statusHtml = '<span class="defi-card-status pending">📝 Brouillon</span>';
       }
 
+      // Admin actions
       let actionsHtml = '';
-      // Admin can validate for someone
-      if (isAdmin || isSuperAdmin) {
-        actionsHtml += '<button class="defi-btn-validate" data-id="' + defi.id + '">✅ Valider pour qqn</button>';
-      }
-      // Super admin can delete
-      if (isSuperAdmin) {
-        actionsHtml += '<button class="defi-btn-delete" data-id="' + defi.id + '">🗑️</button>';
+      if ((isAdmin || isSuperAdmin) && !isTerminated) {
+        actionsHtml += '<button class="defi-btn-validate" data-id="' + defi.id + '" data-points="' + defi.points + '">✅ Valider</button>';
       }
 
+      // 3-dot menu for super admin
+      let menuHtml = '';
+      if (isSuperAdmin && !isTerminated) {
+        menuHtml = '<button class="defi-btn-menu" data-id="' + defi.id + '" data-published="' + (defi.published ? '1' : '0') + '">⋮</button>';
+      }
+
+      // Validated users list (for admin)
       let validatedListHtml = '';
       if ((isAdmin || isSuperAdmin) && defiValidations.length > 0) {
-        validatedListHtml = '<div class="defi-validated-list">' + defiValidations.map(v => '<span class="defi-validated-tag">✅ ' + formatName(v.user_email) + '</span>').join('') + '</div>';
+        validatedListHtml = '<div class="defi-validated-list">' + defiValidations.map(function(v) { return '<span class="defi-validated-tag">✅ ' + formatName(v.user_email) + '</span>'; }).join('') + '</div>';
       }
 
-      div.innerHTML = '<div class="defi-card-header"><span class="defi-card-title">' + (defi.titre || '') + '</span><span class="defi-badge" style="background:' + badgeColor + '">' + defi.points + ' ' + CURRENCY + '</span></div>'
-        + '<p class="defi-card-desc">' + (defi.description || '') + '</p>'
-        + '<div class="defi-card-footer">' + (isDraft ? '<span class="defi-card-status pending">📝 Brouillon</span>' : statusHtml) + '</div>'
+      // Draft badge
+      let draftBadge = isDraft ? '<span class="defi-draft-badge">📝 Brouillon</span>' : '';
+
+      div.innerHTML = menuHtml
+        + '<div class="defi-card-header">'
+        +   '<span class="defi-card-title">' + (defi.titre || '') + draftBadge + '</span>'
+        +   '<span class="defi-badge" style="background:' + badgeColor + '">' + defi.points + ' ' + CURRENCY + '</span>'
+        + '</div>'
+        + (defi.description ? '<p class="defi-card-desc">' + defi.description + '</p>' : '')
+        + '<div class="defi-card-footer">' + statusHtml + '</div>'
         + (actionsHtml ? '<div class="defi-card-actions">' + actionsHtml + '</div>' : '')
         + validatedListHtml;
 
       grid.appendChild(div);
     });
 
-    // Validate buttons
-    grid.querySelectorAll('.defi-btn-validate').forEach(btn => {
-      btn.addEventListener('click', () => {
+    // Validate buttons → open modal
+    grid.querySelectorAll('.defi-btn-validate').forEach(function(btn) {
+      btn.addEventListener('click', function() {
         document.getElementById('defis-validate-id').value = btn.dataset.id;
+        document.getElementById('defis-validate-points').value = btn.dataset.points;
         document.getElementById('defis-validate-email').value = '';
+        var pts = btn.dataset.points;
+        var cat = cats.find(function(c) { return String(c.points) === pts; });
+        document.getElementById('defis-validate-info').textContent = cat ? cat.name + ' — ' + pts + ' ' + CURRENCY + ' seront attribués' : pts + ' ' + CURRENCY + ' seront attribués';
         document.getElementById('defis-modal-validate').style.display = 'flex';
       });
     });
 
-    // Delete buttons
-    grid.querySelectorAll('.defi-btn-delete').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('Supprimer ce défi ?')) return;
-        await sb.from('challenges').update({ admin_deleted: true }).eq('id', parseInt(btn.dataset.id)).eq('site_id', SITE_ID);
-        await loadDefis();
+    // 3-dot menu buttons
+    grid.querySelectorAll('.defi-btn-menu').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('defis-menu-id').value = btn.dataset.id;
+        document.getElementById('defis-modal-menu').style.display = 'flex';
       });
     });
   }
 
-  // Defis tab filtering
-  const defisTabs = document.getElementById('defis-tabs');
+  // Tab filtering
+  var defisTabs = document.getElementById('defis-tabs');
   if (defisTabs) {
-    defisTabs.querySelectorAll('.defis-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        defisTabs.querySelectorAll('.defis-tab').forEach(t => t.classList.remove('active'));
+    defisTabs.querySelectorAll('.defis-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        defisTabs.querySelectorAll('.defis-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
-        const filter = tab.dataset.filter;
-        const grid = document.getElementById('defis-grid');
+        var filter = tab.dataset.filter;
+        var grid = document.getElementById('defis-grid');
         if (!grid) return;
-        grid.querySelectorAll('.defi-card').forEach(card => {
-          if (filter === 'all') { card.style.display = ''; }
-          else { card.style.display = card.dataset.points === filter ? '' : 'none'; }
+        grid.querySelectorAll('.defi-card').forEach(function(card) {
+          card.style.display = (filter === 'all' || card.dataset.points === filter) ? '' : 'none';
         });
       });
     });
   }
 
-  // Add defi modal
-  const btnDefisAdd = document.getElementById('btn-defis-add');
-  if (btnDefisAdd) btnDefisAdd.addEventListener('click', () => {
+  // Add button → open modal
+  var btnDefisAdd = document.getElementById('btn-defis-add');
+  if (btnDefisAdd) btnDefisAdd.addEventListener('click', function() {
     document.getElementById('defis-edit-id').value = '';
     document.getElementById('defis-obj-titre').value = '';
     document.getElementById('defis-obj-description').value = '';
     document.getElementById('defis-modal-title').textContent = '➕ Nouveau Défi';
-    document.getElementById('btn-defis-confirm').textContent = 'Créer';
+    document.getElementById('btn-defis-confirm').textContent = 'Créer le défi';
+    // Reset difficulty buttons
+    document.querySelectorAll('.defis-diff-btn').forEach(function(b, i) {
+      b.classList.toggle('active', i === 0);
+      if (i === 0) {
+        document.getElementById('defis-obj-points').value = b.dataset.points;
+        b.style.background = b.dataset.color; b.style.color = 'white';
+      } else {
+        b.style.background = 'transparent'; b.style.color = '';
+      }
+    });
     document.getElementById('defis-modal-add').style.display = 'flex';
   });
 
-  // Difficulty selector
-  document.querySelectorAll('.defis-diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.defis-diff-btn').forEach(b => b.classList.remove('active'));
+  // Difficulty selector with colors
+  document.querySelectorAll('.defis-diff-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.defis-diff-btn').forEach(function(b) {
+        b.classList.remove('active');
+        b.style.background = 'transparent'; b.style.color = '';
+      });
       btn.classList.add('active');
+      btn.style.background = btn.dataset.color; btn.style.color = 'white';
       document.getElementById('defis-obj-points').value = btn.dataset.points;
     });
   });
 
-  // Confirm add/edit defi
-  const btnDefisConfirm = document.getElementById('btn-defis-confirm');
-  if (btnDefisConfirm) btnDefisConfirm.addEventListener('click', async () => {
-    const titre = document.getElementById('defis-obj-titre').value.trim();
-    const description = document.getElementById('defis-obj-description').value.trim();
-    const points = parseInt(document.getElementById('defis-obj-points').value) || 50;
+  // Confirm create/edit
+  var btnDefisConfirm = document.getElementById('btn-defis-confirm');
+  if (btnDefisConfirm) btnDefisConfirm.addEventListener('click', async function() {
+    var titre = document.getElementById('defis-obj-titre').value.trim();
+    var description = document.getElementById('defis-obj-description').value.trim();
+    var points = parseInt(document.getElementById('defis-obj-points').value) || 50;
     if (!titre) return alert('Titre requis');
 
-    const obj = { titre, description, points, published: false, admin_deleted: false, site_id: SITE_ID };
-    const editId = document.getElementById('defis-edit-id').value;
+    var editId = document.getElementById('defis-edit-id').value;
     if (editId) {
-      await sb.from('challenges').update({ titre, description, points }).eq('id', parseInt(editId)).eq('site_id', SITE_ID);
+      await sb.from('challenges').update({ titre: titre, description: description, points: points, difficulte: points <= 50 ? 'facile' : points <= 150 ? 'moyen' : 'difficile' }).eq('id', parseInt(editId)).eq('site_id', SITE_ID);
     } else {
-      await sb.from('challenges').insert([obj]);
+      await sb.from('challenges').insert([{ titre: titre, description: description, points: points, difficulte: points <= 50 ? 'facile' : points <= 150 ? 'moyen' : 'difficile', published: false, admin_deleted: false, created_by: currentEmail, site_id: SITE_ID }]);
     }
     document.getElementById('defis-modal-add').style.display = 'none';
     await loadDefis();
   });
 
   // Publish all drafts
-  const btnDefisSync = document.getElementById('btn-defis-sync');
-  if (btnDefisSync) btnDefisSync.addEventListener('click', async () => {
-    await sb.from('challenges').update({ published: true }).eq('published', false).eq('admin_deleted', false).eq('site_id', SITE_ID);
+  var btnDefisSync = document.getElementById('btn-defis-sync');
+  if (btnDefisSync) btnDefisSync.addEventListener('click', async function() {
+    var { error } = await sb.from('challenges').update({ published: true }).eq('published', false).eq('admin_deleted', false).eq('site_id', SITE_ID);
+    if (error) return alert('Erreur: ' + error.message);
     await loadDefis();
-    alert('Défis publiés !');
+    alert('Tous les défis ont été publiés !');
   });
 
-  // Validate defi for a user
-  const btnDefisValidateConfirm = document.getElementById('btn-defis-validate-confirm');
-  if (btnDefisValidateConfirm) btnDefisValidateConfirm.addEventListener('click', async () => {
-    const challengeId = parseInt(document.getElementById('defis-validate-id').value);
-    const userEmail = document.getElementById('defis-validate-email').value.trim().toLowerCase();
+  // 3-dot menu: Terminate
+  var btnTerminate = document.getElementById('defis-menu-terminate');
+  if (btnTerminate) btnTerminate.addEventListener('click', async function() {
+    var id = parseInt(document.getElementById('defis-menu-id').value);
+    if (!confirm('Marquer ce défi comme terminé ? Il ne sera plus disponible.')) return;
+    await sb.from('challenges').update({ terminated: true }).eq('id', id).eq('site_id', SITE_ID);
+    document.getElementById('defis-modal-menu').style.display = 'none';
+    await loadDefis();
+  });
+
+  // 3-dot menu: Delete
+  var btnMenuDelete = document.getElementById('defis-menu-delete');
+  if (btnMenuDelete) btnMenuDelete.addEventListener('click', async function() {
+    var id = parseInt(document.getElementById('defis-menu-id').value);
+    if (!confirm('Supprimer ce défi ?')) return;
+    await sb.from('challenges').update({ admin_deleted: true }).eq('id', id).eq('site_id', SITE_ID);
+    document.getElementById('defis-modal-menu').style.display = 'none';
+    await loadDefis();
+  });
+
+  // Validate for a user
+  var btnDefisValidateConfirm = document.getElementById('btn-defis-validate-confirm');
+  if (btnDefisValidateConfirm) btnDefisValidateConfirm.addEventListener('click', async function() {
+    var challengeId = parseInt(document.getElementById('defis-validate-id').value);
+    var userEmail = document.getElementById('defis-validate-email').value.trim().toLowerCase();
     if (!userEmail || !challengeId) return alert('Email requis');
 
-    // Check user exists
-    const { data: user } = await sb.from('etudiants').select('email, solde').eq('email', userEmail).eq('site_id', SITE_ID).single();
+    var { data: user } = await sb.from('etudiants').select('email, solde').eq('email', userEmail).eq('site_id', SITE_ID).single();
     if (!user) return alert('Utilisateur non trouvé sur ce site');
 
-    // Check not already validated
-    const { data: existing } = await sb.from('challenge_validations').select('id').eq('challenge_id', challengeId).eq('user_email', userEmail).eq('site_id', SITE_ID).maybeSingle();
+    var { data: existing } = await sb.from('challenge_validations').select('id').eq('challenge_id', challengeId).eq('user_email', userEmail).eq('site_id', SITE_ID).maybeSingle();
     if (existing) return alert('Déjà validé pour cet utilisateur');
 
-    // Get challenge points
-    const { data: challenge } = await sb.from('challenges').select('points, titre').eq('id', challengeId).eq('site_id', SITE_ID).single();
+    var { data: challenge } = await sb.from('challenges').select('points, titre').eq('id', challengeId).eq('site_id', SITE_ID).single();
     if (!challenge) return alert('Défi introuvable');
 
-    // Insert validation
-    await sb.from('challenge_validations').insert([{ challenge_id: challengeId, user_email: userEmail, validated_by: currentEmail, site_id: SITE_ID }]);
-
-    // Award points
+    await sb.from('challenge_validations').insert([{ challenge_id: challengeId, user_email: userEmail, validated_by_admin: currentEmail, site_id: SITE_ID }]);
     await sb.from('etudiants').update({ solde: (user.solde || 0) + challenge.points }).eq('email', userEmail).eq('site_id', SITE_ID);
     await sb.from('transactions').insert([{ destinataire_email: userEmail, montant: challenge.points, raison: '🏆 Défi: ' + challenge.titre, admin_email: currentEmail, site_id: SITE_ID }]);
 

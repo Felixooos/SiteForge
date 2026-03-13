@@ -36,6 +36,8 @@ CREATE TABLE etudiants (
   photo_profil        TEXT,
   solde               INTEGER     NOT NULL DEFAULT 0,
   is_admin            BOOLEAN     NOT NULL DEFAULT FALSE,
+  is_super_admin      BOOLEAN     NOT NULL DEFAULT FALSE,
+  is_creator          BOOLEAN     NOT NULL DEFAULT FALSE,
   is_boutique_manager BOOLEAN     NOT NULL DEFAULT FALSE,
   created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -50,14 +52,16 @@ ALTER TABLE etudiants ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "etudiants_select"        ON etudiants FOR SELECT  USING (true);
 CREATE POLICY "etudiants_insert"        ON etudiants FOR INSERT  WITH CHECK (
   auth.jwt() ->> 'email' = email
-  AND (is_admin IS NULL OR is_admin = FALSE)
-  AND (is_boutique_manager IS NULL OR is_boutique_manager = FALSE)
+  AND (is_admin IS NULL OR is_admin = FALSE)    AND (is_super_admin IS NULL OR is_super_admin = FALSE)
+    AND (is_creator IS NULL OR is_creator = FALSE)  AND (is_boutique_manager IS NULL OR is_boutique_manager = FALSE)
 );
 CREATE POLICY "etudiants_update"        ON etudiants FOR UPDATE
   USING    (auth.jwt() ->> 'email' = email)
   WITH CHECK (
     auth.jwt() ->> 'email' = email
     AND is_admin            = (SELECT is_admin            FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = etudiants.site_id)
+    AND is_super_admin      = (SELECT is_super_admin      FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = etudiants.site_id)
+    AND is_creator          = (SELECT is_creator          FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = etudiants.site_id)
     AND is_boutique_manager = (SELECT is_boutique_manager FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = etudiants.site_id)
   );
 CREATE POLICY "etudiants_delete_block"  ON etudiants FOR DELETE  USING (false);
@@ -88,7 +92,7 @@ CREATE POLICY "transactions_insert"  ON transactions FOR INSERT WITH CHECK (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = transactions.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 CREATE POLICY "transactions_update_block"  ON transactions FOR UPDATE USING (false);
@@ -205,13 +209,17 @@ CREATE POLICY "achats_delete"  ON achats FOR DELETE USING (
 -- 5. TABLE CHALLENGES
 -- ============================================================
 CREATE TABLE challenges (
-  id          BIGSERIAL   PRIMARY KEY,
-  site_id     TEXT        NOT NULL,
-  titre       TEXT        NOT NULL,
-  description TEXT        NOT NULL,
-  points      INTEGER     NOT NULL CHECK (points > 0),
-  difficulte  TEXT        NOT NULL CHECK (difficulte IN ('facile','moyen','difficile')),
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id             BIGSERIAL   PRIMARY KEY,
+  site_id        TEXT        NOT NULL,
+  titre          TEXT        NOT NULL,
+  description    TEXT        NOT NULL DEFAULT '',
+  points         INTEGER     NOT NULL CHECK (points > 0),
+  difficulte     TEXT        NOT NULL DEFAULT 'facile' CHECK (difficulte IN ('facile','moyen','difficile')),
+  published      BOOLEAN     NOT NULL DEFAULT FALSE,
+  admin_deleted  BOOLEAN     NOT NULL DEFAULT FALSE,
+  terminated     BOOLEAN     NOT NULL DEFAULT FALSE,
+  created_by     TEXT,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_challenges_site       ON challenges(site_id);
@@ -225,7 +233,7 @@ CREATE POLICY "challenges_insert"  ON challenges FOR INSERT WITH CHECK (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = challenges.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 CREATE POLICY "challenges_update"  ON challenges FOR UPDATE USING (
@@ -233,7 +241,7 @@ CREATE POLICY "challenges_update"  ON challenges FOR UPDATE USING (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = challenges.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 CREATE POLICY "challenges_delete"  ON challenges FOR DELETE USING (
@@ -241,7 +249,7 @@ CREATE POLICY "challenges_delete"  ON challenges FOR DELETE USING (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = challenges.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 
@@ -272,7 +280,7 @@ CREATE POLICY "cv_insert"  ON challenge_validations FOR INSERT WITH CHECK (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = challenge_validations.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 CREATE POLICY "cv_delete"  ON challenge_validations FOR DELETE USING (
@@ -280,7 +288,7 @@ CREATE POLICY "cv_delete"  ON challenge_validations FOR DELETE USING (
     SELECT 1 FROM etudiants
     WHERE email   = auth.jwt() ->> 'email'
     AND   site_id = challenge_validations.site_id
-    AND   is_admin = TRUE
+    AND   (is_admin = TRUE OR is_super_admin = TRUE)
   )
 );
 

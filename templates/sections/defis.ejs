@@ -5,27 +5,27 @@
   </div>
   <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
 
-  <!-- Admin bar (shown by JS if user is super_admin or admin) -->
+  <!-- Admin bar -->
   <div class="defis-admin-bar" id="defis-admin-bar" style="display:none;">
-    <button class="boutique-btn boutique-btn-add" id="btn-defis-add">➕ Nouveau défi</button>
-    <button class="boutique-btn boutique-btn-sync" id="btn-defis-sync">📢 Publier tout</button>
+    <button class="defis-btn-action defis-btn-add" id="btn-defis-add">➕ Ajouter</button>
+    <button class="defis-btn-action defis-btn-publish" id="btn-defis-sync">📢 Publier</button>
   </div>
 
-  <!-- Category filter tabs -->
+  <!-- Difficulty tabs -->
   <div class="defis-tabs" id="defis-tabs">
     <button class="defis-tab active" data-filter="all">Tous</button>
     <% const cats = (section.config.categories || []); %>
     <% cats.forEach(function(cat) { %>
-      <button class="defis-tab" data-filter="<%= cat.points %>" style="--tab-color: <%= cat.color %>"><%= cat.name %> (<%= cat.points %>)</button>
+      <button class="defis-tab" data-filter="<%= cat.points %>" data-color="<%= cat.color %>"><%= cat.name %> (<%= cat.points %> pts)</button>
     <% }); %>
   </div>
 
-  <!-- Challenges grid -->
+  <!-- Challenges container -->
   <div class="defis-grid" id="defis-grid">
-    <div class="classement-empty">Connectez-vous pour voir les défis</div>
+    <div class="defis-empty">Connectez-vous pour voir les défis</div>
   </div>
 
-  <!-- Add/Edit challenge modal -->
+  <!-- Add/Edit modal -->
   <div class="sf-modal-overlay" id="defis-modal-add" style="display:none;">
     <div class="sf-modal-card" style="max-width:500px;">
       <button class="member-modal-close" onclick="document.getElementById('defis-modal-add').style.display='none'">✕</button>
@@ -35,30 +35,41 @@
         <label>Titre</label>
         <input type="text" id="defis-obj-titre" placeholder="Ex: Prendre un selfie avec le prof...">
         <label>Description</label>
-        <textarea id="defis-obj-description" placeholder="Décris le défi en détail..." style="min-height:80px;"></textarea>
+        <textarea id="defis-obj-description" placeholder="Décris le défi en détail..." style="min-height:80px;resize:vertical;"></textarea>
         <label>Difficulté</label>
         <div class="defis-difficulty-btns" id="defis-difficulty-btns">
           <% cats.forEach(function(cat, i) { %>
-            <button class="defis-diff-btn<%= i === 0 ? ' active' : '' %>" data-points="<%= cat.points %>" style="--diff-color: <%= cat.color %>"><%= cat.name %> — <%= cat.points %> pts</button>
+            <button type="button" class="defis-diff-btn<%= i === 0 ? ' active' : '' %>" data-points="<%= cat.points %>" data-color="<%= cat.color %>"><%= cat.name %> — <%= cat.points %> pts</button>
           <% }); %>
         </div>
         <input type="hidden" id="defis-obj-points" value="<%= cats.length > 0 ? cats[0].points : 50 %>">
-        <button class="boutique-btn boutique-btn-confirm" id="btn-defis-confirm" style="width:100%;margin-top:15px;">Créer</button>
+        <button class="defis-btn-action defis-btn-add" id="btn-defis-confirm" style="width:100%;margin-top:15px;">Créer le défi</button>
       </div>
     </div>
   </div>
 
-  <!-- Validation modal (admin validates a user's attempt) -->
+  <!-- Validate modal -->
   <div class="sf-modal-overlay" id="defis-modal-validate" style="display:none;">
     <div class="sf-modal-card" style="max-width:450px;">
       <button class="member-modal-close" onclick="document.getElementById('defis-modal-validate').style.display='none'">✕</button>
       <h3 class="sf-modal-title">✅ Valider un défi</h3>
       <div class="sf-modal-form">
         <input type="hidden" id="defis-validate-id" value="">
+        <input type="hidden" id="defis-validate-points" value="">
         <label>Email de l'étudiant</label>
         <input type="text" id="defis-validate-email" placeholder="etudiant@ecole.fr">
-        <button class="boutique-btn boutique-btn-add" id="btn-defis-validate-confirm" style="width:100%;margin-top:12px;">Valider le défi</button>
+        <p class="defis-validate-info" id="defis-validate-info"></p>
+        <button class="defis-btn-action defis-btn-add" id="btn-defis-validate-confirm" style="width:100%;margin-top:12px;">✅ Valider et attribuer les points</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 3-dot menu modal -->
+  <div class="sf-modal-overlay" id="defis-modal-menu" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="sf-modal-card" style="max-width:320px;padding:0;">
+      <input type="hidden" id="defis-menu-id" value="">
+      <button class="defis-menu-option" id="defis-menu-terminate">🔒 Marquer comme terminé</button>
+      <button class="defis-menu-option defis-menu-danger" id="defis-menu-delete">🗑️ Supprimer</button>
     </div>
   </div>
 </section>
