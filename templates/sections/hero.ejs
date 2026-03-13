@@ -1,0 +1,10 @@
+<!-- Hero Section -->
+<section class="hero-section" <% if (section.config.backgroundImage) { %>style="background-image: url('<%= section.config.backgroundImage %>'); background-size: cover; background-position: center;"<% } %>>
+  <div class="hero-card">
+    <% if (section.config.showLogo && config.logo) { %>
+    <img src="<%= config.logo %>" alt="Logo" class="hero-logo">
+    <% } %>
+    <h1 data-sf-edit="<%= section.id %>.title"><%= section.config.title || config.projectName %></h1>
+    <p data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+  </div>
+</section>

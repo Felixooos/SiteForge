@@ -1,0 +1,16 @@
+<!-- Timeline Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Chronologie' %></h1>
+  </div>
+
+  <div class="timeline-container">
+    <% if (section.config.events) { section.config.events.forEach((event, eventIndex) => { %>
+    <div class="timeline-event">
+      <div class="timeline-date" data-sf-edit="<%= section.id %>.events.<%= eventIndex %>.date"><%= event.date || '' %></div>
+      <h3 data-sf-edit="<%= section.id %>.events.<%= eventIndex %>.title"><%= event.title %></h3>
+      <p data-sf-edit="<%= section.id %>.events.<%= eventIndex %>.description"><%= event.description || '' %></p>
+    </div>
+    <% }); } %>
+  </div>
+</section>

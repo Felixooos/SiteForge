@@ -1,0 +1,22 @@
+<!-- Gallery Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Galerie' %></h1>
+  </div>
+  <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+
+  <div class="gallery-grid <%= section.config.layout === 'masonry' ? 'layout-masonry' : '' %>">
+    <% if (section.config.images) { section.config.images.forEach((img, imgIdx) => { %>
+    <div class="gallery-item" data-hover-anim="<%= img.hoverAnim || 'zoom' %>" data-cont-anim="<%= img.contAnim || 'none' %>" style="--sf-ps:<%= (img.photoSize || 100) / 100 %>;--sf-hi:<%= img.hoverIntensity ?? 5 %>;--sf-ci:<%= img.contIntensity ?? 5 %>" <% if (img.countdown && img.countdown.mode !== 'none' && img.countdown.value) { %>data-cd-mode="<%= img.countdown.mode %>" data-cd-value="<%= img.countdown.value %>"<% } %>>
+      <img src="<%= img.url %>" alt="<%= img.caption || '' %>" loading="lazy" class="photo-img"<% if (img.blur) { %> style="filter:blur(<%= img.blur / 5 %>px)"<% } %>>
+      <% if (img.overlayText || (img.countdown && img.countdown.mode !== 'none' && img.countdown.value)) { %>
+      <div class="gallery-overlay gallery-overlay-<%= img.overlayPosition || 'center' %>">
+        <% if (img.overlayText) { %><span class="gallery-overlay-text"<% if (img.overlayFontSize) { %> style="font-size:<%= img.overlayFontSize %>px"<% } %>><%= img.overlayText %></span><% } %>
+        <% if (img.countdown && img.countdown.mode !== 'none' && img.countdown.value) { %><span class="gallery-countdown"></span><% } %>
+      </div>
+      <% } %>
+      <% if (img.caption) { %><div class="gallery-caption-bar"><%= img.caption %></div><% } %>
+    </div>
+    <% }); } %>
+  </div>
+</section>

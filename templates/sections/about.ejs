@@ -1,0 +1,16 @@
+<!-- About Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'À Propos' %></h1>
+  </div>
+  <div class="about-content <%= section.config.layout || 'text-left' %>">
+    <div class="about-text">
+      <p data-sf-edit="<%= section.id %>.description"><%= section.config.description || '' %></p>
+    </div>
+    <% if (section.config.image) { %>
+    <div class="about-image">
+      <img src="<%= section.config.image %>" alt="<%= section.config.title %>">
+    </div>
+    <% } %>
+  </div>
+</section>

@@ -1,0 +1,278 @@
+{
+  "projectName": "Mon Site",
+  "logo": "",
+  "favicon": "",
+  "colors": {
+    "primary": "#e74c3c",
+    "secondary": "#ff6b35",
+    "accent": "#F7931E",
+    "backgroundStart": "#D2042D",
+    "backgroundEnd": "#F7931E",
+    "text": "#333333",
+    "textLight": "#ffffff",
+    "cardBg": "#F5E6D3",
+    "cardBgEnd": "#E8D4BA"
+  },
+  "fonts": {
+    "heading": "Poppins",
+    "body": "Poppins"
+  },
+  "siteConfig": {
+    "enableAuthGate": false,
+    "supabaseUrl": "",
+    "supabaseAnonKey": "",
+    "currencyName": "points",
+    "allowedDomains": [],
+    "adminEmails": []
+  },
+  "navigation": {
+    "type": "burger",
+    "logoInNav": true,
+    "showFooter": true,
+    "footerText": "© 2026 Mon Site"
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "label": "Accueil",
+      "icon": "home",
+      "enabled": true,
+      "order": 0,
+      "config": {
+        "title": "MON SITE",
+        "subtitle": "Bienvenue sur notre site !",
+        "backgroundImage": "",
+        "showLogo": true
+      }
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "label": "À Propos",
+      "icon": "info",
+      "enabled": true,
+      "order": 1,
+      "config": {
+        "title": "À Propos",
+        "description": "Découvrez qui nous sommes et ce que nous faisons.",
+        "image": "",
+        "layout": "text-left"
+      }
+    },
+    {
+      "id": "team",
+      "type": "team",
+      "label": "Équipe",
+      "icon": "people",
+      "enabled": true,
+      "order": 2,
+      "config": {
+        "title": "Notre Équipe",
+        "subtitle": "Les personnes derrière le projet",
+        "groupPhoto": "",
+        "groupPhotoCaption": "",
+        "poles": [
+          {
+            "name": "Direction",
+            "title": "Le Bureau",
+            "description": "L'équipe de direction",
+            "image": "",
+            "members": [{"name": "Nom", "role": "Rôle", "photo": "", "description": "Description du membre"}]
+          }
+        ]
+      }
+    },
+    {
+      "id": "gallery",
+      "type": "gallery",
+      "label": "Galerie",
+      "icon": "photo",
+      "enabled": false,
+      "order": 3,
+      "config": {
+        "title": "Galerie",
+        "subtitle": "Nos meilleurs moments",
+        "layout": "grid",
+        "images": []
+      }
+    },
+    {
+      "id": "goodies",
+      "type": "goodies",
+      "label": "Goodies",
+      "icon": "shop",
+      "enabled": true,
+      "order": 4,
+      "config": {
+        "title": "Nos Goodies",
+        "subtitle": "Représente-nous avec style",
+        "items": [
+          {
+            "name": "Sticker",
+            "image": "",
+            "description": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "programme",
+      "type": "programme",
+      "label": "Programme",
+      "icon": "list",
+      "enabled": false,
+      "order": 5,
+      "config": {
+        "title": "Notre Programme",
+        "items": [
+          {
+            "title": "Section 1",
+            "summary": "Résumé...",
+            "details": ["Point 1", "Point 2"]
+          }
+        ]
+      }
+    },
+    {
+      "id": "videos",
+      "type": "videos",
+      "label": "Vidéos",
+      "icon": "video",
+      "enabled": false,
+      "order": 6,
+      "config": {
+        "title": "Nos Vidéos",
+        "subtitle": "Nos productions",
+        "videos": [
+          {
+            "title": "Vidéo 1",
+            "url": "",
+            "thumbnail": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "timeline",
+      "type": "timeline",
+      "label": "Chronologie",
+      "icon": "timeline",
+      "enabled": false,
+      "order": 7,
+      "config": {
+        "title": "Notre Histoire",
+        "events": [
+          {
+            "date": "2026",
+            "title": "Événement 1",
+            "description": "Description..."
+          }
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "label": "FAQ",
+      "icon": "help",
+      "enabled": false,
+      "order": 8,
+      "config": {
+        "title": "Questions Fréquentes",
+        "questions": [
+          {
+            "question": "Question 1 ?",
+            "answer": "Réponse..."
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "type": "contact",
+      "label": "Contact",
+      "icon": "mail",
+      "enabled": false,
+      "order": 9,
+      "config": {
+        "title": "Contactez-nous",
+        "email": "",
+        "phone": "",
+        "address": "",
+        "showForm": true,
+        "socialLinks": {
+          "instagram": "",
+          "twitter": "",
+          "facebook": "",
+          "linkedin": ""
+        }
+      }
+    },
+    {
+      "id": "classement",
+      "type": "classement",
+      "label": "Classement",
+      "icon": "trophy",
+      "enabled": false,
+      "order": 10,
+      "config": {
+        "title": "Classement"
+      }
+    },
+    {
+      "id": "boutique",
+      "type": "boutique",
+      "label": "Boutique",
+      "icon": "cart",
+      "enabled": false,
+      "order": 11,
+      "config": {
+        "title": "Boutique",
+        "subtitle": "Dépense tes points !"
+      }
+    },
+    {
+      "id": "profil",
+      "type": "profil",
+      "label": "Mon Profil",
+      "icon": "person",
+      "enabled": false,
+      "order": 12,
+      "config": {
+        "title": "Mon Profil"
+      }
+    },
+    {
+      "id": "footer",
+      "type": "footer",
+      "label": "Footer",
+      "icon": "footer",
+      "enabled": false,
+      "order": 99,
+      "config": {
+        "logo": "",
+        "copyright": "© 2026 Mon Site — Tous droits réservés",
+        "columns": [
+          {
+            "title": "À propos",
+            "type": "text",
+            "content": "Une courte description de votre projet ou association."
+          },
+          {
+            "title": "Liens utiles",
+            "type": "links",
+            "links": [
+              { "label": "Accueil", "url": "#" }
+            ]
+          },
+          {
+            "title": "Nos Sponsors",
+            "type": "sponsors",
+            "sponsors": []
+          }
+        ]
+      }
+    }
+  ]
+}

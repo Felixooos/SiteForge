@@ -1,0 +1,98 @@
+<!-- Profil / Moi Section -->
+<section class="section" id="section-<%= section.id %>">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Mon Profil' %></h1>
+  </div>
+
+  <!-- Login screen (shown when not authenticated) -->
+  <div class="profil-login-screen" id="profil-login-screen">
+    <div class="profil-login-card">
+      <h2>🔐 Connexion</h2>
+      <div class="profil-tabs">
+        <button class="profil-tab active" id="profil-tab-login">Se connecter</button>
+        <button class="profil-tab" id="profil-tab-register">S'inscrire</button>
+      </div>
+
+      <!-- Login form -->
+      <form class="profil-form" id="profil-form-login">
+        <input type="email" id="profil-login-email" placeholder="Ton email" required>
+        <input type="password" id="profil-login-code" placeholder="Ton code / mot de passe" required>
+        <button type="submit" class="profil-btn-primary">Se connecter</button>
+      </form>
+
+      <!-- Register form -->
+      <form class="profil-form" id="profil-form-register" style="display:none;">
+        <input type="email" id="profil-register-email" placeholder="Ton email étudiant" required>
+        <div id="profil-otp-section" style="display:none;">
+          <input type="text" id="profil-register-otp" placeholder="Code reçu par email (8 chiffres)" maxlength="8">
+        </div>
+        <button type="button" class="profil-btn-primary" id="profil-btn-register-action">Recevoir mon code</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile screen (shown when authenticated) -->
+  <div class="profil-main-screen" id="profil-main-screen" style="display:none;">
+    <!-- Profile card -->
+    <div class="profil-card">
+      <div class="profil-avatar-wrap" id="profil-avatar-wrap">
+        <div class="profil-avatar-placeholder" id="profil-avatar-placeholder">?</div>
+        <img class="profil-avatar-img" id="profil-avatar-img" style="display:none;">
+        <label class="profil-avatar-edit" title="Changer ma photo">
+          📷
+          <input type="file" accept="image/*" id="profil-avatar-input" style="display:none;">
+        </label>
+      </div>
+      <div class="profil-info">
+        <div class="profil-pseudo-wrap">
+          <h2 class="profil-pseudo" id="profil-pseudo">Mon Pseudo</h2>
+          <button class="profil-edit-btn" id="profil-edit-pseudo" title="Changer pseudo">✏️</button>
+        </div>
+        <p class="profil-email" id="profil-email">email@example.com</p>
+        <p class="profil-solde" id="profil-solde">0 <span class="currency-name-label"><%= (config.siteConfig && config.siteConfig.currencyName) || 'points' %></span></p>
+      </div>
+    </div>
+
+    <!-- Gains section -->
+    <div class="profil-section-accordion profil-section-gains">
+      <div class="profil-accordion-header" id="profil-header-gains">
+        <div class="profil-accordion-icon">💰</div>
+        <h3>Mes Gains</h3>
+        <span class="profil-accordion-arrow" id="profil-arrow-gains">▼</span>
+      </div>
+      <div class="profil-accordion-body" id="profil-body-gains">
+        <div class="profil-list-empty">Aucun gain pour le moment</div>
+      </div>
+    </div>
+
+    <!-- Achats section -->
+    <div class="profil-section-accordion profil-section-achats">
+      <div class="profil-accordion-header" id="profil-header-achats">
+        <div class="profil-accordion-icon">📦</div>
+        <h3>Mes Achats</h3>
+        <span class="profil-accordion-arrow" id="profil-arrow-achats">▼</span>
+      </div>
+      <div class="profil-accordion-body" id="profil-body-achats">
+        <div class="profil-list-empty">Aucun achat pour le moment</div>
+      </div>
+    </div>
+
+    <!-- Changer mot de passe -->
+    <div class="profil-section-accordion profil-section-pwd">
+      <div class="profil-accordion-header" id="profil-header-pwd">
+        <div class="profil-accordion-icon">🔑</div>
+        <h3>Changer mon mot de passe</h3>
+        <span class="profil-accordion-arrow" id="profil-arrow-pwd">▼</span>
+      </div>
+      <div class="profil-accordion-body" id="profil-body-pwd">
+        <div class="profil-change-pwd">
+          <input type="password" id="profil-new-pwd" placeholder="Nouveau mot de passe (6 caractères min)" minlength="6">
+          <button type="button" class="profil-btn-primary" id="profil-btn-change-pwd">Mettre à jour</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <button class="profil-btn-logout" id="profil-btn-logout">Se déconnecter</button>
+  </div>
+</section>

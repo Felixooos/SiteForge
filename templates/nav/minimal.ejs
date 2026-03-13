@@ -1,0 +1,17 @@
+<!-- Minimal Navigation (centered dots + logo) -->
+<nav class="nav-minimal">
+  <div class="nav-minimal-center">
+    <% if (config.logo && config.navigation.logoInNav) { %>
+    <img class="nav-minimal-logo" src="<%= config.logo %>" alt="Logo">
+    <% } else { %>
+    <span class="nav-minimal-title"><%= config.projectName %></span>
+    <% } %>
+  </div>
+  <div class="nav-minimal-dots">
+    <% for (const s of sections) { %>
+    <a href="#section-<%= s.id %>" class="nav-minimal-dot" title="<%= s.label %>">
+      <span class="nav-minimal-label"><%= s.label %></span>
+    </a>
+    <% } %>
+  </div>
+</nav>

@@ -1,0 +1,67 @@
+<!-- Boutique Section -->
+<section class="section" id="section-<%= section.id %>">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Boutique' %></h1>
+  </div>
+  <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+
+  <!-- Admin buttons (shown by JS if user is boutique manager) -->
+  <div class="boutique-admin-bar" id="boutique-admin-bar" style="display:none;">
+    <button class="boutique-btn boutique-btn-add" id="btn-boutique-add">➕ Ajouter un objet</button>
+    <button class="boutique-btn boutique-btn-sync" id="btn-boutique-sync">📢 Actualiser</button>
+  </div>
+
+  <!-- Products grid -->
+  <div class="boutique-grid" id="boutique-grid">
+    <div class="classement-empty">Connectez-vous pour voir la boutique</div>
+  </div>
+
+  <!-- Add/Edit product modal -->
+  <div class="sf-modal-overlay" id="boutique-modal-add" style="display:none;">
+    <div class="sf-modal-card" style="max-width:500px;">
+      <button class="member-modal-close" onclick="document.getElementById('boutique-modal-add').style.display='none'">✕</button>
+      <h3 class="sf-modal-title" id="boutique-modal-title">➕ Ajouter un Objet</h3>
+      <div class="sf-modal-form">
+        <input type="hidden" id="boutique-edit-id" value="">
+        <label>Nom de l'objet</label>
+        <input type="text" id="boutique-obj-nom" placeholder="Ex: T-Shirt, Sticker...">
+        <label>Prix (<span class="currency-name-label"><%= (config.siteConfig && config.siteConfig.currencyName) || 'points' %></span>)</label>
+        <input type="number" id="boutique-obj-prix" placeholder="100" min="0">
+        <label>Quantité</label>
+        <input type="number" id="boutique-obj-quantite" placeholder="10" min="0" value="1">
+        <label>Taille d'affichage</label>
+        <div class="boutique-size-btns">
+          <button class="boutique-size-btn active" data-size="petit">Petit</button>
+          <button class="boutique-size-btn" data-size="moyen">Moyen</button>
+          <button class="boutique-size-btn" data-size="grand">Grand</button>
+        </div>
+        <input type="hidden" id="boutique-obj-taille" value="petit">
+        <label>Image (URL ou upload)</label>
+        <input type="text" id="boutique-obj-image" placeholder="URL de l'image...">
+        <div class="boutique-upload-zone" id="boutique-upload-zone">
+          <span>📷 Glisser ou cliquer pour une photo</span>
+          <input type="file" accept="image/*" id="boutique-obj-photo" style="display:none;">
+        </div>
+        <div id="boutique-preview" style="display:none;"><img id="boutique-preview-img" style="max-width:100%;border-radius:10px;margin-top:10px;"></div>
+        <div style="display:flex;gap:10px;margin-top:15px;">
+          <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="boutique-obj-tombola"> 🎰 Mode Tombola</label>
+          <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="boutique-obj-gratuit" disabled> 🎁 Gratuit</label>
+        </div>
+        <button class="boutique-btn boutique-btn-confirm" id="btn-boutique-confirm" style="width:100%;margin-top:15px;">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase confirmation modal -->
+  <div class="sf-modal-overlay" id="boutique-modal-confirm" style="display:none;">
+    <div class="sf-modal-card" style="max-width:400px;text-align:center;">
+      <button class="member-modal-close" onclick="document.getElementById('boutique-modal-confirm').style.display='none'">✕</button>
+      <h3 class="sf-modal-title">Confirmer l'achat</h3>
+      <p id="boutique-confirm-text" style="margin:15px 0;"></p>
+      <div style="display:flex;gap:10px;">
+        <button class="boutique-btn" style="flex:1;background:#ddd;color:#333;" onclick="document.getElementById('boutique-modal-confirm').style.display='none'">Annuler</button>
+        <button class="boutique-btn boutique-btn-add" style="flex:1;" id="btn-boutique-buy-confirm">Acheter</button>
+      </div>
+    </div>
+  </div>
+</section>

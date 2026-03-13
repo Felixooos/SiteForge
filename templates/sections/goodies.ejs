@@ -1,0 +1,29 @@
+<!-- Goodies Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Nos Goodies' %></h1>
+  </div>
+  <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+
+  <div class="goodies-grid">
+    <% if (section.config.items) { section.config.items.forEach((item, itemIndex) => { %>
+    <div class="goodie-card" <% if (item.countdown && item.countdown.mode !== 'none' && item.countdown.value) { %>data-cd-mode="<%= item.countdown.mode %>" data-cd-value="<%= item.countdown.value %>"<% } %>>
+      <% if (item.image) { %>
+      <div class="goodie-img-wrap" data-hover-anim="<%= item.hoverAnim || 'wobble' %>" data-cont-anim="<%= item.contAnim || 'none' %>" style="--sf-ps:<%= (item.photoSize || 100) / 100 %>;--sf-hi:<%= item.hoverIntensity ?? 5 %>;--sf-ci:<%= item.contIntensity ?? 5 %>">
+        <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy" class="photo-img"<% if (item.blur) { %> style="filter:blur(<%= item.blur / 5 %>px)"<% } %>>
+        <% if (item.overlayText || (item.countdown && item.countdown.mode !== 'none' && item.countdown.value)) { %>
+        <div class="gallery-overlay gallery-overlay-<%= item.overlayPosition || 'center' %>">
+          <% if (item.overlayText) { %><span class="gallery-overlay-text"<% if (item.overlayFontSize) { %> style="font-size:<%= item.overlayFontSize %>px"<% } %>><%= item.overlayText %></span><% } %>
+          <% if (item.countdown && item.countdown.mode !== 'none' && item.countdown.value) { %><span class="gallery-countdown"></span><% } %>
+        </div>
+        <% } %>
+      </div>
+      <% } else { %>
+      <div class="goodie-placeholder">🛍️</div>
+      <% } %>
+      <h3 data-sf-edit="<%= section.id %>.items.<%= itemIndex %>.name"><%= item.name %></h3>
+      <p data-sf-edit="<%= section.id %>.items.<%= itemIndex %>.description"><%= item.description || '' %></p>
+    </div>
+    <% }); } %>
+  </div>
+</section>

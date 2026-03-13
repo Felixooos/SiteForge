@@ -1,0 +1,342 @@
+{
+  "projectName": "pipi",
+  "logo": "/uploads/caca/1773070862766-335.png",
+  "favicon": "",
+  "colors": {
+    "primary": "#405ce7",
+    "secondary": "#fcff33",
+    "accent": "#f7931e",
+    "backgroundStart": "#1280c4",
+    "backgroundEnd": "#dedede",
+    "text": "#db3d3d",
+    "textLight": "#ffffff",
+    "cardBg": "#f5e6d3",
+    "cardBgEnd": "#e8d4ba"
+  },
+  "fonts": {
+    "heading": "Oswald",
+    "body": "Poppins"
+  },
+  "navigation": {
+    "type": "burger",
+    "logoInNav": true,
+    "showFooter": true,
+    "footerText": "© 2026 Mon Site"
+  },
+  "sections": [
+    {
+      "id": "classement",
+      "type": "classement",
+      "label": "Classement",
+      "icon": "trophy",
+      "enabled": true,
+      "order": 0,
+      "config": {
+        "title": "Classement"
+      }
+    },
+    {
+      "id": "hero",
+      "type": "hero",
+      "label": "Accueil",
+      "icon": "home",
+      "enabled": true,
+      "order": 1,
+      "config": {
+        "title": "pipi",
+        "subtitle": "Bienvenue chez les pipi !",
+        "backgroundImage": "",
+        "showLogo": true,
+        "effects": {
+          "titleStyle": "glow",
+          "entrance": "none",
+          "continuous": "none",
+          "background": "none"
+        }
+      }
+    },
+    {
+      "id": "team",
+      "type": "team",
+      "label": "Équipe",
+      "icon": "people",
+      "enabled": true,
+      "order": 2,
+      "config": {
+        "title": "Notre Équipe",
+        "subtitle": "La fine equipe",
+        "groupPhoto": "",
+        "groupPhotoCaption": "",
+        "poles": [
+          {
+            "name": "Direction",
+            "title": "Le Bureau",
+            "description": "L'équipe de direction",
+            "image": "/uploads/caca/1773070979909-109.jpg",
+            "members": [
+              {
+                "name": "Caca ",
+                "role": "boulanger",
+                "photo": "/uploads/caca/1773070932949-87.png",
+                "description": "il mange son caca"
+              },
+              {
+                "name": "zizi",
+                "role": "facteur",
+                "photo": "",
+                "description": "il mange du pipi"
+              }
+            ]
+          },
+          {
+            "name": "Paul",
+            "title": "Petit pole",
+            "description": "il est neuillesque ",
+            "image": "/uploads/caca/1773070974641-964.png",
+            "members": [
+              {
+                "name": "féfz",
+                "role": "fzefezfeg",
+                "photo": "/uploads/caca/1773070991686-480.png",
+                "description": "fgzegrz'gretgdge"
+              }
+            ]
+          }
+        ],
+        "effects": {
+          "titleStyle": "normal",
+          "cardHover": "scale",
+          "cardHoverIntensity": 16
+        }
+      }
+    },
+    {
+      "id": "gallery",
+      "type": "gallery",
+      "label": "Galerie",
+      "icon": "photo",
+      "enabled": false,
+      "order": 3,
+      "config": {
+        "title": "Galerie",
+        "subtitle": "Nos meilleurs moments",
+        "layout": "grid",
+        "images": []
+      }
+    },
+    {
+      "id": "goodies",
+      "type": "goodies",
+      "label": "Goodies",
+      "icon": "shop",
+      "enabled": true,
+      "order": 4,
+      "config": {
+        "title": "Nos Goodies",
+        "subtitle": "Représente-nous avec style",
+        "items": [
+          {
+            "name": "sticker",
+            "image": "/uploads/caca/1773303553140-708.png",
+            "description": "",
+            "blur": 66,
+            "overlayText": "caca",
+            "overlayPosition": "center",
+            "countdown": {
+              "mode": "date",
+              "value": "2026-10-08T15:00"
+            },
+            "hoverAnim": "none",
+            "photoSize": 91,
+            "contAnim": "wobble",
+            "contIntensity": 10,
+            "hoverIntensity": 9
+          }
+        ],
+        "effects": {
+          "cardHover": "none",
+          "continuous": "pulse",
+          "continuousIntensity": 0
+        }
+      }
+    },
+    {
+      "id": "programme",
+      "type": "programme",
+      "label": "Programme",
+      "icon": "list",
+      "enabled": false,
+      "order": 5,
+      "config": {
+        "title": "Notre Programme",
+        "items": [
+          {
+            "title": "Section 1",
+            "summary": "Résumé...",
+            "details": [
+              "Point 1",
+              "Point 2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "videos",
+      "type": "videos",
+      "label": "Vidéos",
+      "icon": "video",
+      "enabled": true,
+      "order": 6,
+      "config": {
+        "title": "Nos Vidéos",
+        "subtitle": "Nos productions",
+        "videos": [
+          {
+            "title": "Vidéo 1",
+            "url": "",
+            "thumbnail": ""
+          }
+        ],
+        "effects": {}
+      }
+    },
+    {
+      "id": "timeline",
+      "type": "timeline",
+      "label": "Chronologie",
+      "icon": "timeline",
+      "enabled": true,
+      "order": 7,
+      "config": {
+        "title": "Notre Histoire",
+        "events": [
+          {
+            "date": "2026",
+            "title": "Événement 1",
+            "description": "Description..."
+          }
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "label": "FAQ",
+      "icon": "help",
+      "enabled": false,
+      "order": 8,
+      "config": {
+        "title": "Questions Fréquentes",
+        "questions": [
+          {
+            "question": "Question 1 ?",
+            "answer": "Réponse..."
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "type": "contact",
+      "label": "Contact",
+      "icon": "mail",
+      "enabled": false,
+      "order": 9,
+      "config": {
+        "title": "Contactez-nous",
+        "email": "",
+        "phone": "",
+        "address": "",
+        "showForm": true,
+        "socialLinks": {
+          "instagram": "",
+          "twitter": "",
+          "facebook": "",
+          "linkedin": ""
+        }
+      }
+    },
+    {
+      "id": "about",
+      "type": "about",
+      "label": "À Propos",
+      "icon": "info",
+      "enabled": true,
+      "order": 10,
+      "config": {
+        "title": "À Propos",
+        "description": "Découvrez qui nous sommes et ce que nous faisons.",
+        "image": "",
+        "layout": "text-left"
+      }
+    },
+    {
+      "id": "boutique",
+      "type": "boutique",
+      "label": "Boutique",
+      "icon": "cart",
+      "enabled": true,
+      "order": 11,
+      "config": {
+        "title": "Boutique",
+        "subtitle": "Dépense tes points !"
+      }
+    },
+    {
+      "id": "profil",
+      "type": "profil",
+      "label": "Mon Profil",
+      "icon": "person",
+      "enabled": true,
+      "order": 12,
+      "config": {
+        "title": "Mon Profil"
+      }
+    },
+    {
+      "id": "footer",
+      "type": "footer",
+      "label": "Footer",
+      "icon": "footer",
+      "enabled": false,
+      "order": 13,
+      "config": {
+        "logo": "",
+        "copyright": "© 2026 Mon Site — Tous droits réservés",
+        "columns": [
+          {
+            "title": "À propos",
+            "type": "text",
+            "content": "Une courte description de votre projet ou association."
+          },
+          {
+            "title": "Liens utiles",
+            "type": "links",
+            "links": [
+              {
+                "label": "Accueil",
+                "url": "#"
+              }
+            ]
+          },
+          {
+            "title": "Nos Sponsors",
+            "type": "sponsors",
+            "sponsors": []
+          }
+        ]
+      }
+    }
+  ],
+  "siteConfig": {
+    "currencyName": "points",
+    "allowedDomains": [
+      "@iteem.centralelille.fr"
+    ],
+    "adminEmails": [],
+    "enableAuthGate": true,
+    "supabaseUrl": "",
+    "supabaseAnonKey": ""
+  }
+}

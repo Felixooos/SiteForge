@@ -1,0 +1,11 @@
+<!-- Floating Pill Navigation -->
+<nav class="nav-floating-pill">
+  <% if (config.logo && config.navigation.logoInNav) { %>
+  <img class="nav-floating-logo" src="<%= config.logo %>" alt="Logo">
+  <% } %>
+  <div class="nav-floating-links">
+    <% for (const s of sections) { %>
+    <a href="#section-<%= s.id %>"><%= s.label %></a>
+    <% } %>
+  </div>
+</nav>

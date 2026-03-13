@@ -1,0 +1,27 @@
+<!-- Programme Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Programme' %></h1>
+  </div>
+
+  <div class="programme-list">
+    <% if (section.config.items) { section.config.items.forEach((item, itemIndex) => { %>
+    <div class="programme-item">
+      <div class="programme-header">
+        <h3 data-sf-edit="<%= section.id %>.items.<%= itemIndex %>.title"><%= item.title %></h3>
+        <span class="programme-arrow">▼</span>
+      </div>
+      <% if (item.summary) { %>
+      <div class="programme-summary"><p data-sf-edit="<%= section.id %>.items.<%= itemIndex %>.summary"><%= item.summary %></p></div>
+      <% } %>
+      <div class="programme-detail">
+        <ul>
+          <% if (item.details) { item.details.forEach(detail => { %>
+          <li><%= detail %></li>
+          <% }); } %>
+        </ul>
+      </div>
+    </div>
+    <% }); } %>
+  </div>
+</section>

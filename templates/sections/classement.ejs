@@ -1,0 +1,25 @@
+<!-- Classement / Leaderboard Section -->
+<section class="section" id="section-<%= section.id %>">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Classement' %></h1>
+  </div>
+
+  <!-- User profile card (filled by JS) -->
+  <div class="classement-user-card" id="classement-user-card" style="display:none;">
+    <div class="classement-user-inner">
+      <p class="classement-user-rank" id="classement-user-rank"></p>
+      <p class="classement-user-name" id="classement-user-name"></p>
+      <p class="classement-user-solde" id="classement-user-solde"></p>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="classement-search-wrap">
+    <input type="text" id="classement-search" class="classement-search" placeholder="🔍 Chercher un utilisateur...">
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="classement-list" id="classement-list">
+    <div class="classement-empty">Connectez-vous pour voir le classement</div>
+  </div>
+</section>

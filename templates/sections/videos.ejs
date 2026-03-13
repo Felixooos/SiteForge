@@ -1,0 +1,43 @@
+<!-- Videos Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Nos Vidéos' %></h1>
+  </div>
+  <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+
+  <div class="videos-grid">
+    <% if (section.config.videos) { section.config.videos.forEach((video, videoIndex) => { %>
+    <%
+      let embedUrl = video.url || '';
+      const ytMatch = embedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+      if (ytMatch) embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+      const vmMatch = embedUrl.match(/vimeo\.com\/(\d+)/);
+      if (vmMatch) embedUrl = 'https://player.vimeo.com/video/' + vmMatch[1];
+      const ytId = ytMatch ? ytMatch[1] : null;
+      const autoThumb = ytId ? ('https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg') : '';
+      const thumbSrc = video.thumbnail || autoThumb;
+      const hasCd = video.countdown && video.countdown.mode !== 'none' && video.countdown.value;
+    %>
+    <div class="video-card" <% if (hasCd) { %>data-cd-mode="<%= video.countdown.mode %>" data-cd-value="<%= video.countdown.value %>"<% } %>>
+      <div class="video-thumb-wrap" data-hover-anim="<%= video.hoverAnim || 'zoom' %>" data-cont-anim="<%= video.contAnim || 'none' %>" data-embed-url="<%= embedUrl %>" style="--sf-ps:<%= (video.photoSize || 100) / 100 %>;--sf-hi:<%= video.hoverIntensity ?? 5 %>;--sf-ci:<%= video.contIntensity ?? 5 %>">
+        <% if (thumbSrc) { %>
+        <img src="<%= thumbSrc %>" alt="<%= video.title || '' %>" loading="lazy" class="photo-img"<% if (video.blur) { %> style="filter:blur(<%= video.blur / 5 %>px)"<% } %>>
+        <% } else { %>
+        <div class="video-no-thumb">🎬</div>
+        <% } %>
+        <% if (video.overlayText || hasCd) { %>
+        <div class="gallery-overlay gallery-overlay-<%= video.overlayPosition || 'center' %>">
+          <% if (video.overlayText) { %><span class="gallery-overlay-text"<% if (video.overlayFontSize) { %> style="font-size:<%= video.overlayFontSize %>px"<% } %>><%= video.overlayText %></span><% } %>
+          <% if (hasCd) { %><span class="gallery-countdown"></span><% } %>
+        </div>
+        <% } %>
+        <% if (embedUrl) { %>
+        <button class="video-play-btn" aria-label="Lire">&#9654;</button>
+        <iframe class="video-embed-frame" src="" data-src="<%= embedUrl %>" allowfullscreen allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" style="display:none;"></iframe>
+        <% } %>
+      </div>
+      <h3 data-sf-edit="<%= section.id %>.videos.<%= videoIndex %>.title"><%= video.title || '' %></h3>
+    </div>
+    <% }); } %>
+  </div>
+</section>

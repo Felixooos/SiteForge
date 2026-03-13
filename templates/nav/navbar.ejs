@@ -1,0 +1,12 @@
+<!-- Navbar Navigation -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <% if (config.logo && config.navigation.logoInNav) { %><img src="<%= config.logo %>" alt="Logo"><% } %>
+    <h3><%= config.projectName %></h3>
+  </div>
+  <div class="navbar-links">
+    <% for (const s of sections) { %>
+    <a href="#section-<%= s.id %>"><%= s.label %></a>
+    <% } %>
+  </div>
+</nav>

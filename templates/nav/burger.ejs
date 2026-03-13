@@ -1,0 +1,39 @@
+<!-- Burger Menu Navigation -->
+<button class="nav-burger-btn" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<div class="sidebar">
+  <% if (config.navigation.logoInNav) { %>
+  <div class="sidebar-logo">
+    <% if (config.logo) { %><img src="<%= config.logo %>" alt="Logo"><% } %>
+    <h3><%= config.projectName %></h3>
+  </div>
+  <% } %>
+  <nav class="sidebar-nav">
+    <% for (const s of sections) { %>
+    <a href="#section-<%= s.id %>">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+        <% if (s.icon === 'home') { %><path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+        <% } else if (s.icon === 'info') { %><path d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+        <% } else if (s.icon === 'people') { %><path d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"/>
+        <% } else if (s.icon === 'photo') { %><path d="M21,3H3C2,3 1,4 1,5V19A2,2 0 0,0 3,21H21C22,21 23,20 23,19V5C23,4 22,3 21,3M5,17L8.5,12.5L11,15.5L14.5,11L19,17H5Z"/>
+        <% } else if (s.icon === 'shop') { %><path d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z"/>
+        <% } else if (s.icon === 'list') { %><path d="M3,4H21V8H3V4M3,10H21V14H3V10M3,16H21V20H3V16Z"/>
+        <% } else if (s.icon === 'video') { %><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z"/>
+        <% } else if (s.icon === 'timeline') { %><path d="M9,10V12H7V10H9M13,10V12H11V10H13M17,10V12H15V10H17M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H6V1H8V3H16V1H18V3H19M19,19V8H5V19H19Z"/>
+        <% } else if (s.icon === 'help') { %><path d="M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+        <% } else if (s.icon === 'mail') { %><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
+        <% } else { %><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2Z"/>
+        <% } %>
+      </svg>
+      <%= s.label %>
+    </a>
+    <% } %>
+  </nav>
+  <% if (config.navigation.showFooter) { %>
+  <div class="sidebar-footer"><%= config.navigation.footerText || '© ' + new Date().getFullYear() + ' ' + config.projectName %></div>
+  <% } %>
+</div>
+
+<div class="sidebar-overlay"></div>

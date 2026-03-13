@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiteForge — Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <!-- ==================== PAGE ACCUEIL (PROJETS) ==================== -->
+  <div id="page-home" class="page active">
+    <header class="home-header">
+      <div class="header-content">
+        <div class="logo-area">
+          <div class="logo-icon">🔥</div>
+          <div>
+            <h1>SiteForge</h1>
+            <p class="tagline">Hébergement local — Configure, publie, c'est en ligne.</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="home-main">
+      <div class="projects-header">
+        <h2>Mes Projets</h2>
+        <button id="btn-new-project" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Nouveau Projet
+        </button>
+      </div>
+
+      <div id="projects-grid" class="projects-grid">
+        <!-- Filled by JS -->
+      </div>
+
+      <div id="no-projects" class="empty-state" style="display:none;">
+        <div class="empty-icon">📁</div>
+        <h3>Aucun projet</h3>
+        <p>Crée ton premier site en cliquant sur "Nouveau Projet"</p>
+      </div>
+    </main>
+
+    <!-- Modal nouveau projet -->
+    <div id="modal-new-project" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-box">
+        <h3>Nouveau Projet</h3>
+        <p>Donne un nom à ton site</p>
+        <input type="text" id="input-project-name" placeholder="Ex: Wild Ember, Mon Asso, Festival 2026..." autofocus>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+          <button class="btn btn-primary" id="btn-create-project">Créer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE ÉDITEUR ==================== -->
+  <div id="page-editor" class="page">
+    <div class="editor-layout">
+      <!-- Sidebar config -->
+      <aside class="editor-sidebar">
+        <div class="editor-sidebar-header">
+          <button id="btn-back-home" class="btn-icon" title="Retour aux projets">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <h2 id="editor-project-name">Mon Projet</h2>
+          <button id="btn-global-settings" class="btn btn-sm btn-ghost" title="Paramètres globaux (Supabase)">⚙️ Global</button>
+          <button id="btn-save" class="btn btn-sm btn-primary" title="Sauvegarder">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            Sauver
+          </button>
+        </div>
+
+        <!-- Tabs config -->
+        <div class="config-tabs">
+          <button class="config-tab active" data-tab="general">Général</button>
+          <button class="config-tab" data-tab="colors">Couleurs</button>
+          <button class="config-tab" data-tab="sections">Sections</button>
+          <button class="config-tab" data-tab="navigation">Navigation</button>
+          <button class="config-tab" data-tab="siteconfig">⚙️ Config</button>
+        </div>
+
+        <!-- Tab Content: Général -->
+        <div class="config-panel active" id="panel-general">
+          <div class="config-group">
+            <label>Nom du site</label>
+            <input type="text" id="cfg-project-name" class="cfg-input" data-path="projectName">
+          </div>
+          <div class="config-group">
+            <label>Logo</label>
+            <div class="upload-zone" id="upload-logo" data-path="logo">
+              <div class="upload-preview" id="preview-logo"></div>
+              <span>Cliquer ou déposer une image</span>
+              <input type="file" accept="image/*" class="upload-input">
+            </div>
+          </div>
+          <div class="config-group">
+            <label>Police des titres</label>
+            <select id="cfg-font-heading" class="cfg-input" data-path="fonts.heading">
+              <option value="Poppins">Poppins</option>
+              <option value="Inter">Inter</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Oswald">Oswald</option>
+              <option value="Raleway">Raleway</option>
+              <option value="Roboto">Roboto</option>
+              <option value="Lato">Lato</option>
+              <option value="Open Sans">Open Sans</option>
+              <option value="Nunito">Nunito</option>
+            </select>
+          </div>
+          <div class="config-group">
+            <label>Police du texte</label>
+            <select id="cfg-font-body" class="cfg-input" data-path="fonts.body">
+              <option value="Poppins">Poppins</option>
+              <option value="Inter">Inter</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Roboto">Roboto</option>
+              <option value="Lato">Lato</option>
+              <option value="Open Sans">Open Sans</option>
+              <option value="Nunito">Nunito</option>
+              <option value="Source Sans 3">Source Sans 3</option>
+            </select>
+          </div>
+          <div class="config-group">
+            <label>Texte du footer</label>
+            <input type="text" id="cfg-footer-text" class="cfg-input" data-path="navigation.footerText" placeholder="© 2026 Mon Site">
+          </div>
+        </div>
+
+        <!-- Tab Content: Couleurs -->
+        <div class="config-panel" id="panel-colors">
+          <div class="color-grid">
+            <div class="config-group color-group">
+              <label>Primaire</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-primary" class="cfg-color" data-path="colors.primary" value="#e74c3c">
+                <span class="color-hex">#e74c3c</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Secondaire</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-secondary" class="cfg-color" data-path="colors.secondary" value="#ff6b35">
+                <span class="color-hex">#ff6b35</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Accent</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-accent" class="cfg-color" data-path="colors.accent" value="#F7931E">
+                <span class="color-hex">#F7931E</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Fond (début)</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-bg-start" class="cfg-color" data-path="colors.backgroundStart" value="#D2042D">
+                <span class="color-hex">#D2042D</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Fond (fin)</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-bg-end" class="cfg-color" data-path="colors.backgroundEnd" value="#F7931E">
+                <span class="color-hex">#F7931E</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Texte</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-text" class="cfg-color" data-path="colors.text" value="#333333">
+                <span class="color-hex">#333333</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Texte clair</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-text-light" class="cfg-color" data-path="colors.textLight" value="#ffffff">
+                <span class="color-hex">#ffffff</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Carte (début)</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-card" class="cfg-color" data-path="colors.cardBg" value="#F5E6D3">
+                <span class="color-hex">#F5E6D3</span>
+              </div>
+            </div>
+            <div class="config-group color-group">
+              <label>Carte (fin)</label>
+              <div class="color-pick">
+                <input type="color" id="cfg-color-card-end" class="cfg-color" data-path="colors.cardBgEnd" value="#E8D4BA">
+                <span class="color-hex">#E8D4BA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Content: Sections -->
+        <div class="config-panel" id="panel-sections">
+          <p class="panel-hint">Active/désactive les sections et réorganise-les par glisser-déposer. Clique sur une section pour la configurer.</p>
+          <div id="sections-list" class="sections-list">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <!-- Tab Content: Navigation -->
+        <div class="config-panel" id="panel-navigation">
+          <div class="config-group">
+            <label>Type de navigation</label>
+            <div class="nav-type-selector">
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="burger" checked>
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                  <span>Menu Burger</span>
+                  <small>Sidebar qui s'ouvre au clic</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="navbar">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M3 3h18v2H3V3zm0 8h18v2H3v-2zm0 8h18v2H3v-2z"/></svg>
+                  <span>Barre de Nav</span>
+                  <small>Barre fixe horizontale en haut</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="tabs">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h5v3H5v-3zm6 0h5v3h-5v-3z"/></svg>
+                  <span>Onglets Bas</span>
+                  <small>Barre d'onglets fixe en bas (style app mobile)</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="floating">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                  <span>Pilule Flottante</span>
+                  <small>Barre arrondie flottante en haut (style moderne)</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="minimal">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                  <span>Minimal Dots</span>
+                  <small>Logo centré + points de navigation discrets</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="fullscreen">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                  <span>Plein Écran</span>
+                  <small>Menu overlay plein écran avec animations</small>
+                </div>
+              </label>
+              <label class="nav-type-option">
+                <input type="radio" name="nav-type" value="none">
+                <div class="nav-type-card">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9A7.902 7.902 0 0 1 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1A7.902 7.902 0 0 1 20 12c0 4.42-3.58 8-8 8z"/></svg>
+                  <span>Aucune</span>
+                  <small>Scroll continu sans menu</small>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="config-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="cfg-nav-logo" checked>
+              Afficher le logo dans la navigation
+            </label>
+          </div>
+          <div class="config-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="cfg-nav-footer" checked>
+              Afficher le footer
+            </label>
+          </div>
+        </div>
+
+        <!-- Section Editor (hidden by default, shown when editing a specific section) -->
+        <div class="config-panel" id="panel-section-editor" style="display:none;">
+          <button class="btn btn-ghost btn-sm" id="btn-back-sections">← Retour aux sections</button>
+          <h3 id="section-editor-title" style="margin: 15px 0;">Éditer section</h3>
+          <div id="section-editor-fields">
+            <!-- Dynamically filled based on section type -->
+          </div>
+        </div>
+
+        <!-- Tab Content: Config Site -->
+        <div class="config-panel" id="panel-siteconfig">
+          <p class="panel-hint">Configuration Supabase et règles du site. Ces paramètres sont nécessaires pour les sections Classement, Boutique et Profil.</p>
+          <div class="config-group">
+            <label style="display:flex;align-items:center;gap:10px;">
+              <input type="checkbox" id="cfg-enable-auth-gate" style="width:18px;height:18px;cursor:pointer;">
+              Activer la page de connexion (gate)
+            </label>
+            <p class="panel-hint" style="margin-top:4px;">Si activé, les visiteurs verront d'abord une page de connexion. Nécessite Supabase pour fonctionner.</p>
+          </div>
+          <div class="config-group" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px;">
+            <p style="margin:0 0 6px;font-size:0.85rem;opacity:0.7;">🌐 Les identifiants Supabase sont <strong>globaux</strong> pour tous les sites. Configure-les dans <strong>Paramètres Globaux</strong> (bouton en haut du panneau).</p>
+          </div>
+          <div class="config-group">
+            <label>Nom de la monnaie</label>
+            <input type="text" id="cfg-currency" class="cfg-input" placeholder="points" value="points">
+          </div>
+          <div class="config-group">
+            <label>Domaines email autorisés <small>(séparés par des virgules)</small></label>
+            <input type="text" id="cfg-allowed-domains" class="cfg-input" placeholder="@ecole.fr, @univ.fr">
+          </div>
+          <div class="config-group">
+            <label>Emails admin <small>(séparés par des virgules)</small></label>
+            <input type="text" id="cfg-admin-emails" class="cfg-input" placeholder="admin@ecole.fr, moderateur@ecole.fr">
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Preview area -->
+      <div class="editor-preview">
+        <div class="preview-toolbar">
+          <div class="preview-device-buttons">
+            <button class="device-btn active" data-device="desktop" title="Desktop">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/></svg>
+            </button>
+            <button class="device-btn" data-device="tablet" title="Tablette">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.5 0h-14A2.5 2.5 0 0 0 2 2.5v19A2.5 2.5 0 0 0 4.5 24h14a2.5 2.5 0 0 0 2.5-2.5v-19A2.5 2.5 0 0 0 18.5 0zm-7 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7.5-4H4V3h15v16z"/></svg>
+            </button>
+            <button class="device-btn" data-device="mobile" title="Mobile">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M15.5 1h-8A2.5 2.5 0 0 0 5 3.5v17A2.5 2.5 0 0 0 7.5 23h8a2.5 2.5 0 0 0 2.5-2.5v-17A2.5 2.5 0 0 0 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z"/></svg>
+            </button>
+          </div>
+          <div class="preview-actions">
+            <button id="btn-refresh-preview" class="btn btn-sm btn-ghost" title="Rafraîchir">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              Rafraîchir
+            </button>
+            <button id="btn-publish" class="btn btn-sm btn-primary" title="Publier les modifications">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z"/></svg>
+              Publier
+            </button>
+            <button id="btn-deploy" class="btn btn-sm btn-deploy" title="Déployer en ligne sur Supabase">
+              🚀 Mettre en ligne
+            </button>
+            <button id="btn-view-live" class="btn btn-sm btn-ghost" title="Voir le site local">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+              🌐 Local
+            </button>
+          </div>
+        </div>
+        <div id="deploy-bar" class="deploy-bar hidden">
+          <span id="deploy-url-text"></span>
+          <a id="deploy-url-link" href="#" target="_blank" class="btn btn-sm btn-deploy">Ouvrir ↗</a>
+        </div>
+        <div class="preview-frame-wrapper" id="preview-wrapper">
+          <iframe id="preview-iframe" src="about:blank"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Global Settings Modal -->
+  <div id="modal-global-settings" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:#1e2130;border-radius:16px;padding:30px 32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h3 style="margin:0;font-size:1.2rem;">🌐 Paramètres Globaux</h3>
+        <button id="btn-global-settings-close" style="background:none;border:none;color:#aaa;font-size:1.4rem;cursor:pointer;">✕</button>
+      </div>
+      <p style="margin:0 0 18px;opacity:0.6;font-size:0.85rem;">Ces paramètres s'appliquent à <strong>tous les sites</strong>. Un seul compte Supabase pour toute la plateforme.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="display:block;margin-bottom:5px;font-size:0.85rem;opacity:0.7;">Supabase URL</label>
+          <input type="text" id="global-supabase-url" placeholder="https://xxxxx.supabase.co" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:inherit;font-size:0.9rem;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:5px;font-size:0.85rem;opacity:0.7;">Supabase Anon Key <small>(clé publique)</small></label>
+          <input type="text" id="global-supabase-anon" placeholder="eyJhbGciOi..." style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:inherit;font-size:0.9rem;box-sizing:border-box;">
+        </div>
+        <p style="margin:0;font-size:0.78rem;opacity:0.5;">Trouve ces valeurs dans ton tableau de bord Supabase → Project Settings → API</p>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:22px;">
+        <button id="btn-global-settings-save" style="flex:1;padding:11px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;font-weight:700;cursor:pointer;font-size:0.95rem;">Enregistrer</button>
+        <button id="btn-global-settings-cancel" style="padding:11px 18px;border-radius:8px;background:rgba(255,255,255,0.08);color:inherit;border:none;cursor:pointer;">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

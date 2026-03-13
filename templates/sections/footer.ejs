@@ -1,0 +1,56 @@
+<!-- Footer Section -->
+<footer class="sf-footer" id="sf-footer">
+  <div class="sf-footer-inner">
+    <% if (section.config.logo) { %>
+    <div class="sf-footer-logo">
+      <img src="<%= section.config.logo %>" alt="Logo">
+    </div>
+    <% } %>
+
+    <% if (section.config.columns && section.config.columns.length > 0) { %>
+    <div class="sf-footer-columns">
+      <% section.config.columns.forEach(function(col) { %>
+        <div class="sf-footer-col">
+          <% if (col.title) { %><h4 class="sf-footer-col-title"><%= col.title %></h4><% } %>
+          <% if (col.type === 'text') { %>
+            <p class="sf-footer-text"><%= col.content || '' %></p>
+          <% } else if (col.type === 'links') { %>
+            <ul class="sf-footer-links">
+              <% (col.links || []).forEach(function(link) { %>
+                <li><a href="<%= link.url || '#' %>" target="_blank"><%= link.label || '' %></a></li>
+              <% }); %>
+            </ul>
+          <% } else if (col.type === 'sponsors') { %>
+            <div class="sf-footer-sponsors">
+              <% (col.sponsors || []).forEach(function(sponsor) { %>
+                <% if (sponsor.image) { %>
+                  <a href="<%= sponsor.url || '#' %>" target="_blank" class="sf-footer-sponsor">
+                    <img src="<%= sponsor.image %>" alt="<%= sponsor.name || 'Sponsor' %>">
+                  </a>
+                <% } else if (sponsor.name) { %>
+                  <a href="<%= sponsor.url || '#' %>" target="_blank" class="sf-footer-sponsor sf-footer-sponsor-text"><%= sponsor.name %></a>
+                <% } %>
+              <% }); %>
+            </div>
+          <% } else if (col.type === 'social') { %>
+            <div class="sf-footer-social">
+              <% if (col.instagram) { %><a href="<%= col.instagram %>" target="_blank" class="sf-footer-social-link">📷 Instagram</a><% } %>
+              <% if (col.twitter) { %><a href="<%= col.twitter %>" target="_blank" class="sf-footer-social-link">🐦 Twitter</a><% } %>
+              <% if (col.facebook) { %><a href="<%= col.facebook %>" target="_blank" class="sf-footer-social-link">📘 Facebook</a><% } %>
+              <% if (col.tiktok) { %><a href="<%= col.tiktok %>" target="_blank" class="sf-footer-social-link">🎵 TikTok</a><% } %>
+              <% if (col.discord) { %><a href="<%= col.discord %>" target="_blank" class="sf-footer-social-link">💬 Discord</a><% } %>
+              <% if (col.youtube) { %><a href="<%= col.youtube %>" target="_blank" class="sf-footer-social-link">▶️ YouTube</a><% } %>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <% if (section.config.copyright) { %>
+    <div class="sf-footer-bottom">
+      <p><%= section.config.copyright %></p>
+    </div>
+    <% } %>
+  </div>
+</footer>

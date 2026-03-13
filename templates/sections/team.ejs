@@ -1,0 +1,101 @@
+<!-- Team Section -->
+<section class="section" id="section-<%= section.id %>">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'Notre Équipe' %></h1>
+  </div>
+  <p class="section-subtitle" data-sf-edit="<%= section.id %>.subtitle"><%= section.config.subtitle || '' %></p>
+
+  <% if (section.config.groupPhoto) { %>
+  <div class="group-photo">
+    <img src="<%= section.config.groupPhoto %>" alt="Photo de groupe">
+    <% if (section.config.groupPhotoCaption) { %>
+    <div class="group-photo-overlay">
+      <h2><%= config.projectName %></h2>
+      <p data-sf-edit="<%= section.id %>.groupPhotoCaption"><%= section.config.groupPhotoCaption %></p>
+    </div>
+    <% } %>
+  </div>
+  <% } %>
+
+  <div class="team-timeline">
+    <% if (section.config.poles) { %>
+    <% section.config.poles.forEach((pole, pIndex) => { %>
+    <div class="team-pole <%= pIndex % 2 === 0 ? '' : 'pole-right' %>">
+      <% if (pole.image) { %>
+      <div class="pole-image">
+        <img src="<%= pole.image %>" alt="<%= pole.name %>">
+      </div>
+      <% } %>
+      <div class="pole-content">
+        <span class="pole-label" data-sf-edit="<%= section.id %>.poles.<%= pIndex %>.name"><%= pole.name %></span>
+        <h2 class="pole-title" data-sf-edit="<%= section.id %>.poles.<%= pIndex %>.title"><%= pole.title %></h2>
+        <p class="pole-description" data-sf-edit="<%= section.id %>.poles.<%= pIndex %>.description"><%= pole.description || '' %></p>
+        <div class="pole-members">
+          <% if (pole.members) { pole.members.forEach((member, mIndex) => { %>
+          <%
+            const m = (typeof member === 'string') ? { name: member, role: '', photo: '', description: '' } : member;
+            const initials = (m.name || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+          %>
+          <div class="member-card"
+            data-name="<%= m.name %>"
+            data-role="<%= m.role || '' %>"
+            data-photo="<%= m.photo || '' %>"
+            data-desc="<%= m.description || '' %>"
+            data-initials="<%= initials %>">
+            <% if (m.photo) { %>
+            <img class="member-avatar" src="<%= m.photo %>" alt="<%= m.name %>">
+            <% } else { %>
+            <div class="member-avatar-placeholder"><%= initials %></div>
+            <% } %>
+            <span class="member-card-name"><%= m.name %></span>
+            <% if (m.role) { %><span class="member-card-role"><%= m.role %></span><% } %>
+          </div>
+          <% }); } %>
+        </div>
+      </div>
+    </div>
+    <% }); } %>
+  </div>
+
+  <!-- Member modal -->
+  <div class="member-modal-overlay" id="member-modal-<%= section.id %>">
+    <div class="member-modal-wrapper">
+      <button class="member-modal-close" onclick="closeMemberModal('<%= section.id %>')">✕</button>
+      <div id="member-modal-photo-<%= section.id %>"></div>
+      <div class="member-modal-name" id="member-modal-name-<%= section.id %>"></div>
+      <div class="member-modal-role" id="member-modal-role-<%= section.id %>"></div>
+      <p class="member-modal-desc" id="member-modal-desc-<%= section.id %>"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const overlay = document.getElementById('member-modal-<%= section.id %>');
+  if (!overlay) return;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeMemberModal('<%= section.id %>'); });
+  document.querySelectorAll('#section-<%= section.id %> .member-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const name = card.dataset.name || '';
+      const role = card.dataset.role || '';
+      const photo = card.dataset.photo || '';
+      const desc = card.dataset.desc || '';
+      const initials = card.dataset.initials || '?';
+      document.getElementById('member-modal-name-<%= section.id %>').textContent = name;
+      document.getElementById('member-modal-role-<%= section.id %>').textContent = role;
+      document.getElementById('member-modal-desc-<%= section.id %>').textContent = desc;
+      const photoEl = document.getElementById('member-modal-photo-<%= section.id %>');
+      if (photo) {
+        photoEl.innerHTML = `<img class="member-modal-photo" src="${photo}" alt="${name}">`;
+      } else {
+        photoEl.innerHTML = `<div class="member-modal-initials">${initials}</div>`;
+      }
+      overlay.classList.add('open');
+    });
+  });
+})();
+function closeMemberModal(id) {
+  const overlay = document.getElementById('member-modal-' + id);
+  if (overlay) overlay.classList.remove('open');
+}
+</script>

@@ -1,0 +1,20 @@
+<!-- FAQ Section -->
+<section class="section">
+  <div class="section-banner">
+    <h1 class="section-title" data-sf-edit="<%= section.id %>.title"><%= section.config.title || 'FAQ' %></h1>
+  </div>
+
+  <div class="faq-list">
+    <% if (section.config.questions) { section.config.questions.forEach((q, qIndex) => { %>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span data-sf-edit="<%= section.id %>.questions.<%= qIndex %>.question"><%= q.question %></span>
+        <span>▼</span>
+      </div>
+      <div class="faq-answer">
+        <p data-sf-edit="<%= section.id %>.questions.<%= qIndex %>.answer"><%= q.answer %></p>
+      </div>
+    </div>
+    <% }); } %>
+  </div>
+</section>
