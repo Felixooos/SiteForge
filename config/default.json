@@ -210,12 +210,29 @@
       }
     },
     {
+      "id": "defis",
+      "type": "defis",
+      "label": "Défis",
+      "icon": "defis",
+      "enabled": false,
+      "order": 10,
+      "config": {
+        "title": "Défis",
+        "subtitle": "Relève les défis et gagne des points !",
+        "categories": [
+          { "name": "Facile", "points": 50, "color": "#22c55e" },
+          { "name": "Moyen", "points": 150, "color": "#f59e0b" },
+          { "name": "Difficile", "points": 300, "color": "#ef4444" }
+        ]
+      }
+    },
+    {
       "id": "classement",
       "type": "classement",
       "label": "Classement",
       "icon": "trophy",
       "enabled": false,
-      "order": 10,
+      "order": 11,
       "config": {
         "title": "Classement"
       }
@@ -226,7 +243,7 @@
       "label": "Boutique",
       "icon": "cart",
       "enabled": false,
-      "order": 11,
+      "order": 12,
       "config": {
         "title": "Boutique",
         "subtitle": "Dépense tes points !"
@@ -238,7 +255,7 @@
       "label": "Mon Profil",
       "icon": "person",
       "enabled": false,
-      "order": 12,
+      "order": 13,
       "config": {
         "title": "Mon Profil"
       }

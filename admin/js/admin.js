@@ -32,7 +32,7 @@ let saveTimeout = null;
 const SECTION_ICONS = {
   hero: '🏠', about: 'ℹ️', team: '👥', gallery: '🖼️', goodies: '🛍️',
   programme: '📋', videos: '🎬', timeline: '📅', faq: '❓', contact: '✉️',
-  classement: '🏆', boutique: '🛒', profil: '👤', footer: '🦶'
+  classement: '🏆', boutique: '🛒', defis: '🎯', profil: '👤', footer: '🦶'
 };
 
 const SVG_ICONS = {
@@ -48,6 +48,7 @@ const SVG_ICONS = {
   mail: '<path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>',
   trophy: '<path d="M2,21H6V17H2V21M18,21H22V17H18V21M10,21H14V17H10V21M5.5,13.5L7,14.5L6.5,16H17.5L17,14.5L18.5,13.5C18.5,13.5 22,10.5 22,8.5C22,6.5 20,5 18.5,5H5.5C4,5 2,6.5 2,8.5C2,10.5 5.5,13.5 5.5,13.5Z"/>',
   cart: '<path d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z"/>',
+  defis: '<path d="M12,2L4,5V11.09C4,16.14 7.41,20.85 12,22C16.59,20.85 20,16.14 20,11.09V5L12,2M12,4.14L18,6.6V11.09C18,15.13 15.38,18.84 12,19.92C8.62,18.84 6,15.13 6,11.09V6.6L12,4.14M10,12.73L7.5,10.23L6.27,11.46L10,15.19L17.73,7.46L16.5,6.23L10,12.73Z"/>',
   person: '<path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>'
 };
 
@@ -517,6 +518,12 @@ function openSectionEditor(sectionId) {
     case 'boutique':
       fields.appendChild(createField('Titre', 'text', cfg.title, (val) => { cfg.title = val; }));
       fields.appendChild(createField('Sous-titre', 'text', cfg.subtitle || '', (val) => { cfg.subtitle = val; }));
+      break;
+
+    case 'defis':
+      fields.appendChild(createField('Titre', 'text', cfg.title, (val) => { cfg.title = val; }));
+      fields.appendChild(createField('Sous-titre', 'text', cfg.subtitle || '', (val) => { cfg.subtitle = val; }));
+      fields.appendChild(createDefisCategoriesEditor(cfg));
       break;
 
     case 'profil':
@@ -1631,6 +1638,65 @@ function createFaqEditor(questions) {
   addBtn.className = 'btn-add-item';
   addBtn.textContent = '+ Ajouter une question';
   addBtn.addEventListener('click', () => { questions.push({ question: '', answer: '' }); render(); });
+  wrapper.appendChild(addBtn);
+  return wrapper;
+}
+
+// ==================== DEFIS CATEGORIES EDITOR ====================
+function createDefisCategoriesEditor(cfg) {
+  if (!cfg.categories) cfg.categories = [
+    { name: 'Facile', points: 50, color: '#22c55e' },
+    { name: 'Moyen', points: 150, color: '#f59e0b' },
+    { name: 'Difficile', points: 300, color: '#ef4444' }
+  ];
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'config-group';
+  wrapper.innerHTML = `<label>Catégories de difficulté</label>`;
+
+  const list = document.createElement('div');
+  list.className = 'dynamic-list';
+
+  function render() {
+    list.innerHTML = '';
+    cfg.categories.forEach((cat, i) => {
+      const el = document.createElement('div');
+      el.className = 'dynamic-item';
+      el.style.cssText = 'display:flex;gap:8px;align-items:center;padding:10px;background:rgba(124,92,191,0.04);border-radius:8px;margin-bottom:8px;';
+      el.innerHTML = `
+        <div style="width:20px;height:20px;border-radius:50%;background:${cat.color};flex-shrink:0;"></div>
+        <input type="text" placeholder="Nom" value="${escapeHtml(cat.name || '')}" class="cat-name" data-i="${i}" style="flex:1;">
+        <input type="number" placeholder="Points" value="${cat.points || 50}" class="cat-points" data-i="${i}" style="width:80px;">
+        <input type="color" value="${cat.color || '#6366f1'}" class="cat-color" data-i="${i}" style="width:40px;height:32px;border:none;cursor:pointer;">
+        <button class="remove-item" data-i="${i}">✕</button>
+      `;
+      list.appendChild(el);
+    });
+
+    list.querySelectorAll('.cat-name').forEach(el => {
+      el.addEventListener('input', () => { cfg.categories[parseInt(el.dataset.i)].name = el.value; scheduleAutoSave(); });
+    });
+    list.querySelectorAll('.cat-points').forEach(el => {
+      el.addEventListener('input', () => { cfg.categories[parseInt(el.dataset.i)].points = parseInt(el.value) || 0; scheduleAutoSave(); });
+    });
+    list.querySelectorAll('.cat-color').forEach(el => {
+      el.addEventListener('input', () => { cfg.categories[parseInt(el.dataset.i)].color = el.value; scheduleAutoSave(); });
+    });
+    list.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', () => { cfg.categories.splice(parseInt(btn.dataset.i), 1); render(); scheduleAutoSave(); });
+    });
+  }
+
+  render();
+  wrapper.appendChild(list);
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'btn-add-item';
+  addBtn.textContent = '+ Ajouter une catégorie';
+  addBtn.addEventListener('click', () => {
+    cfg.categories.push({ name: 'Nouvelle', points: 100, color: '#6366f1' });
+    render();
+  });
   wrapper.appendChild(addBtn);
   return wrapper;
 }

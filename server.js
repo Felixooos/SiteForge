@@ -68,11 +68,11 @@ async function requireAdmin(req, res, next) {
 
     const { data: etudiant } = await supabase
       .from('etudiants')
-      .select('is_admin')
+      .select('*')
       .eq('email', user.email)
       .single();
 
-    if (!etudiant || !etudiant.is_admin) {
+    if (!etudiant || (!etudiant.is_admin && !etudiant.is_super_admin)) {
       return res.status(403).json({ error: 'Accès refusé : droits administrateur requis' });
     }
 
@@ -267,8 +267,8 @@ app.get('/admin/api/check-admin', async (req, res) => {
     if (!token) return res.json({ isAdmin: false });
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return res.json({ isAdmin: false });
-    const { data: etudiant } = await supabase.from('etudiants').select('is_admin').eq('email', user.email).single();
-    res.json({ isAdmin: !!(etudiant && etudiant.is_admin) });
+    const { data: etudiant } = await supabase.from('etudiants').select('*').eq('email', user.email).single();
+    res.json({ isAdmin: !!(etudiant && (etudiant.is_admin || etudiant.is_super_admin)) });
   } catch (err) {
     res.json({ isAdmin: false });
   }
@@ -887,6 +887,38 @@ body {
 }
 .social-links a:hover { transform: scale(1.1); }
 .social-links a svg { width: 22px; height: 22px; fill: white; }
+
+/* ===== DÉFIS ===== */
+.defis-admin-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.defis-tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+.defis-tab { padding: 8px 20px; border-radius: 25px; border: 2px solid rgba(0,0,0,0.1); background: linear-gradient(135deg, var(--card-bg), var(--card-bg-end)); color: var(--text); font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+.defis-tab:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.defis-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+.defis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.defi-card { background: linear-gradient(135deg, var(--card-bg), var(--card-bg-end)); border-radius: 15px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.12); transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; }
+.defi-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.18); }
+.defi-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.defi-card-title { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--text); flex: 1; }
+.defi-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: white; white-space: nowrap; }
+.defi-card-desc { color: var(--text); opacity: 0.8; line-height: 1.6; font-size: 0.95rem; margin-bottom: 15px; }
+.defi-card-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.defi-card-points { font-weight: 800; font-size: 1.1rem; color: var(--primary); }
+.defi-card-status { font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 15px; }
+.defi-card-status.validated { background: rgba(34,197,94,0.15); color: #22c55e; }
+.defi-card-status.pending { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.defi-card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.defi-card-actions button { padding: 6px 14px; border-radius: 8px; border: none; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+.defi-btn-validate { background: #22c55e; color: white; }
+.defi-btn-validate:hover { background: #16a34a; }
+.defi-btn-delete { background: #ef4444; color: white; }
+.defi-btn-delete:hover { background: #dc2626; }
+.defi-validated-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.defi-validated-tag { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; background: rgba(34,197,94,0.12); color: #22c55e; font-weight: 600; }
+.defi-card-draft { opacity: 0.6; border: 2px dashed rgba(0,0,0,0.2); }
+.defis-difficulty-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.defis-diff-btn { padding: 8px 16px; border: 2px solid var(--diff-color); border-radius: 10px; background: transparent; color: var(--text); font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.defis-diff-btn.active { background: var(--diff-color); color: white; }
+.defis-diff-btn:hover { transform: scale(1.05); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
