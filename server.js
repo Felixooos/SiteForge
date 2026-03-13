@@ -48,45 +48,24 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Auth middleware for admin routes
 async function requireAdmin(req, res, next) {
-  // Note: app.use('/admin', ...) strips the /admin prefix from req.path
-  // So req.path is '/login.html', not '/admin/login.html'
-  if (
-    req.path === '/login.html' ||
-    req.path === '/api/global' ||
-    req.path === '/api/check-admin' ||
-    req.path.startsWith('/css') ||
-    req.path.startsWith('/js') ||
-    req.path.startsWith('/fonts')
-  ) {
+  // Les fichiers HTML/CSS/JS sont servis librement — le client JS gère la redirection vers login
+  // Seules les routes /api/ sont protégées côté serveur
+  if (!req.path.startsWith('/api/') || req.path === '/api/global' || req.path === '/api/check-admin') {
     return next();
   }
 
   const token = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (!token) {
-    return res.status(401).send(`
-      <!DOCTYPE html>
-      <html><head><meta charset="utf-8"><script>window.location.href="/admin/login.html";</script></head>
-      <body>Redirection...</body></html>
-    `);
+    return res.status(401).json({ error: 'Non authentifié' });
   }
 
   try {
-    if (!supabase) {
-      return res.status(500).send('Supabase non configuré');
-    }
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    
-    if (error || !user) {
-      return res.status(401).send(`
-        <!DOCTYPE html>
-        <html><head><meta charset="utf-8"><script>sessionStorage.removeItem("siteforge_admin_token");window.location.href="/admin/login.html";</script></head>
-        <body>Session expirée...</body></html>
-      `);
-    }
+    if (error || !user) return res.status(401).json({ error: 'Session invalide' });
 
-    // Check admin status
     const { data: etudiant } = await supabase
       .from('etudiants')
       .select('is_admin')
@@ -94,7 +73,7 @@ async function requireAdmin(req, res, next) {
       .single();
 
     if (!etudiant || !etudiant.is_admin) {
-      return res.status(403).send('Accès refusé : droits administrateur requis');
+      return res.status(403).json({ error: 'Accès refusé : droits administrateur requis' });
     }
 
     req.user = user;
