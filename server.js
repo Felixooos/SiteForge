@@ -1073,7 +1073,7 @@ app.use('/:projectId', (req, res, next) => {
 });
 
 // ==================== START ====================
-app.listen(PORT, () => {
+if (!process.env.VERCEL) { app.listen(PORT, () => {
   console.log(`\n  ╔══════════════════════════════════════════╗`);
   console.log(`  ║     🔥 SiteForge — Hébergement Local     ║`);
   console.log(`  ║                                          ║`);
@@ -1081,3 +1081,9 @@ app.listen(PORT, () => {
   console.log(`  ║  Admin:   http://localhost:${PORT}/admin/      ║`);
   console.log(`  ╚══════════════════════════════════════════╝\n`);
 });
+
+}
+
+// Export for Vercel
+module.exports = app;
+
