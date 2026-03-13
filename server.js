@@ -48,8 +48,15 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Auth middleware for admin routes
 async function requireAdmin(req, res, next) {
-  // Allow public access to login page and global config
-  if (req.path === '/admin/login.html' || req.path === '/admin/api/global' || req.path.startsWith('/admin/css') || req.path.startsWith('/admin/js')) {
+  // Note: app.use('/admin', ...) strips the /admin prefix from req.path
+  // So req.path is '/login.html', not '/admin/login.html'
+  if (
+    req.path === '/login.html' ||
+    req.path === '/api/global' ||
+    req.path.startsWith('/css') ||
+    req.path.startsWith('/js') ||
+    req.path.startsWith('/fonts')
+  ) {
     return next();
   }
 
