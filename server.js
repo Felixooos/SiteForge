@@ -72,8 +72,8 @@ async function requireAdmin(req, res, next) {
       .eq('email', user.email)
       .single();
 
-    if (!etudiant || (!etudiant.is_admin && !etudiant.is_super_admin)) {
-      return res.status(403).json({ error: 'Accès refusé : droits administrateur requis' });
+    if (!etudiant || !etudiant.is_creator) {
+      return res.status(403).json({ error: 'Accès refusé : droits créateur requis' });
     }
 
     req.user = user;
@@ -268,7 +268,7 @@ app.get('/admin/api/check-admin', async (req, res) => {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return res.json({ isAdmin: false });
     const { data: etudiant } = await supabase.from('etudiants').select('*').eq('email', user.email).single();
-    res.json({ isAdmin: !!(etudiant && (etudiant.is_admin || etudiant.is_super_admin)) });
+    res.json({ isAdmin: !!(etudiant && etudiant.is_creator) });
   } catch (err) {
     res.json({ isAdmin: false });
   }

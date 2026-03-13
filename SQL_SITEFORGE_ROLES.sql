@@ -2,11 +2,12 @@
 -- SiteForge: Role system + Défis upgrade
 -- =============================================
 
--- 1) Add is_super_admin to etudiants (4-role system)
---    Créateur  = manages sites via SiteForge admin panel (sf_projects owner)
---    Super Admin = is_super_admin=true → can create/delete challenges, manage boutique
---    Admin     = is_admin=true → can validate challenges, give/remove points
---    Utilisateur = default → browse, buy
+-- 1) Add role columns to etudiants (4-role system)
+--    Créateur    = is_creator=true     → accès au panel SiteForge (construire des sites)
+--    Super Admin = is_super_admin=true → poster/supprimer des défis, gérer la boutique
+--    Admin       = is_admin=true       → valider des défis, donner/retirer des points
+--    Utilisateur = (défaut)            → naviguer, acheter, participer
+ALTER TABLE etudiants ADD COLUMN IF NOT EXISTS is_creator BOOLEAN DEFAULT false;
 ALTER TABLE etudiants ADD COLUMN IF NOT EXISTS is_super_admin BOOLEAN DEFAULT false;
 
 -- 2) Add created_by to challenges (who created the challenge)
