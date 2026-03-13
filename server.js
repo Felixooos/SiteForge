@@ -99,32 +99,14 @@ async function requireAdmin(req, res, next) {
 
 app.use('/admin', requireAdmin);
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Note: /uploads supprimé — les images sont dans Supabase Storage
 
 // EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'templates'));
 
-// Multer config for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const projectId = req.params.projectId || 'temp';
-    const dest = path.join(__dirname, 'uploads', projectId);
-    fs.ensureDirSync(dest);
-    cb(null, dest);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = Date.now() + '-' + Math.round(Math.random() * 1000) + ext;
-    cb(null, name);
-  }
-});
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
-
-// Ensure directories exist
-fs.ensureDirSync(path.join(__dirname, 'config', 'projects'));
-fs.ensureDirSync(path.join(__dirname, 'uploads'));
-fs.ensureDirSync(path.join(__dirname, 'output'));
+// Multer : mémoire seulement (pas de disque sur Vercel)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 // ==================== HELPERS ====================
 function escapeHtmlServer(str) {
@@ -134,36 +116,43 @@ function escapeHtmlServer(str) {
 
 // ==================== GENERATE / PUBLISH PROJECT ====================
 async function generateProject(projectId) {
-  const configPath = path.join(__dirname, 'config', 'projects', `${projectId}.json`);
-  if (!(await fs.pathExists(configPath))) return false;
+  if (!supabase) return false;
 
-  const config = await fs.readJson(configPath);
-  const outputDir = path.join(__dirname, 'output', projectId);
+  // Charger config depuis Supabase
+  const { data: row, error: fetchErr } = await supabase
+    .from('sf_projects')
+    .select('config')
+    .eq('id', projectId)
+    .single();
 
-  await fs.ensureDir(outputDir);
-  await fs.ensureDir(path.join(outputDir, 'assets'));
-  await fs.ensureDir(path.join(outputDir, 'images'));
+  if (fetchErr || !row) return false;
+  const config = row.config;
 
-  // Copy uploaded images
-  const uploadsDir = path.join(__dirname, 'uploads', projectId);
-  if (await fs.pathExists(uploadsDir)) {
-    await fs.copy(uploadsDir, path.join(outputDir, 'images'));
-  }
-
-  // Generate HTML
+  // Générer HTML/CSS/JS en mémoire
   const globalConfig = await getGlobalConfig();
   const html = await ejs.renderFile(
     path.join(__dirname, 'templates', 'base.ejs'),
     { config, sections: config.sections.filter(s => s.enabled).sort((a, b) => a.order - b.order), globalConfig, siteId: projectId },
     { views: [path.join(__dirname, 'templates')] }
   );
-
   const css = generateCSS(config);
   const js = generateJS(config);
 
-  await fs.writeFile(path.join(outputDir, 'index.html'), html);
-  await fs.writeFile(path.join(outputDir, 'assets', 'style.css'), css);
-  await fs.writeFile(path.join(outputDir, 'assets', 'main.js'), js);
+  // Upload vers Supabase Storage
+  const uploads = [
+    { path: `${projectId}/index.html`, content: html, type: 'text/html' },
+    { path: `${projectId}/assets/style.css`, content: css, type: 'text/css' },
+    { path: `${projectId}/assets/main.js`, content: js, type: 'application/javascript' },
+  ];
+
+  for (const file of uploads) {
+    await supabase.storage.from(BUCKET).remove([file.path]);
+    const { error } = await supabase.storage.from(BUCKET).upload(
+      file.path, Buffer.from(file.content, 'utf-8'),
+      { contentType: file.type, upsert: true }
+    );
+    if (error) console.error(`  ✗ Upload ${file.path}:`, error.message);
+  }
 
   console.log(`  ✓ Site "${projectId}" publié → /${projectId}/`);
   return true;
@@ -172,16 +161,12 @@ async function generateProject(projectId) {
 // ==================== PORTAL PAGE (/) ====================
 app.get('/', async (req, res) => {
   try {
-    const projectsDir = path.join(__dirname, 'config', 'projects');
-    const files = await fs.readdir(projectsDir);
     const projects = [];
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        const id = path.basename(file, '.json');
-        const data = await fs.readJson(path.join(projectsDir, file));
-        const outputExists = await fs.pathExists(path.join(__dirname, 'output', id, 'index.html'));
-        const onlineUrl = SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${id}/index.html` : null;
-        projects.push({ id, name: data.projectName, published: outputExists, onlineUrl });
+    if (supabase) {
+      const { data: rows } = await supabase.from('sf_projects').select('id, config, updated_at').order('updated_at', { ascending: false });
+      for (const row of (rows || [])) {
+        const publicUrl = SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${row.id}/index.html` : null;
+        projects.push({ id: row.id, name: row.config.projectName, published: true, onlineUrl: publicUrl });
       }
     }
 
@@ -265,12 +250,19 @@ app.get('/', async (req, res) => {
 });
 
 // ==================== GLOBAL CONFIG ====================
-const GLOBAL_CONFIG_PATH = path.join(__dirname, 'config', 'global.json');
 async function getGlobalConfig() {
+  // Fallback sur les variables d'environnement
+  const fallback = { supabaseUrl: SUPABASE_URL || '', supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '' };
+  if (!supabase) return fallback;
   try {
-    if (await fs.pathExists(GLOBAL_CONFIG_PATH)) return await fs.readJson(GLOBAL_CONFIG_PATH);
-  } catch {}
-  return { supabaseUrl: '', supabaseAnonKey: '' };
+    const { data: rows } = await supabase.from('sf_global_config').select('key, value');
+    if (!rows || rows.length === 0) return fallback;
+    const config = {};
+    for (const row of rows) config[row.key] = row.value;
+    return { supabaseUrl: config.supabaseUrl || fallback.supabaseUrl, supabaseAnonKey: config.supabaseAnonKey || fallback.supabaseAnonKey };
+  } catch {
+    return fallback;
+  }
 }
 
 // ==================== ADMIN API ROUTES ====================
@@ -283,10 +275,11 @@ app.get('/admin/api/global', async (req, res) => {
 // POST /admin/api/global - Update global config
 app.post('/admin/api/global', async (req, res) => {
   try {
-    const existing = await getGlobalConfig();
-    const updated = { ...existing, ...req.body };
-    await fs.ensureDir(path.join(__dirname, 'config'));
-    await fs.writeJson(GLOBAL_CONFIG_PATH, updated, { spaces: 2 });
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const updates = Object.entries(req.body);
+    for (const [key, value] of updates) {
+      await supabase.from('sf_global_config').upsert({ key, value }, { onConflict: 'key' });
+    }
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -294,24 +287,16 @@ app.post('/admin/api/global', async (req, res) => {
 // GET /admin/api/projects - List all projects
 app.get('/admin/api/projects', async (req, res) => {
   try {
-    const projectsDir = path.join(__dirname, 'config', 'projects');
-    const files = await fs.readdir(projectsDir);
-    const projects = [];
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        const id = path.basename(file, '.json');
-        const data = await fs.readJson(path.join(projectsDir, file));
-        const outputExists = await fs.pathExists(path.join(__dirname, 'output', id, 'index.html'));
-        projects.push({
-          id,
-          name: data.projectName,
-          published: outputExists,
-          onlineUrl: SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${id}/index.html` : null,
-          lastModified: (await fs.stat(path.join(projectsDir, file))).mtime
-        });
-      }
-    }
-    projects.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+    if (!supabase) return res.json([]);
+    const { data: rows, error } = await supabase.from('sf_projects').select('id, config, updated_at').order('updated_at', { ascending: false });
+    if (error) return res.json([]);
+    const projects = (rows || []).map(row => ({
+      id: row.id,
+      name: row.config.projectName,
+      published: true,
+      onlineUrl: SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${row.id}/index.html` : null,
+      lastModified: row.updated_at
+    }));
     res.json(projects);
   } catch (err) {
     res.json([]);
@@ -321,19 +306,19 @@ app.get('/admin/api/projects', async (req, res) => {
 // POST /admin/api/projects - Create a new project
 app.post('/admin/api/projects', async (req, res) => {
   try {
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
     const { name } = req.body;
     const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'projet-' + Date.now();
-    const configPath = path.join(__dirname, 'config', 'projects', `${id}.json`);
 
-    if (await fs.pathExists(configPath)) {
-      return res.status(400).json({ error: 'Un projet avec ce nom existe déjà' });
-    }
+    // Vérifier si le projet existe déjà
+    const { data: existing } = await supabase.from('sf_projects').select('id').eq('id', id).single();
+    if (existing) return res.status(400).json({ error: 'Un projet avec ce nom existe déjà' });
 
     const defaultConfig = await fs.readJson(path.join(__dirname, 'config', 'default.json'));
     defaultConfig.projectName = name;
 
-    await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
-    fs.ensureDirSync(path.join(__dirname, 'uploads', id));
+    const { error } = await supabase.from('sf_projects').insert({ id, config: defaultConfig });
+    if (error) throw error;
 
     // Auto-publish initial version
     await generateProject(id);
@@ -347,21 +332,17 @@ app.post('/admin/api/projects', async (req, res) => {
 // GET /admin/api/projects/:id - Get project config
 app.get('/admin/api/projects/:id', async (req, res) => {
   try {
-    const configPath = path.join(__dirname, 'config', 'projects', `${req.params.id}.json`);
-    if (!(await fs.pathExists(configPath))) {
-      return res.status(404).json({ error: 'Projet non trouvé' });
-    }
-    const config = await fs.readJson(configPath);
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const { data: row, error } = await supabase.from('sf_projects').select('config').eq('id', req.params.id).single();
+    if (error || !row) return res.status(404).json({ error: 'Projet non trouvé' });
+    const config = row.config;
 
-    // Merge any missing sections from default config (e.g. new section types added after project creation)
+    // Merger les sections manquantes depuis le config par défaut
     const defaultConfig = await fs.readJson(path.join(__dirname, 'config', 'default.json'));
     const existingTypes = new Set(config.sections.map(s => s.type));
     for (const defSection of defaultConfig.sections) {
-      if (!existingTypes.has(defSection.type)) {
-        config.sections.push({ ...defSection });
-      }
+      if (!existingTypes.has(defSection.type)) config.sections.push({ ...defSection });
     }
-    // Merge missing siteConfig fields
     if (!config.siteConfig) config.siteConfig = {};
     const defSC = defaultConfig.siteConfig || {};
     for (const key of Object.keys(defSC)) {
@@ -377,15 +358,13 @@ app.get('/admin/api/projects/:id', async (req, res) => {
 // PUT /admin/api/projects/:id - Update config + auto-publish
 app.put('/admin/api/projects/:id', async (req, res) => {
   try {
-    const configPath = path.join(__dirname, 'config', 'projects', `${req.params.id}.json`);
-    if (!(await fs.pathExists(configPath))) {
-      return res.status(404).json({ error: 'Projet non trouvé' });
-    }
-    await fs.writeJson(configPath, req.body, { spaces: 2 });
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const { error } = await supabase.from('sf_projects')
+      .update({ config: req.body, updated_at: new Date().toISOString() })
+      .eq('id', req.params.id);
+    if (error) throw error;
 
-    // Auto-regenerate = auto-publish
     await generateProject(req.params.id);
-
     res.json({ success: true, published: true, url: `/${req.params.id}/` });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -395,156 +374,101 @@ app.put('/admin/api/projects/:id', async (req, res) => {
 // DELETE /admin/api/projects/:id - Delete a project
 app.delete('/admin/api/projects/:id', async (req, res) => {
   try {
-    const configPath = path.join(__dirname, 'config', 'projects', `${req.params.id}.json`);
-    const uploadsPath = path.join(__dirname, 'uploads', req.params.id);
-    const outputPath = path.join(__dirname, 'output', req.params.id);
-    await fs.remove(configPath);
-    await fs.remove(uploadsPath);
-    await fs.remove(outputPath);
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const id = req.params.id;
+    // Supprimer de la DB
+    await supabase.from('sf_projects').delete().eq('id', id);
+    // Supprimer les fichiers du Storage
+    const { data: storageFiles } = await supabase.storage.from(BUCKET).list(id, { limit: 200 });
+    if (storageFiles && storageFiles.length > 0) {
+      await supabase.storage.from(BUCKET).remove(storageFiles.map(f => `${id}/${f.name}`));
+    }
+    const { data: assetFiles } = await supabase.storage.from(BUCKET).list(`${id}/assets`, { limit: 200 });
+    if (assetFiles && assetFiles.length > 0) {
+      await supabase.storage.from(BUCKET).remove(assetFiles.map(f => `${id}/assets/${f.name}`));
+    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /admin/api/projects/:projectId/upload - Upload image (auto-compress)
+// POST /admin/api/projects/:projectId/upload - Upload image (auto-compress) → Supabase Storage
 app.post('/admin/api/projects/:projectId/upload', upload.single('image'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Aucun fichier' });
-  }
+  if (!req.file) return res.status(400).json({ error: 'Aucun fichier' });
+  if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
   try {
-    const filePath = req.file.path;
-    const ext = path.extname(req.file.filename).toLowerCase();
-    // Compress raster images — keep PNG as PNG (preserves transparency), convert others to JPEG
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    let buffer = req.file.buffer;
+    let filename, contentType;
+
     if (['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
       const keepPng = ext === '.png';
-      const outExt = keepPng ? '.png' : '.jpg';
-      const compressedName = path.basename(req.file.filename, ext) + outExt;
-      const compressedPath = path.join(path.dirname(filePath), compressedName);
-      const pipeline = sharp(filePath).resize(1200, null, { withoutEnlargement: true, fit: 'inside' });
       if (keepPng) {
-        await pipeline.png({ compressionLevel: 8 }).toFile(compressedPath);
+        buffer = await sharp(buffer).resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).png({ compressionLevel: 8 }).toBuffer();
+        filename = `${Date.now()}.png`;
+        contentType = 'image/png';
       } else {
-        await pipeline.jpeg({ quality: 82 }).toFile(compressedPath);
+        buffer = await sharp(buffer).resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).jpeg({ quality: 82 }).toBuffer();
+        filename = `${Date.now()}.jpg`;
+        contentType = 'image/jpeg';
       }
-      // Remove original if different from compressed
-      if (filePath !== compressedPath) fs.removeSync(filePath);
-      const url = `/uploads/${req.params.projectId}/${compressedName}`;
-      return res.json({ url, filename: compressedName });
+    } else {
+      filename = `${Date.now()}${ext}`;
+      contentType = req.file.mimetype;
     }
-    const url = `/uploads/${req.params.projectId}/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename });
+
+    const storagePath = `uploads/${req.params.projectId}/${filename}`;
+    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, buffer, { contentType, upsert: true });
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
+    res.json({ url: publicUrl, filename });
   } catch (err) {
-    console.error('Upload compress error:', err);
-    // Fallback: return original
-    const url = `/uploads/${req.params.projectId}/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename });
+    console.error('Upload error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 // DELETE /admin/api/projects/:projectId/uploads/:filename - Delete an uploaded file
 app.delete('/admin/api/projects/:projectId/uploads/:filename', async (req, res) => {
   try {
-    const { projectId, filename } = req.params;
-    // Sanitize: no path traversal
-    const safeName = path.basename(filename);
-    const filePath = path.join(__dirname, 'uploads', projectId, safeName);
-    if (await fs.pathExists(filePath)) {
-      await fs.remove(filePath);
-      res.json({ success: true });
-    } else {
-      res.json({ success: true, note: 'File not found, nothing deleted' });
-    }
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const safeName = path.basename(req.params.filename);
+    const storagePath = `uploads/${req.params.projectId}/${safeName}`;
+    await supabase.storage.from(BUCKET).remove([storagePath]);
+    res.json({ success: true });
   } catch (err) {
-    console.error('Delete upload error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /admin/api/projects/:id/publish - Manual publish
+// POST /admin/api/projects/:id/publish - Manual publish (= deploy sur Supabase Storage)
 app.post('/admin/api/projects/:id/publish', async (req, res) => {
   try {
     const result = await generateProject(req.params.id);
     if (!result) return res.status(404).json({ error: 'Projet non trouvé' });
-    res.json({ success: true, url: `/${req.params.id}/` });
+    const publicUrl = SUPABASE_URL ? `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${req.params.id}/index.html` : `/${req.params.id}/`;
+    res.json({ success: true, url: publicUrl });
   } catch (err) {
     console.error('Publish error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /admin/api/projects/:id/deploy - Deploy to Supabase Storage (online)
+// POST /admin/api/projects/:id/deploy - Alias de publish
 app.post('/admin/api/projects/:id/deploy', async (req, res) => {
   try {
-    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré. Ajoute les clés dans .env' });
-
-    const projectId = req.params.id;
-
-    // Generate latest version first
-    const genResult = await generateProject(projectId);
-    if (!genResult) return res.status(404).json({ error: 'Projet non trouvé' });
-
-    const outputDir = path.join(__dirname, 'output', projectId);
-    const allFiles = await getAllFiles(outputDir);
-
-    console.log(`  📤 Déploiement de "${projectId}" (${allFiles.length} fichiers)...`);
-
-    // Upload each file
-    let uploaded = 0;
-    for (const filePath of allFiles) {
-      const relativePath = path.relative(outputDir, filePath).replace(/\\/g, '/');
-      const storagePath = `${projectId}/${relativePath}`;
-      const fileBuffer = await fs.readFile(filePath);
-
-      let fileContent = fileBuffer;
-
-      // For HTML files, rewrite /uploads/projectId/ paths to images/ (relative)
-      if (relativePath.endsWith('.html')) {
-        let htmlStr = fileBuffer.toString('utf-8');
-        htmlStr = htmlStr.replace(new RegExp(`/uploads/${projectId}/`, 'g'), 'images/');
-        fileContent = Buffer.from(htmlStr, 'utf-8');
-      }
-
-      const contentType = mime.lookup(filePath) || 'application/octet-stream';
-
-      // Upsert: remove existing then upload
-      await supabase.storage.from(BUCKET).remove([storagePath]);
-      const { error } = await supabase.storage.from(BUCKET).upload(storagePath, fileContent, {
-        contentType,
-        upsert: true
-      });
-
-      if (error) {
-        console.log(`    ✗ ${storagePath}: ${error.message}`);
-      } else {
-        uploaded++;
-      }
-    }
-
-    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${projectId}/index.html`;
-    console.log(`  ✓ Déployé: ${uploaded}/${allFiles.length} fichiers → ${publicUrl}`);
-
-    res.json({ success: true, url: publicUrl, uploaded, total: allFiles.length });
+    if (!supabase) return res.status(500).json({ error: 'Supabase non configuré' });
+    const result = await generateProject(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Projet non trouvé' });
+    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${req.params.id}/index.html`;
+    res.json({ success: true, url: publicUrl, uploaded: 3, total: 3 });
   } catch (err) {
     console.error('Deploy error:', err);
     res.status(500).json({ error: err.message });
   }
 });
-
-// Helper: recursively list all files in a directory
-async function getAllFiles(dir) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...await getAllFiles(fullPath));
-    } else {
-      files.push(fullPath);
-    }
-  }
-  return files;
-}
 
 // GET /admin/api/deploy-url/:id - Get the public URL of a deployed site
 app.get('/admin/api/deploy-url/:id', (req, res) => {
@@ -556,11 +480,10 @@ app.get('/admin/api/deploy-url/:id', (req, res) => {
 // GET /admin/preview/:id - Live preview (EJS rendered from config)
 app.get('/admin/preview/:id', async (req, res) => {
   try {
-    const configPath = path.join(__dirname, 'config', 'projects', `${req.params.id}.json`);
-    if (!(await fs.pathExists(configPath))) {
-      return res.status(404).send('Projet non trouvé');
-    }
-    const config = await fs.readJson(configPath);
+    if (!supabase) return res.status(500).send('Supabase non configuré');
+    const { data: row, error } = await supabase.from('sf_projects').select('config').eq('id', req.params.id).single();
+    if (error || !row) return res.status(404).send('Projet non trouvé');
+    const config = row.config;
     const sections = config.sections.filter(s => s.enabled).sort((a, b) => a.order - b.order);
 
     const globalConfig = await getGlobalConfig();
@@ -1059,17 +982,32 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   return js;
 }
 
-// ==================== SERVE SUB-SITES (must be after all other routes) ====================
-app.use('/:projectId', (req, res, next) => {
+// ==================== SERVE SUB-SITES (proxy depuis Supabase Storage) ====================
+app.use('/:projectId', async (req, res, next) => {
   const projectId = req.params.projectId;
-  // Skip reserved paths
-  if (['admin', 'uploads', 'favicon.ico'].includes(projectId)) return next();
+  if (['admin', 'uploads', 'favicon.ico', 'api'].includes(projectId)) return next();
+  if (!supabase) return next();
 
-  const projectOutput = path.join(__dirname, 'output', projectId);
-  if (!fs.pathExistsSync(projectOutput)) return next();
+  // Vérifier que le projet existe
+  const { data: row } = await supabase.from('sf_projects').select('id').eq('id', projectId).single();
+  if (!row) return next();
 
-  // Serve static files from the project's output directory
-  express.static(projectOutput, { index: ['index.html'] })(req, res, next);
+  // Déterminer le fichier à servir
+  let filePath = req.path;
+  if (filePath === '/' || filePath === '') filePath = '/index.html';
+  const storagePath = `${projectId}${filePath}`;
+
+  // Télécharger depuis Supabase Storage
+  const { data: fileData, error } = await supabase.storage.from(BUCKET).download(storagePath);
+  if (error || !fileData) return next();
+
+  const buffer = Buffer.from(await fileData.arrayBuffer());
+  const ext = path.extname(filePath);
+  const contentType = mime.lookup(ext) || 'application/octet-stream';
+
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.send(buffer);
 });
 
 // ==================== START ====================
