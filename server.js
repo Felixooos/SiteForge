@@ -88,11 +88,11 @@ async function requireAdmin(req, res, next) {
     // Check admin status
     const { data: etudiant } = await supabase
       .from('etudiants')
-      .select('is_admin, super_admin')
+      .select('is_admin')
       .eq('email', user.email)
       .single();
 
-    if (!etudiant || (!etudiant.is_admin && !etudiant.super_admin)) {
+    if (!etudiant || !etudiant.is_admin) {
       return res.status(403).send('Accès refusé : droits administrateur requis');
     }
 

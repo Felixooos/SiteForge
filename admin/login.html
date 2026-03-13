@@ -204,15 +204,14 @@
       });
 
       async function checkAdminStatus(supabase, user) {
-        // Check in etudiants table (reusing your existing structure)
         const { data, error } = await supabase
           .from('etudiants')
-          .select('is_admin, super_admin')
+          .select('is_admin')
           .eq('email', user.email)
           .single();
 
         if (error || !data) return false;
-        return data.is_admin || data.super_admin;
+        return data.is_admin === true;
       }
     }
   </script>
