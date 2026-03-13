@@ -13,7 +13,7 @@ const authFetch = (url, options = {}) => {
     'Authorization': `Bearer ${token}`
   };
   
-  return authFetch(url, options).then(res => {
+  return fetch(url, options).then(res => {
     if (res.status === 401) {
       sessionStorage.removeItem('siteforge_admin_token');
       window.location.href = '/admin/login.html';
