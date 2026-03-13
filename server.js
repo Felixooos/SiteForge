@@ -53,6 +53,7 @@ async function requireAdmin(req, res, next) {
   if (
     req.path === '/login.html' ||
     req.path === '/api/global' ||
+    req.path === '/api/check-admin' ||
     req.path.startsWith('/css') ||
     req.path.startsWith('/js') ||
     req.path.startsWith('/fonts')
@@ -277,6 +278,21 @@ async function getGlobalConfig() {
 // GET /admin/api/global - Get global config
 app.get('/admin/api/global', async (req, res) => {
   try { res.json(await getGlobalConfig()); } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /admin/api/check-admin - Vérifie si le token JWT est admin (utilisé par login.html)
+app.get('/admin/api/check-admin', async (req, res) => {
+  try {
+    if (!supabase) return res.json({ isAdmin: false });
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.json({ isAdmin: false });
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.json({ isAdmin: false });
+    const { data: etudiant } = await supabase.from('etudiants').select('is_admin').eq('email', user.email).single();
+    res.json({ isAdmin: !!(etudiant && etudiant.is_admin) });
+  } catch (err) {
+    res.json({ isAdmin: false });
+  }
 });
 
 // POST /admin/api/global - Update global config

@@ -138,80 +138,61 @@
     </div>
   </div>
 
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://pkzdzbhykshhnipzxpeu.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBremR6Ymh5a3NoaG5pcHp4cGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNzI1NTUsImV4cCI6MjA4NDg0ODU1NX0.CFmD3DUtODibWM-KFcgJoJN79JOWjicHx3sP4cLjTbA';
 
-    // Fetch global config
-    const globalRes = await fetch('/admin/api/global');
-    const globalConfig = await globalRes.json();
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    if (!globalConfig.supabaseUrl || !globalConfig.supabaseAnonKey) {
-      document.getElementById('error').textContent = '⚠️ Configuration Supabase manquante. Configurez-la d\'abord.';
-      document.getElementById('error').classList.add('show');
-      document.getElementById('loginForm').style.display = 'none';
-    } else {
-      const supabase = createClient(globalConfig.supabaseUrl, globalConfig.supabaseAnonKey);
-
-      // Check if already logged in
-      const { data: { session } } = await supabase.auth.getSession();
+    // Vérifier la session existante au chargement
+    sb.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        // Check if user is admin
-        const isAdmin = await checkAdminStatus(supabase, session.user);
-        if (isAdmin) {
-          window.location.href = '/admin/';
-        }
+        checkAdminAndRedirect(session.user, session.access_token);
       }
+    });
 
-      document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const errorDiv = document.getElementById('error');
-        const btn = document.getElementById('loginBtn');
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-        errorDiv.classList.remove('show');
-        btn.disabled = true;
-        btn.textContent = '⏳ Connexion...';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('error');
+      const btn = document.getElementById('loginBtn');
 
-        try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
+      errorDiv.classList.remove('show');
+      btn.disabled = true;
+      btn.textContent = '⏳ Connexion...';
 
-          if (error) throw error;
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) throw error;
 
-          // Check if user is admin
-          const isAdmin = await checkAdminStatus(supabase, data.user);
-          
-          if (!isAdmin) {
-            await supabase.auth.signOut();
-            throw new Error('Accès refusé : vous n\'êtes pas administrateur');
-          }
+        await checkAdminAndRedirect(data.user, data.session.access_token);
+      } catch (err) {
+        errorDiv.textContent = '❌ ' + (err.message || 'Erreur de connexion');
+        errorDiv.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = '🔓 Se connecter';
+      }
+    });
 
-          // Store session token
-          sessionStorage.setItem('siteforge_admin_token', data.session.access_token);
-          
-          // Redirect to admin
-          window.location.href = '/admin/';
-        } catch (err) {
-          errorDiv.textContent = '❌ ' + (err.message || 'Erreur de connexion');
-          errorDiv.classList.add('show');
-          btn.disabled = false;
-          btn.textContent = '🔓 Se connecter';
-        }
+    async function checkAdminAndRedirect(user, token) {
+      // Vérifier is_admin via le serveur (utilise la service key côté backend)
+      const res = await fetch('/admin/api/check-admin', {
+        headers: { 'Authorization': 'Bearer ' + token }
       });
-
-      async function checkAdminStatus(supabase, user) {
-        const { data, error } = await supabase
-          .from('etudiants')
-          .select('is_admin')
-          .eq('email', user.email)
-          .single();
-
-        if (error || !data) return false;
-        return data.is_admin === true;
+      const result = await res.json();
+      if (result.isAdmin) {
+        sessionStorage.setItem('siteforge_admin_token', token);
+        window.location.href = '/admin/';
+      } else {
+        await sb.auth.signOut();
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = '❌ Accès refusé : vous n\'êtes pas administrateur';
+        errorDiv.classList.add('show');
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtn').textContent = '🔓 Se connecter';
       }
     }
   </script>
