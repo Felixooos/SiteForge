@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a1a0d">
+  <meta name="supabase-url" content="https://pkzdzbhykshhnipzxpeu.supabase.co">
+  <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBremR6Ymh5a3NoaG5pcHp4cGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNzI1NTUsImV4cCI6MjA4NDg0ODU1NX0.CFmD3DUtODibWM-KFcgJoJN79JOWjicHx3sP4cLjTbA">
+  <title>Dinos'Art</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css?v=10">
+  <script src="assets/supabase.min.js"></script>
+</head>
+<body>
+
+  <!-- ========== AUTH GATE ========== -->
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card">
+      <div class="auth-logo">BDA</div>
+      <h1 class="auth-title">BDA</h1>
+      <p class="auth-subtitle">Collecte, défie, domine.</p>
+
+      <!-- Login Form -->
+      <div id="auth-login" class="auth-form">
+        <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+        <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+        <button id="btn-login" class="btn-primary">Se connecter</button>
+        <p class="auth-switch">Pas de compte ? <a href="#" id="show-register">Créer un compte</a></p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="auth-register" class="auth-form" style="display:none">
+        <input type="text" id="register-pseudo" placeholder="Pseudo" maxlength="20">
+        <input type="email" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Mot de passe (min. 6 car.)">
+        <button id="btn-register" class="btn-primary">Créer mon compte</button>
+        <p class="auth-switch">Déjà un compte ? <a href="#" id="show-login">Se connecter</a></p>
+      </div>
+
+      <div class="auth-divider"><span>ou</span></div>
+      <button id="btn-guest" class="btn-guest">Mode Invité</button>
+      <p id="auth-error" class="auth-error"></p>
+    </div>
+  </div>
+
+  <!-- ========== MAIN APP (hidden until auth) ========== -->
+  <div id="app" class="app" style="display:none">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <img src="images/logo.png" alt="" class="top-bar-logo">
+        <span class="top-bar-title">Dinos'Art</span>
+      </div>
+      <div class="top-bar-right">
+        <div class="coins-display">
+          <span class="coins-icon"></span>
+          <span id="user-coins">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mode Segmented Control -->
+    <div class="mode-segmented" id="mode-segmented">
+      <button class="mode-seg-btn active" id="mode-btn-game" data-mode="game">Jeu</button>
+      <button class="mode-seg-btn" id="mode-btn-info" data-mode="info">Infos</button>
+      <div class="mode-seg-indicator" id="mode-seg-indicator"></div>
+    </div>
+
+    <!-- Swipe Container -->
+    <main class="swipe-container" id="swipe-container">
+      <div class="swipe-track" id="swipe-track">
+
+        <!-- PAGE 0: BOUTIQUE -->
+        <section class="page" id="page-boutique">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Boutique</h2>
+              <p>Achète des packs et découvre tes cartes</p>
+            </div>
+            <div id="packs-list" class="packs-grid">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </section>
+
+        <!-- PAGE 1: POKEDEX -->
+        <section class="page" id="page-pokedex">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Pokédex</h2>
+              <p>Ta collection de cartes</p>
+            </div>
+            <div class="pokedex-tabs">
+              <button class="tab-btn active" data-tab="normal">Normales <span id="count-normal">0</span>/24</button>
+              <button class="tab-btn" data-tab="shiny">Shiny <span id="count-shiny">0</span>/24</button>
+              <button class="tab-btn" data-tab="creations">Créations</button>
+            </div>
+            <div id="pokedex-grid" class="pokedex-grid">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </section>
+
+        <!-- PAGE 2: CLASSEMENT (Home) -->
+        <section class="page" id="page-classement">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Classement</h2>
+              <p>Qui sera le meilleur ?</p>
+            </div>
+            <!-- My position banner -->
+            <div id="my-position" class="my-position" style="display:none">
+              <div class="my-pos-rank" id="my-pos-rank">#—</div>
+              <div class="my-pos-info">
+                <div class="my-pos-label">Ta position</div>
+                <div class="my-pos-coins" id="my-pos-coins">0</div>
+              </div>
+            </div>
+            <!-- Search bar -->
+            <div class="lb-search">
+              <input type="text" id="lb-search-input" placeholder="Rechercher un joueur...">
+            </div>
+            <div id="leaderboard" class="leaderboard">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </section>
+
+        <!-- PAGE 3: DEFIS -->
+        <section class="page" id="page-defis">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Défis</h2>
+              <p>Relève les défis et gagne des pièces</p>
+            </div>
+            <div class="defis-categories">
+              <button class="cat-btn active" data-cat="all">Tous</button>
+              <button class="cat-btn" data-cat="facile">50</button>
+              <button class="cat-btn" data-cat="moyen">150</button>
+              <button class="cat-btn" data-cat="difficile">300</button>
+            </div>
+            <div id="defis-list" class="defis-list">
+              <!-- Dynamically filled -->
+            </div>
+          </div>
+        </section>
+
+        <!-- PAGE 4: PROFIL -->
+        <section class="page" id="page-profil">
+          <div class="page-scroll">
+            <!-- Guest: show login prompt -->
+            <div id="profil-guest" style="display:none">
+              <div class="guest-prompt">
+                <div class="guest-icon"></div>
+                <h3>Connecte-toi pour accéder à ton profil</h3>
+                <button class="btn-primary" id="btn-guest-login">Se connecter</button>
+              </div>
+            </div>
+            <!-- Logged in: show profile -->
+            <div id="profil-content">
+              <div class="profil-header">
+                <div class="profil-avatar" id="profil-avatar">
+                  <img id="profil-avatar-img" src="" alt="Avatar">
+                  <button class="avatar-edit" id="btn-edit-avatar">Modifier</button>
+                </div>
+                <h2 id="profil-pseudo">Pseudo</h2>
+                <p id="profil-email" class="profil-email">email@example.com</p>
+                <div class="profil-stats">
+                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pièces</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-cards">0</span><span class="stat-label">Cartes</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-rank">#—</span><span class="stat-label">Rang</span></div>
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Badges</h3>
+                <div id="profil-badges" class="badges-grid">
+                  <!-- Dynamically filled -->
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Modifier mon profil</h3>
+                <div class="edit-form">
+                  <input type="text" id="edit-pseudo" placeholder="Nouveau pseudo" maxlength="20">
+                  <button class="btn-secondary" id="btn-save-pseudo">Enregistrer</button>
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Ma Carte Perso</h3>
+                <div class="card-creator-wrapper">
+                  <!-- Live preview card -->
+                  <div class="cc-live-card" id="cc-live-card">
+                    <div class="cc-live-rarity">common</div>
+                    <div class="cc-live-img-area" id="cc-live-img-area">
+                      <span class="cc-live-placeholder">Photo</span>
+                    </div>
+                    <div class="cc-live-body">
+                      <div class="cc-live-name" id="cc-live-name">Nom de la carte</div>
+                      <div class="cc-live-desc" id="cc-live-desc">Description...</div>
+                      <div class="cc-live-attack">
+                        <span class="cc-live-atk-name" id="cc-live-atk-name">Attaque</span>
+                        <span class="cc-live-atk-dmg" id="cc-live-atk-dmg">0 DMG</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Form fields -->
+                  <div class="card-creator">
+                    <input type="text" id="cc-name" placeholder="Nom de la carte" maxlength="30">
+                    <textarea id="cc-desc" placeholder="Description" maxlength="100"></textarea>
+                    <input type="text" id="cc-attack" placeholder="Nom d'attaque" maxlength="25">
+                    <input type="number" id="cc-damage" placeholder="Dégâts" min="0" max="999">
+                    <label class="file-upload">
+                      Choisir une image
+                      <input type="file" id="cc-image" accept="image/*" style="display:none">
+                    </label>
+                    <button class="btn-primary" id="btn-create-card">Soumettre la carte</button>
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-logout" id="btn-logout">Se déconnecter</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Info Mode Swipe Container -->
+    <main class="swipe-container" id="swipe-container-info" style="display:none">
+      <div class="swipe-track" id="swipe-track-info">
+
+        <!-- INFO PAGE 0: SPONSORS -->
+        <section class="page" id="page-sponsors">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Sponsors</h2>
+              <p>Nos partenaires</p>
+            </div>
+            <div id="sponsors-content">
+              <p class="sponsors-intro">Merci à nos partenaires qui rendent tout ça possible</p>
+              <div class="sponsors-grid">
+                <div class="sponsor-card"><div class="sponsor-text">Ali Baba</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Alpro</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Andros</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Berliner</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Casa Royale</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Coca Cola</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Delirium</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Eclosion</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Five Pizza</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">iGraal</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Kainf</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Metro Bowling</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Omega X Hyde</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">OUT</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Pernod-Ricard</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Pepsi</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Schweppes</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Tutti Pizza</div></div>
+                <div class="sponsor-card"><div class="sponsor-text">Wonderbox</div></div>
+              </div>
+              <div class="sponsors-cta">
+                <p>Envie de devenir partenaire du BDA ? Contactez-nous !</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INFO PAGE 1: GOODIES -->
+        <section class="page" id="page-goodies">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Goodies</h2>
+              <p>Nos produits BDA</p>
+            </div>
+            <div id="goodies-content" class="goodies-layout">
+              <div class="goodies-products">
+                <div class="goodie-item" data-lightbox="images/goodies/Sticker.png">
+                  <div class="goodie-img-wrap">
+                    <img src="images/goodies/Sticker.png" alt="Sticker BDA" class="goodie-float">
+                  </div>
+                  <div class="goodie-label">Sticker BDA</div>
+                </div>
+                <div class="goodie-item" data-lightbox="images/goodies/Sticker_Collector.png">
+                  <div class="goodie-img-wrap">
+                    <img src="images/goodies/Sticker_Collector.png" alt="Sticker Collector" class="goodie-float">
+                  </div>
+                  <div class="goodie-label">Sticker Collector</div>
+                </div>
+                <div class="goodie-item">
+                  <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-normal">
+                    <canvas id="ecocup-canvas-normal"></canvas>
+                  </div>
+                  <div class="goodie-label">Ecocup BDA</div>
+                </div>
+                <div class="goodie-item">
+                  <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-collector">
+                    <canvas id="ecocup-canvas-collector"></canvas>
+                  </div>
+                  <div class="goodie-label">Ecocup Collector</div>
+                </div>
+              </div>
+              <div class="goodie-table-section">
+                <h3 class="goodie-table-title">Table de Beer Pong</h3>
+                <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.png">
+                  <img src="images/goodies/Table_5.png" alt="Table Beer Pong BDA" class="goodie-table-img">
+                </div>
+                <p class="goodie-table-desc">La table officielle du BDA — faite main avec amour</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INFO PAGE 2: PLANNING -->
+        <section class="page" id="page-planning">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Planning</h2>
+              <p>Les dates à ne pas manquer</p>
+            </div>
+            <div id="planning-content" class="planning-list">
+              <div class="planning-item" style="animation-delay:0s">
+                <div class="planning-date-badge"><span class="planning-day">22</span><span class="planning-month">MAR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Soirée d'Ouverture BDA</div>
+                  <div class="planning-desc">Lancement officiel du BDA ! Venez découvrir l'équipe et les projets de l'année autour d'un verre.</div>
+                  <div class="planning-meta">Hall Principal · 19h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.05s">
+                <div class="planning-date-badge"><span class="planning-day">28</span><span class="planning-month">MAR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Atelier Création de Cartes</div>
+                  <div class="planning-desc">Dessine ta propre carte BDA ! Matériel fourni, amène juste ta créativité.</div>
+                  <div class="planning-meta">Salle d'Arts · 14h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.1s">
+                <div class="planning-date-badge"><span class="planning-day">05</span><span class="planning-month">AVR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Tournoi Inter-Assos</div>
+                  <div class="planning-desc">Compétition sportive entre toutes les associations ! Football, volley, basket et plus encore.</div>
+                  <div class="planning-meta">Terrain de Sport · 10h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.15s">
+                <div class="planning-date-badge"><span class="planning-day">12</span><span class="planning-month">AVR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Projection de Court-Métrage</div>
+                  <div class="planning-desc">Projection du film réalisé par le pôle production. Pop-corn et boissons offerts !</div>
+                  <div class="planning-meta">Amphi A · 20h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.2s">
+                <div class="planning-date-badge"><span class="planning-day">19</span><span class="planning-month">AVR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Concert BDA x BDE</div>
+                  <div class="planning-desc">Concert collaboratif avec le BDE ! Groupes étudiants et DJ set pour finir la soirée.</div>
+                  <div class="planning-meta">Foyer · 21h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.25s">
+                <div class="planning-date-badge"><span class="planning-day">03</span><span class="planning-month">MAI</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Grande Finale BDA</div>
+                  <div class="planning-desc">Le grand événement de clôture ! Distribution des dernières cartes, remise des prix et soirée de clôture.</div>
+                  <div class="planning-meta">Grande Salle · 18h00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INFO PAGE 3: NOUS (Trombinoscope) -->
+        <section class="page" id="page-nous">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>L'Équipe</h2>
+              <p>Qui se cache derrière le BDA ?</p>
+            </div>
+            <div id="team-content">
+              <div class="team-group-photo">
+                <img src="images/team/Groupe.jpg" alt="L'Équipe BDA">
+                <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
+              </div>
+
+              <div class="pole-section">
+                <div class="pole-header">
+                  <img src="images/team/PoleBureau.jpg" alt="Le Bureau" class="pole-photo">
+                  <div class="pole-info">
+                    <h3 class="pole-name">Le Bureau</h3>
+                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réus, administratif, budget et organisation générale du BDA.</p>
+                  </div>
+                </div>
+                <div class="pole-members-grid">
+                  <div class="member-card" data-member-modal="victor">
+                    <img src="images/team/Victor.jpg" alt="Victor" class="member-photo">
+                    <div class="member-name">Victor</div>
+                    <div class="member-role">Président</div>
+                  </div>
+                  <div class="member-card" data-member-modal="lila">
+                    <img src="images/team/Lila.jpg" alt="Lila" class="member-photo">
+                    <div class="member-name">Lila</div>
+                    <div class="member-role">Vice-Présidente</div>
+                  </div>
+                  <div class="member-card" data-member-modal="enekio">
+                    <img src="images/team/Enekio.jpg" alt="Enékio" class="member-photo">
+                    <div class="member-name">Enékio</div>
+                    <div class="member-role">Trésorier</div>
+                  </div>
+                  <div class="member-card" data-member-modal="camille">
+                    <img src="images/team/Camille.jpg" alt="Camille" class="member-photo">
+                    <div class="member-name">Camille</div>
+                    <div class="member-role">Secrétaire</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pole-section">
+                <div class="pole-header">
+                  <img src="images/team/PoleComm.jpg" alt="Pôle Com" class="pole-photo">
+                  <div class="pole-info">
+                    <h3 class="pole-name">Pôle Communication</h3>
+                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le BDA brille partout !</p>
+                  </div>
+                </div>
+                <div class="pole-members-grid">
+                  <div class="member-card" data-member-modal="felix">
+                    <img src="images/team/Felix.jpg" alt="Félix" class="member-photo">
+                    <div class="member-name">Félix</div>
+                    <div class="member-role">Respo Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="margaux">
+                    <img src="images/team/Margaux.jpg" alt="Margaux" class="member-photo">
+                    <div class="member-name">Margaux</div>
+                    <div class="member-role">Co-Respo Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="nathanael">
+                    <img src="images/team/Nathanael.jpg" alt="Nathanaël" class="member-photo">
+                    <div class="member-name">Nathanaël</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="lea">
+                    <img src="images/team/Lea.jpg" alt="Léa" class="member-photo">
+                    <div class="member-name">Léa</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="ethan">
+                    <img src="images/team/Ethan.jpg" alt="Ethan" class="member-photo">
+                    <div class="member-name">Ethan</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pole-section">
+                <div class="pole-header">
+                  <img src="images/team/PoleEvent.jpg" alt="Pôle Event" class="pole-photo">
+                  <div class="pole-info">
+                    <h3 class="pole-name">Pôle Événementiel</h3>
+                    <p class="pole-desc">Les architectes de vos moments mémorables ! Soirées, voyages, activités... ils gèrent tout de A à Z.</p>
+                  </div>
+                </div>
+                <div class="pole-members-grid">
+                  <div class="member-card" data-member-modal="louis">
+                    <img src="images/team/Louis.jpg" alt="Louis" class="member-photo">
+                    <div class="member-name">Louis</div>
+                    <div class="member-role">Respo Event</div>
+                  </div>
+                  <div class="member-card" data-member-modal="jeanne">
+                    <img src="images/team/Jeanne.jpg" alt="Jeanne" class="member-photo">
+                    <div class="member-name">Jeanne</div>
+                    <div class="member-role">Event</div>
+                  </div>
+                  <div class="member-card" data-member-modal="sacha">
+                    <img src="images/team/Sacha.jpg" alt="Sacha" class="member-photo">
+                    <div class="member-name">Sacha</div>
+                    <div class="member-role">Event</div>
+                  </div>
+                  <div class="member-card" data-member-modal="soline">
+                    <img src="images/team/Soline.jpg" alt="Soline" class="member-photo">
+                    <div class="member-name">Soline</div>
+                    <div class="member-role">Event</div>
+                  </div>
+                  <div class="member-card" data-member-modal="antoine">
+                    <img src="images/team/Antoine.jpg" alt="Antoine" class="member-photo">
+                    <div class="member-name">Antoine</div>
+                    <div class="member-role">Event</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pole-section">
+                <div class="pole-header">
+                  <img src="images/team/PoleLDD.jpg" alt="Pôle L3D" class="pole-photo">
+                  <div class="pole-info">
+                    <h3 class="pole-name">Pôle L3D</h3>
+                    <p class="pole-desc">Logistique, Démarche et Développement Durable. Ils négocient les partos, comptent les sous et font gaffe à la planète !</p>
+                  </div>
+                </div>
+                <div class="pole-members-grid">
+                  <div class="member-card" data-member-modal="andreas">
+                    <img src="images/team/Andreas.jpg" alt="Andréas" class="member-photo">
+                    <div class="member-name">Andréas</div>
+                    <div class="member-role">Respo Log</div>
+                  </div>
+                  <div class="member-card" data-member-modal="lucas">
+                    <img src="images/team/Lucas.jpg" alt="Lucas" class="member-photo">
+                    <div class="member-name">Lucas</div>
+                    <div class="member-role">Respo Dém</div>
+                  </div>
+                  <div class="member-card" data-member-modal="joseph">
+                    <img src="images/team/Joseph.jpg" alt="Joseph" class="member-photo">
+                    <div class="member-name">Joseph</div>
+                    <div class="member-role">Dém</div>
+                  </div>
+                  <div class="member-card" data-member-modal="max">
+                    <img src="images/team/Max.jpg" alt="Max" class="member-photo">
+                    <div class="member-name">Max</div>
+                    <div class="member-role">Respo DD</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pole-section">
+                <div class="pole-header">
+                  <img src="images/team/PoleProd.jpg" alt="Pôle Prod" class="pole-photo">
+                  <div class="pole-info">
+                    <h3 class="pole-name">Pôle Production</h3>
+                    <p class="pole-desc">Les créatifs du BDA : films, clips, musiques, site web... Ils donnent vie aux idées et les partagent au monde !</p>
+                  </div>
+                </div>
+                <div class="pole-members-grid">
+                  <div class="member-card" data-member-modal="felix">
+                    <img src="images/team/Felix.jpg" alt="Félix" class="member-photo">
+                    <div class="member-name">Félix</div>
+                    <div class="member-role">Respo Film & Site</div>
+                  </div>
+                  <div class="member-card" data-member-modal="ethan">
+                    <img src="images/team/Ethan.jpg" alt="Ethan" class="member-photo">
+                    <div class="member-name">Ethan</div>
+                    <div class="member-role">Respo Musique</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INFO PAGE 4: PROGRAMME -->
+        <section class="page" id="page-programme">
+          <div class="page-scroll">
+            <div class="page-header">
+              <h2>Programme</h2>
+              <p>Ce qu'on vous prépare</p>
+            </div>
+            <div id="programme-content" class="programme-list">
+              <div class="programme-card" style="animation-delay:0s">
+                <div class="programme-card-icon">Diplomes</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Remise des Diplômes</div>
+                  <div class="programme-card-desc">Organisation de la cérémonie de remise des diplômes : lieu, traiteur, animation et décoration. On fera en sorte que ce soit inoubliable !</div>
+                </div>
+              </div>
+              <div class="programme-card" style="animation-delay:0.05s">
+                <div class="programme-card-icon">Events</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Événementiel</div>
+                  <div class="programme-card-desc">Soirées thématiques, galas, sorties culturelles et voyages. On prépare au moins 4 gros événements dans l'année !</div>
+                </div>
+              </div>
+              <div class="programme-card" style="animation-delay:0.1s">
+                <div class="programme-card-icon">DD</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Développement Durable</div>
+                  <div class="programme-card-desc">Tri sélectif pendant les events, écocups réutilisables, bilan écologique et fonds participatif pour des projets verts.</div>
+                </div>
+              </div>
+              <div class="programme-card" style="animation-delay:0.15s">
+                <div class="programme-card-icon">Cohésion</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Vie Interne & Cohésion</div>
+                  <div class="programme-card-desc">Team buildings, pulls de promo, partage de lieux de stage, fresque murale collaborative et activités inter-promos.</div>
+                </div>
+              </div>
+              <div class="programme-card" style="animation-delay:0.2s">
+                <div class="programme-card-icon">Prod</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Production Audio-Visuelle</div>
+                  <div class="programme-card-desc">Court-métrages, clips musicaux, podcasts et making-of. Le pôle prod crée du contenu tout au long de l'année !</div>
+                </div>
+              </div>
+              <div class="programme-card" style="animation-delay:0.25s">
+                <div class="programme-card-icon">Inté</div>
+                <div class="programme-card-body">
+                  <div class="programme-card-title">Intégration</div>
+                  <div class="programme-card-desc">Semaine d'intégration repensée : plus d'activités, meilleure organisation et un WEI de folie pour accueillir les nouveaux !</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom Navigation Bar (Game Mode) -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <button class="nav-item" data-page="0">
+        <svg viewBox="0 0 24 24"><path d="M20 12v8H4v-8l8-8 8 8zM12 2L2 12h3v8h14v-8h3L12 2z"/><circle cx="12" cy="14" r="3"/></svg>
+        <span>Boutique</span>
+      </button>
+      <button class="nav-item" data-page="1">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/><rect x="2" y="3" width="20" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span>Pokédex</span>
+      </button>
+      <button class="nav-item active" data-page="2">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+        <span>Classement</span>
+      </button>
+      <button class="nav-item" data-page="3">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="2"/></svg>
+        <span>Défis</span>
+      </button>
+      <button class="nav-item" data-page="4">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span>Profil</span>
+      </button>
+    </nav>
+
+    <!-- Bottom Navigation Bar (Info Mode) -->
+    <nav class="bottom-nav" id="bottom-nav-info" style="display:none">
+      <button class="nav-item" data-page="0">
+        <span>Sponsors</span>
+      </button>
+      <button class="nav-item" data-page="1">
+        <span>Goodies</span>
+      </button>
+      <button class="nav-item active" data-page="2">
+        <span>Planning</span>
+      </button>
+      <button class="nav-item" data-page="3">
+        <span>Nous</span>
+      </button>
+      <button class="nav-item" data-page="4">
+        <span>Programme</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- Pack Opening Animation Modal -->
+  <div id="modal-pack" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content pack-opening">
+      <div id="pack-egg" class="pack-egg"></div>
+      <div id="pack-card-stage" class="pack-card-stage" style="display:none">
+        <div class="pack-counter"><span id="pack-reveal-count">0</span> / <span id="pack-reveal-total">0</span></div>
+        <div class="pack-card-container" id="pack-card-container">
+          <div class="pack-tap-prompt">Touche pour révéler</div>
+        </div>
+      </div>
+      <button id="pack-close" class="btn-secondary" style="display:none">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Pack Info Modal -->
+  <div id="modal-pack-info" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 id="info-pack-name">Pack</h3>
+      <div id="info-pack-stats" class="info-stats"></div>
+      <button class="btn-secondary modal-close-btn">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Player Profile Modal -->
+  <div id="modal-player" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="player-modal-header">
+        <img id="player-avatar" src="" alt="" class="player-modal-avatar">
+        <h3 id="player-pseudo">Joueur</h3>
+        <p id="player-score" class="player-score">0 pièces</p>
+      </div>
+      <div id="player-badges" class="badges-grid"></div>
+      <div id="player-admin-actions" style="display:none">
+        <div class="admin-points-row">
+          <input type="number" id="admin-points-input" placeholder="Points" min="1">
+          <button class="btn-primary btn-sm" id="btn-admin-points">+ Attribuer</button>
+        </div>
+      </div>
+      <button class="btn-secondary modal-close-btn">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Card Detail Modal -->
+  <div id="modal-card" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content card-detail">
+      <div id="card-detail-content"></div>
+      <button class="btn-secondary modal-close-btn">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Admin Challenge Modal -->
+  <div id="modal-challenge" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 id="challenge-modal-title">Nouveau Défi</h3>
+      <input type="text" id="ch-titre" placeholder="Titre du défi">
+      <textarea id="ch-desc" placeholder="Description"></textarea>
+      <select id="ch-diff">
+        <option value="facile">Facile — 50 pièces</option>
+        <option value="moyen">Moyen — 150 pièces</option>
+        <option value="difficile">Difficile — 300 pièces</option>
+      </select>
+      <button class="btn-primary" id="btn-save-challenge">Enregistrer</button>
+      <button class="btn-secondary modal-close-btn">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Admin Validate Challenge Modal -->
+  <div id="modal-validate" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3>Valider le défi</h3>
+      <p id="validate-challenge-name"></p>
+      <select id="validate-user-select">
+        <option value="">Choisir un joueur…</option>
+      </select>
+      <button class="btn-primary" id="btn-confirm-validate">Valider</button>
+      <button class="btn-secondary modal-close-btn">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Custom Card Full View (for saving as PNG) -->
+  <div id="modal-custom-card" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content card-detail">
+      <div id="custom-card-render" class="custom-card-render"></div>
+      <canvas id="custom-card-canvas" style="display:none"></canvas>
+      <button class="btn-primary" id="btn-save-card-png" style="margin-bottom:8px">Enregistrer l'image</button>
+      <button class="btn-secondary modal-close-btn">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Member Profile Modal -->
+  <div id="modal-member" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content member-detail">
+      <img id="member-detail-photo" src="" alt="" class="member-detail-photo">
+      <h3 id="member-detail-name"></h3>
+      <p id="member-detail-role" class="member-detail-role"></p>
+      <p id="member-detail-desc" class="member-detail-desc"></p>
+      <button class="btn-secondary modal-close-btn">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Photo Lightbox -->
+  <div id="photo-lightbox" class="photo-lightbox" style="display:none">
+    <button class="lightbox-close" id="lightbox-close">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="assets/main.js?v=10"></script>
+</body>
+</html>

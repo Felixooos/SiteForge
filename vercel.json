@@ -8,6 +8,14 @@
   },
   "rewrites": [
     {
+      "source": "/bda",
+      "destination": "/output/bda/index.html"
+    },
+    {
+      "source": "/bda/(.*)",
+      "destination": "/output/bda/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/index.js"
     }
