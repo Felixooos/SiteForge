@@ -9,11 +9,7 @@
   "rewrites": [
     {
       "source": "/bda",
-      "destination": "/output/bda/index.html"
-    },
-    {
-      "source": "/bda/(.*)",
-      "destination": "/output/bda/$1"
+      "destination": "/bda/index.html"
     },
     {
       "source": "/(.*)",
