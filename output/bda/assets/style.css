@@ -254,156 +254,280 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 
+/* ========== SUTOM FULLSCREEN GAME ========== */
 .sutom-widget {
   margin-top: 18px;
 }
-.sutom-card {
-  background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 12px;
+.sutom-launch-card {
+  background: linear-gradient(135deg, #1a2e1a, #0d1f0d);
+  border: 2px solid var(--accent);
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
 }
-.sutom-head h3 {
+.sutom-launch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(34,197,94,0.2);
+}
+.sutom-launch-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(34,197,94,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sutom-launch-title {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-light);
+  font-weight: 900; font-size: 1.6rem;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #22c55e, #86efac);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.sutom-head p {
-  color: var(--text-dim);
-  font-size: 0.78rem;
-  margin-top: 4px;
+.sutom-launch-sub {
+  color: var(--text-dim); font-size: 0.82rem; margin-top: 6px;
 }
-.sutom-grid {
+.sutom-launch-preview {
+  display: flex; justify-content: center; gap: 4px; margin-top: 12px;
+}
+.sutom-preview-cell {
+  width: 32px; height: 32px; border-radius: 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.85rem; color: white;
+  background: #dc2626; border: 2px solid #dc2626;
+}
+.sutom-preview-cell.empty {
+  background: #334155; border-color: #475569; color: transparent;
+}
+.sutom-launch-reward {
+  display: inline-block;
   margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding: 5px 16px;
+  border-radius: 20px;
+  background: rgba(34,197,94,0.15);
+  color: #22c55e;
+  font-weight: 700; font-size: 0.85rem;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+.sutom-launch-done {
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+.sutom-launch-card.solved {
+  border-color: rgba(34,197,94,0.3);
+  opacity: 0.7;
+  cursor: default;
+}
+.sutom-launch-card.solved:hover { transform: none; box-shadow: none; }
+.sutom-admin-btn {
+  display: block;
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px dashed rgba(245,158,11,0.4);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sutom-admin-btn:hover { background: rgba(245,158,11,0.08); }
+
+/* Sutom fullscreen modal */
+.sutom-modal-content {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1001;
+  background: #0a0f0a;
+  display: flex; flex-direction: column;
   align-items: center;
+  padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 10px);
+  overflow: hidden;
+}
+.sutom-modal-top {
+  width: 100%; max-width: 400px;
+  text-align: center;
+  padding: 10px 0 6px;
+  position: relative;
+  flex-shrink: 0;
+}
+.sutom-close {
+  position: absolute; left: 0; top: 8px;
+  background: none; border: none;
+  color: #94a3b8; font-size: 1.8rem;
+  cursor: pointer; padding: 4px 12px;
+  line-height: 1;
+}
+.sutom-close:hover { color: #f5f5f5; }
+.sutom-modal-title {
+  font-family: var(--font-heading);
+  font-weight: 900; font-size: 1.4rem;
+  letter-spacing: 6px;
+  color: #f5f5f5;
+}
+.sutom-modal-sub {
+  color: #94a3b8; font-size: 0.75rem; margin-top: 2px;
+}
+
+/* Board */
+.sutom-board {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+  width: 100%; max-width: 380px;
+  padding: 8px 0;
 }
 .sutom-row {
-  display: flex;
-  gap: 5px;
+  display: flex; gap: 5px;
+  width: 100%; justify-content: center;
 }
 .sutom-cell {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
+  width: 48px; height: 48px;
+  border-radius: 4px;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.95rem;
-  border: 1.5px solid var(--border);
-  transition: transform 0.15s, background 0.2s;
-}
-.sutom-cell.well { background: #22c55e44; border-color: #22c55e; color: #22c55e; }
-.sutom-cell.present { background: #f59e0b33; border-color: #f59e0b; color: #f59e0b; }
-.sutom-cell.absent { background: #33415544; border-color: #475569; color: #94a3b8; }
-.sutom-result {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-.sutom-win {
-  background: #22c55e22;
-  color: #22c55e;
-  border: 1px solid #22c55e44;
-}
-.sutom-lose {
-  background: #ef444422;
-  color: #ef4444;
-  border: 1px solid #ef444444;
-}
-.sutom-input-row {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-}
-.sutom-input-row input {
-  flex: 1;
-  min-width: 0;
-  padding: 11px 14px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  background: var(--bg-dark);
-  color: var(--text);
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 2px;
+  align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.25rem;
   text-transform: uppercase;
+  border: 2px solid #334155;
+  color: #f5f5f5;
+  transition: transform 0.1s;
+  user-select: none;
 }
-.sutom-input-row .btn-primary {
-  padding: 11px 20px;
-  font-weight: 800;
+.sutom-cell.filled {
+  border-color: #64748b;
+  animation: sutomPop 0.1s ease;
 }
-.sutom-foot {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  color: var(--text-dim);
-  font-size: 0.75rem;
+.sutom-cell.current {
+  border-color: #94a3b8;
 }
-.sutom-admin {
-  border-color: var(--accent)44;
+.sutom-cell.reveal {
+  animation: sutomFlip 0.5s ease forwards;
 }
-.sutom-admin .sutom-head h3 {
-  color: var(--accent);
+.sutom-cell.well {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
 }
+.sutom-cell.present {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: white;
+}
+.sutom-cell.absent {
+  background: #1e293b;
+  border-color: #334155;
+  color: #64748b;
+}
+.sutom-cell.first-letter {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+/* Message */
+.sutom-message {
+  min-height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 380px;
+  text-align: center;
+  font-weight: 700; font-size: 0.9rem;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.sutom-message.win { color: #22c55e; }
+.sutom-message.lose { color: #ef4444; }
+
+/* On-screen keyboard */
+.sutom-keyboard {
+  width: 100%; max-width: 500px;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px 8px;
+  flex-shrink: 0;
+}
+.sutom-kb-row {
+  display: flex; gap: 4px;
+  justify-content: center;
+}
+.sutom-key {
+  height: 50px;
+  min-width: 28px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: none;
+  background: #334155;
+  color: #f5f5f5;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+  flex: 1;
+  max-width: 42px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.sutom-key:active { transform: scale(0.92); }
+.sutom-key.key-wide {
+  flex: 1.5;
+  max-width: 64px;
+  font-size: 0.7rem;
+}
+.sutom-key.key-well { background: #dc2626; color: white; }
+.sutom-key.key-present { background: #f59e0b; color: white; }
+.sutom-key.key-absent { background: #1e293b; color: #475569; }
+
+@keyframes sutomPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes sutomFlip {
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+@keyframes sutomShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Planned words in admin */
 .sutom-planned-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 10px 0;
-  padding: 10px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  margin: 10px 0; padding: 10px;
+  background: rgba(0,0,0,0.2); border-radius: 10px;
 }
 .sutom-planned-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 0.75rem;
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 6px 8px;
+  border-radius: 8px; font-size: 0.75rem;
   color: var(--text-dim);
 }
 .sutom-planned-item.planned-today {
-  background: var(--accent)22;
-  color: var(--accent);
-  font-weight: 700;
+  background: rgba(245,158,11,0.12);
+  color: var(--accent); font-weight: 700;
 }
 .planned-date { min-width: 80px; }
 .planned-word { flex: 1; text-align: center; font-weight: 700; letter-spacing: 1px; }
 .planned-pts { min-width: 50px; text-align: right; }
-.sutom-plan-form {
-  padding: 8px 0;
+
+@media (max-width: 360px) {
+  .sutom-cell { width: 40px; height: 40px; font-size: 1.05rem; }
+  .sutom-key { height: 44px; font-size: 0.78rem; }
 }
-.sutom-plan-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-.sutom-plan-row label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  font-weight: 600;
-}
-.sutom-plan-row input {
-  padding: 9px 10px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  background: var(--bg-dark);
-  color: var(--text);
-  font-size: 0.85rem;
+@media (min-width: 420px) {
+  .sutom-cell { width: 54px; height: 54px; font-size: 1.35rem; }
 }
 
 /* Pack tiers styling */

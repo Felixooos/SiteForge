@@ -703,157 +703,428 @@
     renderSutom();
   }
 
+  /* ===== SUTOM — fullscreen game engine ===== */
+  const SUTOM_MAX = 6;
+  const AZERTY = [
+    ['A','Z','E','R','T','Y','U','I','O','P'],
+    ['Q','S','D','F','G','H','J','K','L','M'],
+    ['ENVOI','W','X','C','V','B','N','SUPPR'],
+  ];
+
   function normalizeWord(raw) {
-    return (raw || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^A-Za-z]/g, '')
-      .toUpperCase();
+    return (raw || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z]/g,'').toUpperCase();
   }
 
   function getTodaySutomWord() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0,10);
     const entry = state.sutomWords.find(w => w.play_date === today);
-    if (entry) return { word: normalizeWord(entry.word), points: Number(entry.points || 120) };
+    if (entry) return { word: normalizeWord(entry.word), points: Number(entry.points||120) };
     return { word: 'DINOS', points: 100 };
   }
 
+  function sutomInitSession() {
+    const today = new Date().toISOString().slice(0,10);
+    const { word, points } = getTodaySutomWord();
+    const solvedKey = 'bda_sutom_solved_' + today + '_' + (state.user?.email||'guest');
+    const alreadySolved = localStorage.getItem(solvedKey) === '1';
+    if (!state.sutomSession || state.sutomSession.date !== today || state.sutomSession.word !== word) {
+      state.sutomSession = { date: today, word, points, tries: [], solved: alreadySolved, lost: false, currentRow: 0, currentCol: 1 };
+    } else {
+      state.sutomSession.points = points;
+      if (alreadySolved) state.sutomSession.solved = true;
+    }
+  }
+
+  /* --- Launch card in boutique page --- */
   function renderSutom() {
     const wrap = $('#sutom-widget');
     if (!wrap) return;
+    sutomInitSession();
+    const s = state.sutomSession;
     const isCreator = !!(state.profile && (state.profile.is_creator || state.profile.is_admin || state.profile.is_super_admin));
-    const today = new Date().toISOString().slice(0, 10);
-    const { word, points } = getTodaySutomWord();
-    const solvedKey = `bda_sutom_solved_${today}_${state.user?.email || 'guest'}`;
-    const alreadySolved = localStorage.getItem(solvedKey) === '1';
 
-    if (!state.sutomSession || state.sutomSession.date !== today || state.sutomSession.word !== word) {
-      state.sutomSession = { date: today, word, points, tries: [], solved: alreadySolved };
-    } else {
-      state.sutomSession.points = points;
-      state.sutomSession.solved = alreadySolved;
-    }
+    const previewCells = s.word.split('').map((ch,i) =>
+      '<span class="sutom-preview-cell' + (i === 0 ? '' : ' empty') + '">' + (i === 0 ? escHtml(ch) : '') + '</span>'
+    ).join('');
 
-    const tries = state.sutomSession.tries || [];
-    const maxTries = 6;
-    const rows = tries.map(guess => renderSutomRow(guess, word)).join('');
-    const emptyRows = Math.max(0, (state.sutomSession.solved ? 0 : 1));
+    wrap.innerHTML =
+      '<div class="sutom-launch-card' + (s.solved ? ' solved' : '') + '" id="sutom-launch">' +
+        '<div class="sutom-launch-title">SUTOM</div>' +
+        '<div class="sutom-launch-sub">' + s.word.length + ' lettres &middot; ' + SUTOM_MAX + ' essais</div>' +
+        '<div class="sutom-launch-preview">' + previewCells + '</div>' +
+        (s.solved
+          ? '<div class="sutom-launch-done">Deja joue aujourd\'hui !</div>'
+          : '<div class="sutom-launch-reward">+' + s.points + ' pts</div>') +
+      '</div>' +
+      (isCreator ? '<button class="sutom-admin-btn" id="sutom-admin-open">Planifier les mots (admin)</button>' : '');
 
-    // Planned words list for creators
-    const plannedHtml = isCreator ? state.sutomWords.slice(0, 7).map(w => {
-      const d = w.play_date;
-      const isToday = d === today;
-      return `<div class="sutom-planned-item${isToday ? ' planned-today' : ''}"><span class="planned-date">${d}</span><span class="planned-word">${escHtml(normalizeWord(w.word))}</span><span class="planned-pts">${w.points} pts</span></div>`;
-    }).join('') : '';
-
-    wrap.innerHTML = `
-      <div class="sutom-card">
-        <div class="sutom-head">
-          <h3>Sutom du jour</h3>
-          <p>${points} pts &middot; ${word.length} lettres &middot; ${maxTries - tries.length} essai(s) restant(s)</p>
-        </div>
-        <div class="sutom-grid">${rows}</div>
-        ${state.sutomSession.solved
-          ? '<div class="sutom-result sutom-win">Bravo ! Mot trouve &mdash; +' + points + ' pts</div>'
-          : tries.length >= maxTries
-            ? '<div class="sutom-result sutom-lose">Perdu ! Le mot etait : ' + escHtml(word) + '</div>'
-            : `<div class="sutom-input-row">
-                <input id="sutom-guess" type="text" maxlength="${word.length}" placeholder="${word[0]}${'_'.repeat(word.length - 1)} (${word.length} lettres)">
-                <button id="sutom-submit" class="btn-primary">OK</button>
-              </div>`
-        }
-        <div class="sutom-foot">
-          <span>1re lettre : ${escHtml(word[0] || '?')}</span>
-          <span>${tries.length}/${maxTries}</span>
-        </div>
-      </div>
-      ${isCreator ? `
-      <div class="sutom-card sutom-admin">
-        <div class="sutom-head">
-          <h3>Planification Sutom</h3>
-          <p>Planifie les mots pour les prochains jours.</p>
-        </div>
-        ${plannedHtml ? '<div class="sutom-planned-list">' + plannedHtml + '</div>' : ''}
-        <div class="sutom-plan-form">
-          <div class="sutom-plan-row">
-            <label>Date<input id="sutom-plan-date" type="date" value="${today}"></label>
-            <label>Mot<input id="sutom-plan-word" type="text" placeholder="Ex: MUSIQUE" maxlength="15"></label>
-            <label>Points<input id="sutom-plan-points" type="number" min="10" step="10" value="120"></label>
-          </div>
-          <button id="sutom-plan-save" class="btn-primary" style="width:100%;margin-top:8px">Planifier ce mot</button>
-        </div>
-      </div>` : ''}
-    `;
-
-    const submitBtn = $('#sutom-submit');
-    const guessInput = $('#sutom-guess');
-    if (submitBtn && guessInput) {
-      const submit = () => submitSutomGuess();
-      submitBtn.addEventListener('click', submit);
-      guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
-      guessInput.focus();
-    }
-
-    const saveBtn = $('#sutom-plan-save');
-    if (saveBtn) saveBtn.addEventListener('click', saveSutomSchedule);
+    const launch = $('#sutom-launch');
+    if (launch && !s.solved) launch.addEventListener('click', openSutomGame);
+    const adminBtn = $('#sutom-admin-open');
+    if (adminBtn) adminBtn.addEventListener('click', openSutomAdmin);
   }
 
-  function renderSutomRow(guess, word) {
-    const letters = guess.split('');
-    return `<div class="sutom-row">` + letters.map((ch, idx) => {
-      let cls = 'absent';
-      if (word[idx] === ch) cls = 'well';
-      else if (word.includes(ch)) cls = 'present';
-      return `<span class="sutom-cell ${cls}">${escHtml(ch)}</span>`;
-    }).join('') + `</div>`;
+  /* --- Open fullscreen game modal --- */
+  function openSutomGame() {
+    sutomInitSession();
+    const s = state.sutomSession;
+    if (s.solved || s.lost) return;
+    const modal = $('#modal-sutom');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Sub text
+    const sub = $('#sutom-modal-sub');
+    if (sub) sub.textContent = s.word.length + ' lettres \u00b7 ' + s.points + ' pts';
+
+    buildSutomBoard();
+    buildSutomKeyboard();
+    restoreSutomTries();
+
+    // Close btn
+    const closeBtn = $('#sutom-close-btn');
+    if (closeBtn) closeBtn.onclick = closeSutomGame;
+    const overlay = modal.querySelector('.modal-overlay');
+    if (overlay) overlay.onclick = closeSutomGame;
+
+    // Physical keyboard
+    document.addEventListener('keydown', handleSutomKey);
   }
 
-  async function submitSutomGuess() {
-    if (!state.sutomSession || state.sutomSession.solved) return;
-    const input = $('#sutom-guess');
-    if (!input) return;
-    const guess = normalizeWord(input.value);
-    const target = state.sutomSession.word;
-    if (guess.length !== target.length) { toast(`Mot invalide (${target.length} lettres)`, 'error'); return; }
-    if (state.sutomSession.tries.length >= 6) { toast('Plus d\'essais aujourd\'hui.', 'error'); return; }
-
-    state.sutomSession.tries.push(guess);
-    input.value = '';
-    const isWin = guess === target;
-    if (isWin) {
-      state.sutomSession.solved = true;
-      await rewardSutomPoints();
-      toast('Bravo, mot trouvé !', 'success');
-    } else if (state.sutomSession.tries.length >= 6) {
-      toast(`Perdu. Mot du jour: ${target}`, 'error');
-    }
+  function closeSutomGame() {
+    const modal = $('#modal-sutom');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', handleSutomKey);
     renderSutom();
   }
 
+  /* --- Build the 6-row grid --- */
+  function buildSutomBoard() {
+    const board = $('#sutom-board');
+    if (!board) return;
+    const s = state.sutomSession;
+    const len = s.word.length;
+    board.innerHTML = '';
+    for (let r = 0; r < SUTOM_MAX; r++) {
+      const row = document.createElement('div');
+      row.className = 'sutom-row';
+      row.dataset.row = r;
+      for (let c = 0; c < len; c++) {
+        const cell = document.createElement('span');
+        cell.className = 'sutom-cell';
+        cell.dataset.row = r; cell.dataset.col = c;
+        // First column of current row shows first letter
+        if (c === 0 && r === 0) {
+          cell.textContent = s.word[0];
+          cell.classList.add('first-letter');
+        }
+        row.appendChild(cell);
+      }
+      board.appendChild(row);
+    }
+  }
+
+  /* --- Build AZERTY keyboard --- */
+  function buildSutomKeyboard() {
+    const kb = $('#sutom-keyboard');
+    if (!kb) return;
+    kb.innerHTML = '';
+    for (const row of AZERTY) {
+      const rowEl = document.createElement('div');
+      rowEl.className = 'sutom-kb-row';
+      for (const key of row) {
+        const btn = document.createElement('button');
+        btn.className = 'sutom-key';
+        btn.dataset.key = key;
+        if (key === 'ENVOI' || key === 'SUPPR') btn.classList.add('key-wide');
+        btn.textContent = key === 'SUPPR' ? '\u2190' : key === 'ENVOI' ? 'ENVOI' : key;
+        btn.addEventListener('click', () => onSutomKeyPress(key));
+        rowEl.appendChild(btn);
+      }
+      kb.appendChild(rowEl);
+    }
+  }
+
+  /* --- Restore previous tries on reopen --- */
+  function restoreSutomTries() {
+    const s = state.sutomSession;
+    const board = $('#sutom-board');
+    if (!board) return;
+    s.tries.forEach((guess, rowIdx) => {
+      const result = evaluateSutomGuess(guess, s.word);
+      const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+      guess.split('').forEach((ch, ci) => {
+        if (cells[ci]) {
+          cells[ci].textContent = ch;
+          cells[ci].classList.add(result[ci]);
+        }
+      });
+    });
+    // Set current row/col
+    s.currentRow = s.tries.length;
+    s.currentCol = 1;
+    // First letter hint on current row
+    if (s.currentRow < SUTOM_MAX) {
+      const firstCell = board.querySelector('[data-row="' + s.currentRow + '"][data-col="0"]');
+      if (firstCell) {
+        firstCell.textContent = s.word[0];
+        firstCell.classList.add('first-letter');
+      }
+    }
+    // Restore keyboard colors
+    restoreKeyboardColors();
+    // Show end message if needed
+    if (s.solved) showSutomMessage('Bravo ! +' + s.points + ' pts', 'win');
+    else if (s.tries.length >= SUTOM_MAX) showSutomMessage('Perdu ! Le mot \u00e9tait : ' + s.word, 'lose');
+  }
+
+  function restoreKeyboardColors() {
+    const s = state.sutomSession;
+    const keyStatus = {};
+    s.tries.forEach(guess => {
+      const result = evaluateSutomGuess(guess, s.word);
+      guess.split('').forEach((ch, i) => {
+        const st = result[i];
+        const cur = keyStatus[ch] || '';
+        if (st === 'well') keyStatus[ch] = 'well';
+        else if (st === 'present' && cur !== 'well') keyStatus[ch] = 'present';
+        else if (st === 'absent' && !cur) keyStatus[ch] = 'absent';
+      });
+    });
+    const kb = $('#sutom-keyboard');
+    if (!kb) return;
+    kb.querySelectorAll('.sutom-key').forEach(btn => {
+      const k = btn.dataset.key;
+      if (keyStatus[k]) btn.classList.add('key-' + keyStatus[k]);
+    });
+  }
+
+  /* --- Evaluate guess (proper Sutom algorithm with letter counting) --- */
+  function evaluateSutomGuess(guess, target) {
+    const len = target.length;
+    const result = new Array(len).fill('absent');
+    const targetCounts = {};
+    // Count letters in target
+    for (const ch of target) targetCounts[ch] = (targetCounts[ch] || 0) + 1;
+    // First pass: exact matches (well)
+    for (let i = 0; i < len; i++) {
+      if (guess[i] === target[i]) {
+        result[i] = 'well';
+        targetCounts[guess[i]]--;
+      }
+    }
+    // Second pass: present (wrong position)
+    for (let i = 0; i < len; i++) {
+      if (result[i] === 'well') continue;
+      if (targetCounts[guess[i]] && targetCounts[guess[i]] > 0) {
+        result[i] = 'present';
+        targetCounts[guess[i]]--;
+      }
+    }
+    return result;
+  }
+
+  /* --- Keyboard input --- */
+  function handleSutomKey(e) {
+    if ($('#modal-sutom')?.style.display === 'none') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Enter') { e.preventDefault(); onSutomKeyPress('ENVOI'); }
+    else if (e.key === 'Backspace') { e.preventDefault(); onSutomKeyPress('SUPPR'); }
+    else if (/^[a-zA-Z]$/.test(e.key)) { e.preventDefault(); onSutomKeyPress(e.key.toUpperCase()); }
+  }
+
+  function onSutomKeyPress(key) {
+    const s = state.sutomSession;
+    if (!s || s.solved || s.tries.length >= SUTOM_MAX) return;
+    const board = $('#sutom-board');
+    if (!board) return;
+    const len = s.word.length;
+
+    if (key === 'SUPPR') {
+      if (s.currentCol <= 1) return; // Can't delete first letter
+      s.currentCol--;
+      const cell = board.querySelector('[data-row="' + s.currentRow + '"][data-col="' + s.currentCol + '"]');
+      if (cell) { cell.textContent = ''; cell.classList.remove('filled','current'); }
+      // Mark new current
+      const prev = board.querySelector('[data-row="' + s.currentRow + '"][data-col="' + s.currentCol + '"]');
+      if (prev) prev.classList.add('current');
+      return;
+    }
+
+    if (key === 'ENVOI') {
+      if (s.currentCol < len) { shakeRow(s.currentRow); return; }
+      submitSutomRow();
+      return;
+    }
+
+    // Letter input
+    if (s.currentCol >= len) return;
+    const cell = board.querySelector('[data-row="' + s.currentRow + '"][data-col="' + s.currentCol + '"]');
+    if (cell) {
+      cell.textContent = key;
+      cell.classList.add('filled');
+      cell.classList.remove('current');
+    }
+    s.currentCol++;
+    // Mark next as current
+    if (s.currentCol < len) {
+      const next = board.querySelector('[data-row="' + s.currentRow + '"][data-col="' + s.currentCol + '"]');
+      if (next) next.classList.add('current');
+    }
+  }
+
+  function shakeRow(rowIdx) {
+    const board = $('#sutom-board');
+    if (!board) return;
+    const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+    cells.forEach(c => { c.style.animation = 'none'; c.offsetHeight; c.style.animation = 'sutomShake 0.3s ease'; });
+    setTimeout(() => cells.forEach(c => c.style.animation = ''), 350);
+  }
+
+  /* --- Submit a row --- */
+  async function submitSutomRow() {
+    const s = state.sutomSession;
+    const board = $('#sutom-board');
+    if (!board) return;
+
+    // Collect guess from cells
+    let guess = '';
+    for (let c = 0; c < s.word.length; c++) {
+      const cell = board.querySelector('[data-row="' + s.currentRow + '"][data-col="' + c + '"]');
+      guess += (cell?.textContent || '').toUpperCase();
+    }
+    guess = normalizeWord(guess);
+    if (guess.length !== s.word.length) return;
+
+    // First letter must match
+    if (guess[0] !== s.word[0]) {
+      shakeRow(s.currentRow);
+      showSutomMessage('La 1re lettre doit \u00eatre ' + s.word[0], '');
+      setTimeout(() => showSutomMessage('', ''), 1500);
+      return;
+    }
+
+    const result = evaluateSutomGuess(guess, s.word);
+    s.tries.push(guess);
+
+    // Animate reveal row
+    await revealSutomRow(s.currentRow, guess, result);
+
+    // Update keyboard colors
+    updateKeyboardAfterGuess(guess, result);
+
+    const isWin = result.every(r => r === 'well');
+    if (isWin) {
+      s.solved = true;
+      showSutomMessage('Bravo ! +' + s.points + ' pts', 'win');
+      await rewardSutomPoints();
+    } else if (s.tries.length >= SUTOM_MAX) {
+      s.lost = true;
+      showSutomMessage('Perdu ! Le mot \u00e9tait : ' + s.word, 'lose');
+    } else {
+      // Move to next row
+      s.currentRow++;
+      s.currentCol = 1;
+      // Set first letter on new row
+      const firstCell = board.querySelector('[data-row="' + s.currentRow + '"][data-col="0"]');
+      if (firstCell) {
+        firstCell.textContent = s.word[0];
+        firstCell.classList.add('first-letter');
+      }
+    }
+  }
+
+  /* --- Animate row reveal (flip each cell sequentially) --- */
+  function revealSutomRow(rowIdx, guess, result) {
+    return new Promise(resolve => {
+      const board = $('#sutom-board');
+      if (!board) { resolve(); return; }
+      const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+      let i = 0;
+      function flipNext() {
+        if (i >= cells.length) { resolve(); return; }
+        const cell = cells[i];
+        const cls = result[i];
+        cell.classList.add('reveal');
+        setTimeout(() => {
+          cell.className = 'sutom-cell ' + cls;
+          cell.textContent = guess[i] || '';
+          i++;
+          flipNext();
+        }, 250);
+      }
+      flipNext();
+    });
+  }
+
+  function updateKeyboardAfterGuess(guess, result) {
+    const kb = $('#sutom-keyboard');
+    if (!kb) return;
+    guess.split('').forEach((ch, i) => {
+      const st = result[i];
+      const btn = kb.querySelector('[data-key="' + ch + '"]');
+      if (!btn) return;
+      if (st === 'well') { btn.classList.remove('key-present','key-absent'); btn.classList.add('key-well'); }
+      else if (st === 'present' && !btn.classList.contains('key-well')) { btn.classList.remove('key-absent'); btn.classList.add('key-present'); }
+      else if (st === 'absent' && !btn.classList.contains('key-well') && !btn.classList.contains('key-present')) { btn.classList.add('key-absent'); }
+    });
+  }
+
+  function showSutomMessage(text, type) {
+    const el = $('#sutom-message');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'sutom-message' + (type ? ' ' + type : '');
+  }
+
+  /* --- Reward points --- */
   async function rewardSutomPoints() {
     if (state.isGuest || !supabase || !state.user || !state.sutomSession) return;
     const day = state.sutomSession.date;
-    const solvedKey = `bda_sutom_solved_${day}_${state.user.email}`;
+    const solvedKey = 'bda_sutom_solved_' + day + '_' + state.user.email;
     if (localStorage.getItem(solvedKey) === '1') return;
     const points = Number(state.sutomSession.points || 0);
     if (!points) return;
-
     const { error } = await supabase.from('transactions').insert({
       site_id: SITE_ID,
       destinataire_email: state.user.email,
       montant: points,
-      raison: `Sutom du ${day}`,
+      raison: 'Sutom du ' + day,
       admin_email: null,
     });
     if (!error) {
       localStorage.setItem(solvedKey, '1');
-      if (state.profile) {
-        state.profile.solde += points;
-        updateCoins();
-      }
+      if (state.profile) { state.profile.solde += points; updateCoins(); }
       await loadLeaderboard();
       renderClassement();
     }
+  }
+
+  /* --- Admin planning modal --- */
+  function openSutomAdmin() {
+    const modal = $('#modal-sutom-admin');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    renderSutomAdminPlanned();
+    const saveBtn = $('#sutom-plan-save');
+    if (saveBtn) saveBtn.onclick = saveSutomSchedule;
+    modal.querySelectorAll('.modal-close-btn').forEach(b => b.onclick = () => { modal.style.display = 'none'; });
+    const overlay = modal.querySelector('.modal-overlay');
+    if (overlay) overlay.onclick = () => { modal.style.display = 'none'; };
+  }
+
+  function renderSutomAdminPlanned() {
+    const container = $('#sutom-admin-planned');
+    if (!container) return;
+    const today = new Date().toISOString().slice(0,10);
+    const html = state.sutomWords.slice(0,10).map(w => {
+      const d = w.play_date;
+      const isToday = d === today;
+      return '<div class="sutom-planned-item' + (isToday ? ' planned-today' : '') + '"><span class="planned-date">' + escHtml(d) + '</span><span class="planned-word">' + escHtml(normalizeWord(w.word)) + '</span><span class="planned-pts">' + w.points + ' pts</span></div>';
+    }).join('');
+    container.innerHTML = html ? '<div class="sutom-planned-list">' + html + '</div>' : '<p style="color:var(--text-dim);font-size:0.8rem">Aucun mot planifi\u00e9.</p>';
   }
 
   async function saveSutomSchedule() {
@@ -864,22 +1135,14 @@
     if (!word || word.length < 4) { toast('Mot trop court (min. 4 lettres).', 'error'); return; }
     if (!points || points < 10) { toast('Points invalides.', 'error'); return; }
     if (!supabase) { toast('Connexion serveur indisponible.', 'error'); return; }
-
-    // Upsert into bda_sutom_words
     const { error } = await supabase.from('bda_sutom_words').upsert({
-      site_id: SITE_ID,
-      play_date: date,
-      word: word,
-      points: points,
+      site_id: SITE_ID, play_date: date, word: word, points: points,
       created_by: state.user?.email || 'creator',
     }, { onConflict: 'site_id,play_date' });
-
-    if (error) {
-      toast('Erreur: ' + error.message, 'error');
-      return;
-    }
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
     await loadSutomWords();
-    toast('Mot planifie pour le ' + date, 'success');
+    toast('Mot planifi\u00e9 pour le ' + date, 'success');
+    renderSutomAdminPlanned();
     renderSutom();
   }
 
