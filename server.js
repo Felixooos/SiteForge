@@ -984,6 +984,30 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   return js;
 }
 
+// ==================== SERVE LOCAL OUTPUT SITES (fallback) ====================
+app.use('/:projectId', async (req, res, next) => {
+  const projectId = req.params.projectId;
+  if (['admin', 'uploads', 'favicon.ico', 'api'].includes(projectId)) return next();
+
+  // Check if a local output folder exists for this project
+  const outputDir = path.join(__dirname, 'output', projectId);
+  if (await fs.pathExists(outputDir)) {
+    let filePath = req.path;
+    if (filePath === '/' || filePath === '') filePath = '/index.html';
+    const localFile = path.join(outputDir, filePath);
+    // Prevent directory traversal
+    if (!localFile.startsWith(outputDir)) return next();
+    if (await fs.pathExists(localFile)) {
+      const ext = path.extname(filePath);
+      const contentType = mime.lookup(ext) || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'no-cache');
+      return res.sendFile(localFile);
+    }
+  }
+  next();
+});
+
 // ==================== SERVE SUB-SITES (proxy depuis Supabase Storage) ====================
 app.use('/:projectId', async (req, res, next) => {
   const projectId = req.params.projectId;

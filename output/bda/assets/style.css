@@ -254,6 +254,106 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 
+.sutom-widget {
+  margin-top: 18px;
+}
+.sutom-card {
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-card-end));
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 12px;
+}
+.sutom-head h3 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-light);
+}
+.sutom-head p {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+.sutom-grid {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sutom-row {
+  display: flex;
+  gap: 6px;
+}
+.sutom-cell {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border: 1px solid var(--border);
+}
+.sutom-cell.well { background: #22c55e33; border-color: #22c55e; }
+.sutom-cell.present { background: #f59e0b33; border-color: #f59e0b; }
+.sutom-cell.absent { background: #33415566; border-color: #475569; }
+.sutom-input-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+.sutom-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-dark);
+  color: var(--text);
+}
+.sutom-foot {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+.sutom-win {
+  color: var(--success);
+  font-weight: 700;
+}
+.sutom-empty {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.sutom-log {
+  margin-top: 8px;
+  border-top: 1px dashed var(--border);
+  padding-top: 6px;
+}
+.sutom-log-line {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+.sutom-plan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.sutom-plan-row input {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-dark);
+  color: var(--text);
+}
+.sutom-plan-row button {
+  grid-column: 1 / -1;
+}
+
 /* Pack tiers styling */
 .pack-card.tier-0 { border-color: #22c55e33; }
 .pack-card.tier-0 .pack-price { background: linear-gradient(135deg, #22c55e, #16a34a); }

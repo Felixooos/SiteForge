@@ -80,10 +80,13 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Boutique</h2>
-              <p>Achète des packs et découvre tes cartes</p>
+              <p>Achète des packs, joue au Sutom et gagne des pièces</p>
             </div>
             <div id="packs-list" class="packs-grid">
               <!-- Dynamically filled -->
+            </div>
+            <div id="sutom-widget" class="sutom-widget">
+              <!-- Sutom rendered by JS -->
             </div>
           </div>
         </section>
@@ -92,7 +95,7 @@
         <section class="page" id="page-pokedex">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>Pokédex</h2>
+              <h2>Dinodex</h2>
               <p>Ta collection de cartes</p>
             </div>
             <div class="pokedex-tabs">
@@ -330,49 +333,65 @@
               <div class="planning-item" style="animation-delay:0s">
                 <div class="planning-date-badge"><span class="planning-day">22</span><span class="planning-month">MAR</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Soirée d'Ouverture BDA</div>
-                  <div class="planning-desc">Lancement officiel du BDA ! Venez découvrir l'équipe et les projets de l'année autour d'un verre.</div>
-                  <div class="planning-meta">Hall Principal · 19h00</div>
+                  <div class="planning-title">Mercredi 1 avril — Lancement</div>
+                  <div class="planning-desc">Ouverture des campagnes et goûter de lancement.</div>
+                  <div class="planning-meta">Amphi de lancement + Goubet & Boda · 18h00 → 21h00</div>
                 </div>
               </div>
               <div class="planning-item" style="animation-delay:0.05s">
                 <div class="planning-date-badge"><span class="planning-day">28</span><span class="planning-month">MAR</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Atelier Création de Cartes</div>
-                  <div class="planning-desc">Dessine ta propre carte BDA ! Matériel fourni, amène juste ta créativité.</div>
-                  <div class="planning-meta">Salle d'Arts · 14h00</div>
+                  <div class="planning-title">Jeudi 2 avril — Lancement campagne</div>
+                  <div class="planning-desc">Petit-déjeuner, après-midi à la Rez puis soirée au foyer.</div>
+                  <div class="planning-meta">07h30 → 00h00</div>
                 </div>
               </div>
               <div class="planning-item" style="animation-delay:0.1s">
                 <div class="planning-date-badge"><span class="planning-day">05</span><span class="planning-month">AVR</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Tournoi Inter-Assos</div>
-                  <div class="planning-desc">Compétition sportive entre toutes les associations ! Football, volley, basket et plus encore.</div>
-                  <div class="planning-meta">Terrain de Sport · 10h00</div>
+                  <div class="planning-title">Vendredi 3 avril — Déjeuner + fin d'aprèm Rez</div>
+                  <div class="planning-desc">Petit-déjeuner livré, déjeuner puis animation de fin d'après-midi.</div>
+                  <div class="planning-meta">07h30 → 19h30</div>
                 </div>
               </div>
               <div class="planning-item" style="animation-delay:0.15s">
                 <div class="planning-date-badge"><span class="planning-day">12</span><span class="planning-month">AVR</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Projection de Court-Métrage</div>
-                  <div class="planning-desc">Projection du film réalisé par le pôle production. Pop-corn et boissons offerts !</div>
-                  <div class="planning-meta">Amphi A · 20h00</div>
+                  <div class="planning-title">Samedi 4 avril — Aprèm à la Rez</div>
+                  <div class="planning-desc">Format journée légère + soirée au foyer.</div>
+                  <div class="planning-meta">14h00 → 00h00</div>
                 </div>
               </div>
               <div class="planning-item" style="animation-delay:0.2s">
                 <div class="planning-date-badge"><span class="planning-day">19</span><span class="planning-month">AVR</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Concert BDA x BDE</div>
-                  <div class="planning-desc">Concert collaboratif avec le BDE ! Groupes étudiants et DJ set pour finir la soirée.</div>
-                  <div class="planning-meta">Foyer · 21h00</div>
+                  <div class="planning-title">Dimanche 5 avril — Hotlines</div>
+                  <div class="planning-desc">Session dédiée aux hotlines de campagne.</div>
+                  <div class="planning-meta">14h00 → 18h00</div>
                 </div>
               </div>
               <div class="planning-item" style="animation-delay:0.25s">
                 <div class="planning-date-badge"><span class="planning-day">03</span><span class="planning-month">MAI</span></div>
                 <div class="planning-details">
-                  <div class="planning-title">Grande Finale BDA</div>
-                  <div class="planning-desc">Le grand événement de clôture ! Distribution des dernières cartes, remise des prix et soirée de clôture.</div>
-                  <div class="planning-meta">Grande Salle · 18h00</div>
+                  <div class="planning-title">Lundi 6 avril — Top chef + soirée</div>
+                  <div class="planning-desc">Petit-déjeuner, Top Chef (présentation programme), fin d'aprèm Rez et soirée sur Lille.</div>
+                  <div class="planning-meta">07h30 → 00h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.3s">
+                <div class="planning-date-badge"><span class="planning-day">07</span><span class="planning-month">AVR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Mardi 7 avril — Débat des prez</div>
+                  <div class="planning-desc">Petit-déjeuner livré, déjeuner puis débat des présidents BDA.</div>
+                  <div class="planning-meta">07h30 → 20h00</div>
+                </div>
+              </div>
+              <div class="planning-item" style="animation-delay:0.35s">
+                <div class="planning-date-badge"><span class="planning-day">08</span><span class="planning-month">AVR</span></div>
+                <div class="planning-details">
+                  <div class="planning-title">Mercredi 8 avril — Votes</div>
+                  <div class="planning-desc">Journée de vote + soirée de résultats.</div>
+                  <div class="planning-meta">Votes en journée · Résultats à 21h00</div>
                 </div>
               </div>
             </div>
@@ -564,45 +583,45 @@
             </div>
             <div id="programme-content" class="programme-list">
               <div class="programme-card" style="animation-delay:0s">
-                <div class="programme-card-icon">Diplomes</div>
+                <div class="programme-card-icon">Ph'Arts</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Remise des Diplômes</div>
-                  <div class="programme-card-desc">Organisation de la cérémonie de remise des diplômes : lieu, traiteur, animation et décoration. On fera en sorte que ce soit inoubliable !</div>
+                  <div class="programme-card-title">Événements ph'arts</div>
+                  <div class="programme-card-desc">Ra'Lille, soirée dansante, aprem BDA, TDN, Icares et GOSTs : on garde les piliers en les modernisant pour mieux intégrer les nouveaux.</div>
                 </div>
               </div>
               <div class="programme-card" style="animation-delay:0.05s">
-                <div class="programme-card-icon">Events</div>
+                <div class="programme-card-icon">Ext.</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Événementiel</div>
-                  <div class="programme-card-desc">Soirées thématiques, galas, sorties culturelles et voyages. On prépare au moins 4 gros événements dans l'année !</div>
+                  <div class="programme-card-title">Événements avant-g'arts'distes (extérieur)</div>
+                  <div class="programme-card-desc">WEC à Amsterdam en début d'année, puis "Allons Vo'art Dehors" chaque mois (musées, théâtres, cinémas, philharmonie).</div>
                 </div>
               </div>
               <div class="programme-card" style="animation-delay:0.1s">
-                <div class="programme-card-icon">DD</div>
+                <div class="programme-card-icon">Int.</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Développement Durable</div>
-                  <div class="programme-card-desc">Tri sélectif pendant les events, écocups réutilisables, bilan écologique et fonds participatif pour des projets verts.</div>
+                  <div class="programme-card-title">Événements avant-g'arts'distes (intérieur)</div>
+                  <div class="programme-card-desc">Trouve ta St'art, Le B'art à Jeux, newsletter culturelle, vernissages au foyer et Killer P'arty pendant l'inté.</div>
                 </div>
               </div>
               <div class="programme-card" style="animation-delay:0.15s">
-                <div class="programme-card-icon">Cohésion</div>
+                <div class="programme-card-icon">Eco</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Vie Interne & Cohésion</div>
-                  <div class="programme-card-desc">Team buildings, pulls de promo, partage de lieux de stage, fresque murale collaborative et activités inter-promos.</div>
+                  <div class="programme-card-title">Initiatives écologiques</div>
+                  <div class="programme-card-desc">Transports responsables, bilan carbone, repas majoritairement végétariens, tri amélioré, lots immatériels et achats locaux.</div>
                 </div>
               </div>
               <div class="programme-card" style="animation-delay:0.2s">
-                <div class="programme-card-icon">Prod</div>
+                <div class="programme-card-icon">Com</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Production Audio-Visuelle</div>
-                  <div class="programme-card-desc">Court-métrages, clips musicaux, podcasts et making-of. Le pôle prod crée du contenu tout au long de l'année !</div>
+                  <div class="programme-card-title">Communication claire</div>
+                  <div class="programme-card-desc">Signalétique renforcée (verre, compost), mise en valeur des Repair'cafés, et suivi d'impact pour chaque gros événement.</div>
                 </div>
               </div>
               <div class="programme-card" style="animation-delay:0.25s">
-                <div class="programme-card-icon">Inté</div>
+                <div class="programme-card-icon">Dino</div>
                 <div class="programme-card-body">
-                  <div class="programme-card-title">Intégration</div>
-                  <div class="programme-card-desc">Semaine d'intégration repensée : plus d'activités, meilleure organisation et un WEI de folie pour accueillir les nouveaux !</div>
+                  <div class="programme-card-title">Vision Dinos'art 2026-2027</div>
+                  <div class="programme-card-desc">Un mandat orienté culture, cohésion et écologie avec un programme structuré, progressif, et réaliste sur toute l'année.</div>
                 </div>
               </div>
             </div>
@@ -620,7 +639,7 @@
       </button>
       <button class="nav-item" data-page="1">
         <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/><rect x="2" y="3" width="20" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-        <span>Pokédex</span>
+        <span>Dinodex</span>
       </button>
       <button class="nav-item active" data-page="2">
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
@@ -639,19 +658,19 @@
     <!-- Bottom Navigation Bar (Info Mode) -->
     <nav class="bottom-nav" id="bottom-nav-info" style="display:none">
       <button class="nav-item" data-page="0">
-        <span>Sponsors</span>
+        <span>🤝 Sponsors</span>
       </button>
       <button class="nav-item" data-page="1">
-        <span>Goodies</span>
+        <span>🎁 Goodies</span>
       </button>
       <button class="nav-item active" data-page="2">
-        <span>Planning</span>
+        <span>🗓️ Planning</span>
       </button>
       <button class="nav-item" data-page="3">
-        <span>Nous</span>
+        <span>👥 Nous</span>
       </button>
       <button class="nav-item" data-page="4">
-        <span>Programme</span>
+        <span>📚 Programme</span>
       </button>
     </nav>
   </div>

@@ -1,0 +1,49 @@
+{
+  "projectName": "BDA",
+  "logo": "",
+  "favicon": "",
+  "colors": {
+    "primary": "#6366f1",
+    "secondary": "#8b5cf6",
+    "accent": "#f59e0b",
+    "backgroundStart": "#0f172a",
+    "backgroundEnd": "#1e293b",
+    "text": "#e2e8f0",
+    "textLight": "#ffffff",
+    "cardBg": "#1e293b",
+    "cardBgEnd": "#334155"
+  },
+  "fonts": {
+    "heading": "Poppins",
+    "body": "Inter"
+  },
+  "navigation": {
+    "type": "swipe-bottom",
+    "logoInNav": false,
+    "showFooter": false,
+    "footerText": ""
+  },
+  "siteConfig": {
+    "enableAuthGate": true,
+    "supabaseUrl": "",
+    "supabaseAnonKey": "",
+    "currencyName": "pièces",
+    "allowedDomains": [],
+    "adminEmails": [],
+    "mode": "from-scratch",
+    "guestMode": true,
+    "blockedDomains": []
+  },
+  "sections": [],
+  "bdaConfig": {
+    "totalNormalCards": 24,
+    "totalShinyCards": 24,
+    "pages": [
+      { "id": "boutique", "label": "Boutique", "icon": "egg", "order": 0 },
+      { "id": "pokedex", "label": "Dinodex", "icon": "collection", "order": 1 },
+      { "id": "classement", "label": "Classement", "icon": "trophy", "order": 2 },
+      { "id": "defis", "label": "Défis", "icon": "target", "order": 3 },
+      { "id": "profil", "label": "Profil", "icon": "user", "order": 4 }
+    ]
+  }
+}

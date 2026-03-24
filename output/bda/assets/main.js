@@ -71,6 +71,7 @@
     infoPage: 2,        // current info mode page (Planning)
     packRevealCards: [],
     packRevealIndex: 0,
+    sutomSession: null,
   };
 
   // ==================== DOM REFS ====================
@@ -690,6 +691,169 @@
     container.querySelectorAll('.pack-info-btn').forEach(btn => {
       btn.addEventListener('click', () => showPackInfo(parseInt(btn.dataset.packInfo)));
     });
+
+    renderSutom();
+  }
+
+  function getSutomStorage() {
+    try {
+      return JSON.parse(localStorage.getItem('bda_sutom_schedule_v1') || '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  function setSutomStorage(data) {
+    localStorage.setItem('bda_sutom_schedule_v1', JSON.stringify(data || {}));
+  }
+
+  function normalizeWord(raw) {
+    return (raw || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^A-Za-z]/g, '')
+      .toUpperCase();
+  }
+
+  function renderSutom() {
+    const wrap = $('#sutom-widget');
+    if (!wrap) return;
+    const isCreator = !!(state.profile && (state.profile.is_creator || state.profile.is_admin || state.profile.is_super_admin));
+    const today = new Date().toISOString().slice(0, 10);
+    const storage = getSutomStorage();
+    const todayCfg = storage[today] || { word: 'ARTS', points: 120, createdBy: 'default' };
+    const word = normalizeWord(todayCfg.word || 'ARTS');
+    const points = Number(todayCfg.points || 120);
+    const solvedKey = `bda_sutom_solved_${today}_${state.user?.email || 'guest'}`;
+    const alreadySolved = localStorage.getItem(solvedKey) === '1';
+
+    if (!state.sutomSession || state.sutomSession.date !== today || state.sutomSession.word !== word) {
+      state.sutomSession = { date: today, word, points, tries: [], solved: alreadySolved };
+    } else {
+      state.sutomSession.points = points;
+      state.sutomSession.solved = alreadySolved;
+    }
+
+    const tries = state.sutomSession.tries || [];
+    const rows = tries.map(guess => renderSutomRow(guess, word)).join('');
+    const history = tries.length
+      ? tries.map((g, i) => `<div class="sutom-log-line">Essai ${i + 1}: ${escHtml(g)}</div>`).join('')
+      : '<div class="sutom-log-line">Aucun essai pour le moment.</div>';
+
+    wrap.innerHTML = `
+      <div class="sutom-card">
+        <div class="sutom-head">
+          <h3>Sutom du jour</h3>
+          <p>${today} · ${points} pièces à gagner</p>
+        </div>
+        <div class="sutom-grid">${rows || '<div class="sutom-empty">Devine le mot en 6 essais maximum.</div>'}</div>
+        <div class="sutom-input-row">
+          <input id="sutom-guess" type="text" maxlength="${word.length}" placeholder="Mot (${word.length} lettres)" ${state.sutomSession.solved ? 'disabled' : ''}>
+          <button id="sutom-submit" class="btn-secondary" ${state.sutomSession.solved ? 'disabled' : ''}>Valider</button>
+        </div>
+        <div class="sutom-foot">
+          ${state.sutomSession.solved ? '<span class="sutom-win">Mot trouvé - récompense déjà obtenue.</span>' : '<span>Indice: 1re lettre = ' + escHtml(word[0] || '?') + '</span>'}
+          <span>${tries.length}/6</span>
+        </div>
+        <div class="sutom-log">${history}</div>
+      </div>
+      ${isCreator ? `
+      <div class="sutom-card sutom-admin">
+        <div class="sutom-head">
+          <h3>Planification créateur</h3>
+          <p>Définis le mot et la récompense d'un jour.</p>
+        </div>
+        <div class="sutom-plan-row">
+          <input id="sutom-plan-date" type="date" value="${today}">
+          <input id="sutom-plan-word" type="text" placeholder="Mot du jour" value="${escAttr(word)}">
+          <input id="sutom-plan-points" type="number" min="10" step="10" value="${points}">
+          <button id="sutom-plan-save" class="btn-primary">Enregistrer</button>
+        </div>
+      </div>` : ''}
+    `;
+
+    const submitBtn = $('#sutom-submit');
+    const guessInput = $('#sutom-guess');
+    if (submitBtn && guessInput) {
+      const submit = () => submitSutomGuess();
+      submitBtn.addEventListener('click', submit);
+      guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    }
+
+    const saveBtn = $('#sutom-plan-save');
+    if (saveBtn) saveBtn.addEventListener('click', saveSutomSchedule);
+  }
+
+  function renderSutomRow(guess, word) {
+    const letters = guess.split('');
+    return `<div class="sutom-row">` + letters.map((ch, idx) => {
+      let cls = 'absent';
+      if (word[idx] === ch) cls = 'well';
+      else if (word.includes(ch)) cls = 'present';
+      return `<span class="sutom-cell ${cls}">${escHtml(ch)}</span>`;
+    }).join('') + `</div>`;
+  }
+
+  async function submitSutomGuess() {
+    if (!state.sutomSession || state.sutomSession.solved) return;
+    const input = $('#sutom-guess');
+    if (!input) return;
+    const guess = normalizeWord(input.value);
+    const target = state.sutomSession.word;
+    if (guess.length !== target.length) { toast(`Mot invalide (${target.length} lettres)`, 'error'); return; }
+    if (state.sutomSession.tries.length >= 6) { toast('Plus d\'essais aujourd\'hui.', 'error'); return; }
+
+    state.sutomSession.tries.push(guess);
+    input.value = '';
+    const isWin = guess === target;
+    if (isWin) {
+      state.sutomSession.solved = true;
+      await rewardSutomPoints();
+      toast('Bravo, mot trouvé !', 'success');
+    } else if (state.sutomSession.tries.length >= 6) {
+      toast(`Perdu. Mot du jour: ${target}`, 'error');
+    }
+    renderSutom();
+  }
+
+  async function rewardSutomPoints() {
+    if (state.isGuest || !supabase || !state.user || !state.sutomSession) return;
+    const day = state.sutomSession.date;
+    const solvedKey = `bda_sutom_solved_${day}_${state.user.email}`;
+    if (localStorage.getItem(solvedKey) === '1') return;
+    const points = Number(state.sutomSession.points || 0);
+    if (!points) return;
+
+    const { error } = await supabase.from('transactions').insert({
+      site_id: SITE_ID,
+      destinataire_email: state.user.email,
+      montant: points,
+      raison: `Sutom du ${day}`,
+      admin_email: null,
+    });
+    if (!error) {
+      localStorage.setItem(solvedKey, '1');
+      if (state.profile) {
+        state.profile.solde += points;
+        updateCoins();
+      }
+      await loadLeaderboard();
+      renderClassement();
+    }
+  }
+
+  function saveSutomSchedule() {
+    const date = $('#sutom-plan-date')?.value;
+    const word = normalizeWord($('#sutom-plan-word')?.value || '');
+    const points = parseInt($('#sutom-plan-points')?.value || '0', 10);
+    if (!date) { toast('Choisis une date.', 'error'); return; }
+    if (!word || word.length < 4) { toast('Mot trop court (min. 4 lettres).', 'error'); return; }
+    if (!points || points < 10) { toast('Points invalides.', 'error'); return; }
+    const storage = getSutomStorage();
+    storage[date] = { word, points, createdBy: state.user?.email || 'creator' };
+    setSutomStorage(storage);
+    toast(`Sutom planifié pour ${date}`, 'success');
+    renderSutom();
   }
 
   async function buyPack(packId) {
