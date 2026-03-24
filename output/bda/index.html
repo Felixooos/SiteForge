@@ -12,7 +12,7 @@
   <title>Dinos'Art</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=12">
+  <link rel="stylesheet" href="assets/style.css?v=13">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -875,14 +875,12 @@
   <div id="modal-sutom-admin" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3>Planification Sutom</h3>
-      <p style="color:var(--text-dim);font-size:0.8rem;margin-bottom:12px">Planifie les mots pour les prochains jours.</p>
-      <div id="sutom-admin-planned"></div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-        <input type="date" id="sutom-plan-date">
-        <input type="text" id="sutom-plan-word" placeholder="Mot du jour (min 4 lettres)" maxlength="15" style="text-transform:uppercase">
-        <input type="number" id="sutom-plan-points" placeholder="Points" min="10" step="10" value="120">
-        <button class="btn-primary" id="sutom-plan-save">Planifier</button>
+      <h3>Mot du Sutom</h3>
+      <p style="color:var(--text-dim);font-size:0.8rem;margin-bottom:16px">Change le mot actif pour tout le monde.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input type="text" id="sutom-plan-word" placeholder="Nouveau mot (min 4 lettres)" maxlength="15" style="text-transform:uppercase;padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-dark);color:var(--text);font-size:1rem;letter-spacing:2px;font-weight:700">
+        <input type="number" id="sutom-plan-points" placeholder="Points" min="10" step="10" value="120" style="padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-dark);color:var(--text);font-size:1rem">
+        <button class="btn-primary" id="sutom-plan-save">Valider</button>
       </div>
       <button class="btn-secondary modal-close-btn" style="margin-top:10px">Fermer</button>
     </div>
@@ -907,6 +905,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=12"></script>
+  <script src="assets/main.js?v=13"></script>
 </body>
 </html>

@@ -741,12 +741,12 @@
     if (!wrap) return;
     sutomInitSession();
     const s = state.sutomSession;
-    const isCreator = !!(state.profile && (state.profile.is_creator || state.profile.is_admin || state.profile.is_super_admin));
 
     const previewCells = s.word.split('').map((ch,i) =>
       '<span class="sutom-preview-cell' + (i === 0 ? '' : ' empty') + '">' + (i === 0 ? escHtml(ch) : '') + '</span>'
     ).join('');
 
+    const isSuperAdmin = !!(state.profile && state.profile.is_super_admin);
     wrap.innerHTML =
       '<div class="sutom-launch-card' + (s.solved ? ' solved' : '') + '" id="sutom-launch">' +
         '<div class="sutom-launch-title">SUTOM</div>' +
@@ -756,7 +756,7 @@
           ? '<div class="sutom-launch-done">Deja joue aujourd\'hui !</div>'
           : '<div class="sutom-launch-reward">+' + s.points + ' pts</div>') +
       '</div>' +
-      (isCreator ? '<button class="sutom-admin-btn" id="sutom-admin-open">Planifier les mots (admin)</button>' : '');
+      (isSuperAdmin ? '<button class="sutom-admin-btn" id="sutom-admin-open">Changer le mot (admin)</button>' : '');
 
     const launch = $('#sutom-launch');
     if (launch && !s.solved) launch.addEventListener('click', openSutomGame);
@@ -1102,12 +1102,16 @@
     }
   }
 
-  /* --- Admin planning modal --- */
+  /* --- Admin: change active word --- */
   function openSutomAdmin() {
     const modal = $('#modal-sutom-admin');
     if (!modal) return;
+    // Pre-fill current word
+    const wordInput = $('#sutom-plan-word');
+    const ptsInput = $('#sutom-plan-points');
+    if (wordInput && state.sutomSession) wordInput.value = state.sutomSession.word;
+    if (ptsInput && state.sutomSession) ptsInput.value = state.sutomSession.points;
     modal.style.display = 'flex';
-    renderSutomAdminPlanned();
     const saveBtn = $('#sutom-plan-save');
     if (saveBtn) saveBtn.onclick = saveSutomSchedule;
     modal.querySelectorAll('.modal-close-btn').forEach(b => b.onclick = () => { modal.style.display = 'none'; });
@@ -1115,34 +1119,25 @@
     if (overlay) overlay.onclick = () => { modal.style.display = 'none'; };
   }
 
-  function renderSutomAdminPlanned() {
-    const container = $('#sutom-admin-planned');
-    if (!container) return;
-    const today = new Date().toISOString().slice(0,10);
-    const html = state.sutomWords.slice(0,10).map(w => {
-      const d = w.play_date;
-      const isToday = d === today;
-      return '<div class="sutom-planned-item' + (isToday ? ' planned-today' : '') + '"><span class="planned-date">' + escHtml(d) + '</span><span class="planned-word">' + escHtml(normalizeWord(w.word)) + '</span><span class="planned-pts">' + w.points + ' pts</span></div>';
-    }).join('');
-    container.innerHTML = html ? '<div class="sutom-planned-list">' + html + '</div>' : '<p style="color:var(--text-dim);font-size:0.8rem">Aucun mot planifi\u00e9.</p>';
-  }
-
   async function saveSutomSchedule() {
-    const date = $('#sutom-plan-date')?.value;
     const word = normalizeWord($('#sutom-plan-word')?.value || '');
     const points = parseInt($('#sutom-plan-points')?.value || '0', 10);
-    if (!date) { toast('Choisis une date.', 'error'); return; }
     if (!word || word.length < 4) { toast('Mot trop court (min. 4 lettres).', 'error'); return; }
     if (!points || points < 10) { toast('Points invalides.', 'error'); return; }
     if (!supabase) { toast('Connexion serveur indisponible.', 'error'); return; }
+    const today = new Date().toISOString().slice(0,10);
     const { error } = await supabase.from('bda_sutom_words').upsert({
-      site_id: SITE_ID, play_date: date, word: word, points: points,
-      created_by: state.user?.email || 'creator',
+      site_id: SITE_ID, play_date: today, word: word, points: points,
+      created_by: state.user?.email || 'admin',
     }, { onConflict: 'site_id,play_date' });
     if (error) { toast('Erreur: ' + error.message, 'error'); return; }
     await loadSutomWords();
-    toast('Mot planifi\u00e9 pour le ' + date, 'success');
-    renderSutomAdminPlanned();
+    // Reset today's session so the new word takes effect
+    state.sutomSession = null;
+    sutomInitSession();
+    const modal = $('#modal-sutom-admin');
+    if (modal) modal.style.display = 'none';
+    toast('Mot mis \u00e0 jour : ' + word, 'success');
     renderSutom();
   }
 
