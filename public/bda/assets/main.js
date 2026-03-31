@@ -1751,10 +1751,31 @@
       egg.style.display = 'none';
       stage.style.display = 'flex';
       $('#pack-reveal-total').textContent = drawnCards.length;
-      $('#pack-reveal-count').textContent = '0';
+      $('#pack-reveal-count').textContent = drawnCards.length;
       const container = $('#pack-card-container');
-      container.innerHTML = '<div class="pack-tap-prompt">Touche pour r\u00e9v\u00e9ler</div>';
-      container.onclick = revealNextCard;
+      // Build grid of all cards
+      var gridHtml = '';
+      for (var gi = 0; gi < drawnCards.length; gi++) {
+        var gc = drawnCards[gi];
+        gridHtml += '<div class="pack-grid-card' + (gc.is_shiny ? ' shiny' : '') + '" style="animation-delay:' + (gi * 0.1) + 's" data-flip-idx="' + gi + '">' +
+          '<div class="pack-grid-card-inner">' +
+            '<div class="pack-grid-card-back"><span>?</span></div>' +
+            '<div class="pack-grid-card-front">' +
+              (gc.image_url ? '<img src="' + escAttr(gc.image_url) + '" alt="">' : '<div style="font-size:36px;color:var(--text-dim)">?</div>') +
+              '<div class="grid-card-name">' + escHtml(gc.name) + '</div>' +
+              (gc.is_shiny ? '<div class="grid-card-shiny">SHINY</div>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+      container.innerHTML = gridHtml;
+      // Stagger flip animations
+      var gridCards = container.querySelectorAll('.pack-grid-card');
+      gridCards.forEach(function(el, idx) {
+        setTimeout(function() { el.classList.add('flipped'); }, 400 + idx * 200);
+      });
+      // Show close after all flipped
+      setTimeout(function() { closeBtn.style.display = 'block'; }, 400 + drawnCards.length * 200 + 600);
     }, 4000);
 
     closeBtn.onclick = () => {
@@ -1834,16 +1855,35 @@
   }
 
   function drawCardsFromPack(pack) {
-    const available = state.cards;
+    // Merge admin cards + approved custom cards
+    var available = state.cards.slice();
+    var approvedCustom = state.customCards.filter(function(c) { return c.approved; });
+    for (var ci = 0; ci < approvedCustom.length; ci++) {
+      var cc = approvedCustom[ci];
+      available.push({
+        id: 'custom_' + cc.id,
+        name: cc.card_name || cc.name || 'Carte custom',
+        image_url: cc.image_url || '',
+        is_shiny: false,
+        card_number: 9000 + ci,
+      });
+    }
     if (available.length === 0) return [];
 
-    const drawn = [];
-    for (let i = 0; i < pack.cards_count; i++) {
-      const isShiny = Math.random() < (pack.shiny_chance || 0.05);
-      let pool = available.filter(c => c.is_shiny === isShiny);
-      if (pool.length === 0) pool = available.filter(c => !c.is_shiny);
+    // Variable card count: base ± 1-2
+    var base = pack.cards_count || 5;
+    var variance = Math.floor(base * 0.3) || 1;
+    var count = base + Math.floor(Math.random() * (variance * 2 + 1)) - variance;
+    if (count < 2) count = 2;
+    if (count > 12) count = 12;
+
+    var drawn = [];
+    for (var i = 0; i < count; i++) {
+      var isShiny = Math.random() < (pack.shiny_chance || 0.05);
+      var pool = available.filter(function(c) { return c.is_shiny === isShiny; });
+      if (pool.length === 0) pool = available.filter(function(c) { return !c.is_shiny; });
       if (pool.length === 0) pool = available;
-      const card = pool[Math.floor(Math.random() * pool.length)];
+      var card = pool[Math.floor(Math.random() * pool.length)];
       drawn.push(card);
     }
 
