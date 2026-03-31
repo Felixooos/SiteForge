@@ -1751,31 +1751,11 @@
       egg.style.display = 'none';
       stage.style.display = 'flex';
       $('#pack-reveal-total').textContent = drawnCards.length;
-      $('#pack-reveal-count').textContent = drawnCards.length;
+      $('#pack-reveal-count').textContent = '0';
       const container = $('#pack-card-container');
-      // Build grid of all cards
-      var gridHtml = '';
-      for (var gi = 0; gi < drawnCards.length; gi++) {
-        var gc = drawnCards[gi];
-        gridHtml += '<div class="pack-grid-card' + (gc.is_shiny ? ' shiny' : '') + '" style="animation-delay:' + (gi * 0.1) + 's" data-flip-idx="' + gi + '">' +
-          '<div class="pack-grid-card-inner">' +
-            '<div class="pack-grid-card-back"><span>?</span></div>' +
-            '<div class="pack-grid-card-front">' +
-              (gc.image_url ? '<img src="' + escAttr(gc.image_url) + '" alt="">' : '<div style="font-size:36px;color:var(--text-dim)">?</div>') +
-              '<div class="grid-card-name">' + escHtml(gc.name) + '</div>' +
-              (gc.is_shiny ? '<div class="grid-card-shiny">SHINY</div>' : '') +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }
-      container.innerHTML = gridHtml;
-      // Stagger flip animations
-      var gridCards = container.querySelectorAll('.pack-grid-card');
-      gridCards.forEach(function(el, idx) {
-        setTimeout(function() { el.classList.add('flipped'); }, 400 + idx * 200);
-      });
-      // Show close after all flipped
-      setTimeout(function() { closeBtn.style.display = 'block'; }, 400 + drawnCards.length * 200 + 600);
+      container.classList.remove('summary-mode');
+      container.innerHTML = '<div class="pack-tap-prompt">Touche pour r\u00e9v\u00e9ler</div>';
+      container.onclick = revealNextCard;
     }, 4000);
 
     closeBtn.onclick = () => {
@@ -1826,7 +1806,7 @@
       container.onclick = null;
       setTimeout(() => {
         if (state.packRevealIndex >= cards.length) {
-          $('#pack-close').style.display = 'block';
+          showPackSummary();
         } else {
           container.onclick = revealNextCard;
         }
@@ -1849,9 +1829,32 @@
         container.querySelector('.normal-flip-card').classList.add('flipped');
       });
       if (state.packRevealIndex >= cards.length) {
-        setTimeout(() => { $('#pack-close').style.display = 'block'; }, 700);
+        setTimeout(() => { showPackSummary(); }, 700);
       }
     }
+  }
+
+  function showPackSummary() {
+    var cards = state.packRevealCards;
+    var container = $('#pack-card-container');
+    container.onclick = null;
+    container.classList.add('summary-mode');
+    var html = '';
+    for (var si = 0; si < cards.length; si++) {
+      var sc = cards[si];
+      html += '<div class="pack-grid-card' + (sc.is_shiny ? ' shiny' : '') + ' flipped" style="animation-delay:' + (si * 0.08) + 's">' +
+        '<div class="pack-grid-card-inner">' +
+          '<div class="pack-grid-card-back"><span>?</span></div>' +
+          '<div class="pack-grid-card-front">' +
+            (sc.image_url ? '<img src="' + escAttr(sc.image_url) + '" alt="">' : '<div style="font-size:28px;color:var(--text-dim)">?</div>') +
+            '<div class="grid-card-name">' + escHtml(sc.name) + '</div>' +
+            (sc.is_shiny ? '<div class="grid-card-shiny">SHINY</div>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+    container.innerHTML = html;
+    $('#pack-close').style.display = 'block';
   }
 
   function drawCardsFromPack(pack) {
