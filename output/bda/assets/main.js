@@ -1789,8 +1789,6 @@
             <div class="shiny-card-back"><span>?</span></div>
             <div class="shiny-card-front">
               ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="">` : '<div style="font-size:60px">?</div>'}
-              <div class="reveal-name" style="opacity:0;transition:opacity 0.4s">${escHtml(card.name)}</div>
-              <div class="reveal-shiny-badge" style="opacity:0;transition:opacity 0.4s">SHINY</div>
             </div>
           </div>
         </div>
@@ -1804,12 +1802,6 @@
         container.classList.remove('shiny-reveal-active');
       }, 2900);
       container.onclick = null;
-      setTimeout(() => {
-        const nameEl = container.querySelector('.reveal-name');
-        const badgeEl = container.querySelector('.reveal-shiny-badge');
-        if (nameEl) nameEl.style.opacity = '1';
-        if (badgeEl) badgeEl.style.opacity = '1';
-      }, 4050);
       setTimeout(() => {
         if (state.packRevealIndex >= cards.length) {
           showPackSummary();
@@ -1826,7 +1818,6 @@
             <div class="normal-card-back"><span>?</span></div>
             <div class="normal-card-front">
               ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="">` : '<div style="font-size:60px">?</div>'}
-              <div class="reveal-name" style="opacity:0;transition:opacity 0.4s">${escHtml(card.name)}</div>
             </div>
           </div>
         </div>
@@ -1834,10 +1825,6 @@
       requestAnimationFrame(() => {
         container.querySelector('.normal-flip-card').classList.add('flipped');
       });
-      setTimeout(() => {
-        const nameEl = container.querySelector('.reveal-name');
-        if (nameEl) nameEl.style.opacity = '1';
-      }, 650);
       if (state.packRevealIndex >= cards.length) {
         setTimeout(() => { showPackSummary(); }, 700);
       }
