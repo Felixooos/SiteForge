@@ -874,7 +874,7 @@
   function sutomInitSession() {
     const today = new Date().toISOString().slice(0,10);
     const { word, points } = getTodaySutomWord();
-    const solvedKey = 'bda_sutom_solved_' + today + '_' + (state.user?.email||'guest');
+    const solvedKey = 'bda_sutom_solved_' + today + '_' + word + '_' + (state.user?.email||'guest');
     const alreadySolved = localStorage.getItem(solvedKey) === '1';
     if (!state.sutomSession || state.sutomSession.date !== today || state.sutomSession.word !== word) {
       state.sutomSession = { date: today, word, points, tries: [], solved: alreadySolved, lost: false, currentRow: 0, currentCol: 1 };
@@ -1231,7 +1231,7 @@
   async function rewardSutomPoints() {
     if (state.isGuest || !supabase || !state.user || !state.sutomSession) return;
     const day = state.sutomSession.date;
-    const solvedKey = 'bda_sutom_solved_' + day + '_' + state.user.email;
+    const solvedKey = 'bda_sutom_solved_' + day + '_' + state.sutomSession.word + '_' + state.user.email;
     if (localStorage.getItem(solvedKey) === '1') return;
     const points = Number(state.sutomSession.points || 0);
     if (!points) return;
@@ -1273,10 +1273,12 @@
     if (!points || points < 10) { toast('Points invalides.', 'error'); return; }
     if (!supabase) { toast('Connexion serveur indisponible.', 'error'); return; }
     const today = new Date().toISOString().slice(0,10);
-    const { error } = await supabase.from('bda_sutom_words').upsert({
-      site_id: SITE_ID, play_date: today, word: word, points: points,
-      created_by: state.user?.email || 'admin',
-    }, { onConflict: 'site_id,play_date' });
+    const { error } = await supabase.rpc('rpc_admin_set_sutom_word', {
+      p_site_id: SITE_ID,
+      p_word: word,
+      p_points: points,
+      p_date: today,
+    });
     if (error) { toast('Erreur: ' + error.message, 'error'); return; }
     await loadSutomWords();
     // Reset today's session so the new word takes effect
