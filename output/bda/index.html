@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -22,15 +22,15 @@
     <div class="auth-card">
       <div class="auth-logo">Dinos'Art</div>
       <h1 class="auth-title">Dinos'Art</h1>
-      <p class="auth-subtitle">Collecte, défie, domine.</p>
+      <p class="auth-subtitle">Collecte, dÃ©fie, domine.</p>
 
       <!-- Login Form -->
       <div id="auth-login" class="auth-form">
         <input type="email" id="login-email" placeholder="Email" autocomplete="email">
         <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
         <button id="btn-login" class="btn-primary">Se connecter</button>
-        <p class="auth-switch">Pas de compte ? <a href="#" id="show-register">Créer un compte</a></p>
-        <p class="auth-switch"><a href="#" id="show-forgot">Mot de passe oublié ?</a></p>
+        <p class="auth-switch">Pas de compte ? <a href="#" id="show-register">CrÃ©er un compte</a></p>
+        <p class="auth-switch"><a href="#" id="show-forgot">Mot de passe oubliÃ© ?</a></p>
       </div>
 
       <!-- Register Form -->
@@ -38,34 +38,34 @@
         <input type="text" id="register-pseudo" placeholder="Pseudo" maxlength="20">
         <input type="email" id="register-email" placeholder="Email">
         <input type="password" id="register-password" placeholder="Mot de passe (min. 6 car.)">
-        <button id="btn-register" class="btn-primary">Créer mon compte</button>
-        <p class="auth-switch">Déjà un compte ? <a href="#" id="show-login">Se connecter</a></p>
+        <button id="btn-register" class="btn-primary">CrÃ©er mon compte</button>
+        <p class="auth-switch">DÃ©jÃ  un compte ? <a href="#" id="show-login">Se connecter</a></p>
       </div>
 
       <!-- Forgot Password Form -->
       <div id="auth-forgot" class="auth-form" style="display:none">
         <div id="forgot-step-email">
-          <p class="auth-forgot-text">Entre ton email pour recevoir un code de réinitialisation.</p>
+          <p class="auth-forgot-text">Entre ton email pour recevoir un code de rÃ©initialisation.</p>
           <input type="email" id="forgot-email" placeholder="Email" autocomplete="email">
           <button id="btn-forgot" class="btn-primary">Envoyer le code</button>
         </div>
         <div id="forgot-step-code" style="display:none">
-          <p class="auth-forgot-text">Code envoyé ! Entre le code reçu par email.</p>
-          <input type="text" id="forgot-code" placeholder="Code à 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
-          <button id="btn-verify-code" class="btn-primary">Vérifier le code</button>
+          <p class="auth-forgot-text">Code envoyÃ© ! Entre le code reÃ§u par email.</p>
+          <input type="text" id="forgot-code" placeholder="Code Ã  8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+          <button id="btn-verify-code" class="btn-primary">VÃ©rifier le code</button>
         </div>
         <div id="forgot-step-newpw" style="display:none">
-          <p class="auth-forgot-text">Code validé ! Choisis ton nouveau mot de passe.</p>
+          <p class="auth-forgot-text">Code validÃ© ! Choisis ton nouveau mot de passe.</p>
           <input type="password" id="forgot-newpw" placeholder="Nouveau mot de passe (min. 6 car.)" autocomplete="new-password">
           <input type="password" id="forgot-confirmpw" placeholder="Confirmer le mot de passe" autocomplete="new-password">
           <button id="btn-set-newpw" class="btn-primary">Enregistrer le mot de passe</button>
         </div>
-        <p id="forgot-success" class="auth-success" style="display:none">Mot de passe mis à jour ! Tu peux te connecter.</p>
-        <p class="auth-switch"><a href="#" id="back-to-login">Retour à la connexion</a></p>
+        <p id="forgot-success" class="auth-success" style="display:none">Mot de passe mis Ã  jour ! Tu peux te connecter.</p>
+        <p class="auth-switch"><a href="#" id="back-to-login">Retour Ã  la connexion</a></p>
       </div>
 
       <div class="auth-divider"><span>ou</span></div>
-      <button id="btn-guest" class="btn-guest">Mode Invité</button>
+      <button id="btn-guest" class="btn-guest">Mode InvitÃ©</button>
       <p id="auth-error" class="auth-error"></p>
     </div>
   </div>
@@ -76,7 +76,7 @@
     <!-- Top Bar -->
     <header class="top-bar">
       <div class="top-bar-left">
-        <img src="images/logo.png" alt="" class="top-bar-logo">
+        <img src="images/logo.jpg" alt="" class="top-bar-logo">
         <span class="top-bar-title">Dinos'Art</span>
       </div>
       <div class="top-bar-right">
@@ -104,7 +104,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Boutique</h2>
-              <p>Achète des packs, joue au Sutom et gagne des pièces</p>
+              <p>AchÃ¨te des packs, joue au Sutom et gagne des piÃ¨ces</p>
             </div>
             <div id="sutom-widget" class="sutom-widget">
               <!-- Sutom rendered by JS -->
@@ -125,7 +125,7 @@
             <div class="pokedex-tabs">
               <button class="tab-btn active" data-tab="normal">Normales <span id="count-normal">0</span>/24</button>
               <button class="tab-btn" data-tab="shiny">Shiny <span id="count-shiny">0</span>/24</button>
-              <button class="tab-btn" data-tab="creations">Créations</button>
+              <button class="tab-btn" data-tab="creations">CrÃ©ations</button>
             </div>
             <div id="pokedex-grid" class="pokedex-grid">
               <!-- Dynamically filled -->
@@ -142,7 +142,7 @@
             </div>
             <!-- My position banner -->
             <div id="my-position" class="my-position" style="display:none">
-              <div class="my-pos-rank" id="my-pos-rank">#—</div>
+              <div class="my-pos-rank" id="my-pos-rank">#â€”</div>
               <div class="my-pos-info">
                 <div class="my-pos-label">Ta position</div>
                 <div class="my-pos-coins" id="my-pos-coins">0</div>
@@ -187,7 +187,7 @@
             <div id="profil-guest" style="display:none">
               <div class="guest-prompt">
                 <div class="guest-icon"></div>
-                <h3>Connecte-toi pour accéder à ton profil</h3>
+                <h3>Connecte-toi pour accÃ©der Ã  ton profil</h3>
                 <button class="btn-primary" id="btn-guest-login">Se connecter</button>
               </div>
             </div>
@@ -201,9 +201,9 @@
                 <h2 id="profil-pseudo">Pseudo</h2>
                 <p id="profil-email" class="profil-email">email@example.com</p>
                 <div class="profil-stats">
-                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pièces</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">PiÃ¨ces</span></div>
                   <div class="stat"><span class="stat-value" id="profil-cards">0</span><span class="stat-label">Cartes</span></div>
-                  <div class="stat"><span class="stat-value" id="profil-rank">#—</span><span class="stat-label">Rang</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-rank">#â€”</span><span class="stat-label">Rang</span></div>
                 </div>
               </div>
 
@@ -230,7 +230,7 @@
                     <input type="text" id="cc-name" placeholder="Nom de la carte" maxlength="30">
                     <textarea id="cc-desc" placeholder="Description" maxlength="100"></textarea>
                     <input type="text" id="cc-attack" placeholder="Nom d'attaque" maxlength="25">
-                    <input type="number" id="cc-damage" placeholder="Dégâts" min="0" max="999">
+                    <input type="number" id="cc-damage" placeholder="DÃ©gÃ¢ts" min="0" max="999">
                     <label class="file-upload">
                       Choisir une image
                       <input type="file" id="cc-image" accept="image/*" style="display:none">
@@ -264,7 +264,7 @@
                 </div>
               </div>
 
-              <button class="btn-logout" id="btn-logout">Se déconnecter</button>
+              <button class="btn-logout" id="btn-logout">Se dÃ©connecter</button>
             </div>
           </div>
         </section>
@@ -284,7 +284,7 @@
               <p>Nos partenaires</p>
             </div>
             <div id="sponsors-content">
-              <p class="sponsors-intro">Merci à nos partenaires qui rendent tout ça possible</p>
+              <p class="sponsors-intro">Merci Ã  nos partenaires qui rendent tout Ã§a possible</p>
               <div class="sponsors-grid">
                 <div class="sponsor-card"><div class="sponsor-text">Ali Baba</div></div>
                 <div class="sponsor-card"><div class="sponsor-text">Alpro</div></div>
@@ -322,15 +322,15 @@
             </div>
             <div id="goodies-content" class="goodies-layout">
               <div class="goodies-products">
-                <div class="goodie-item" data-lightbox="images/goodies/Sticker.png">
+                <div class="goodie-item" data-lightbox="images/goodies/Sticker.jpg">
                   <div class="goodie-img-wrap">
-                    <img src="images/goodies/Sticker.png" alt="Sticker Dinos'Art" class="goodie-float">
+                    <img src="images/goodies/Sticker.jpg" alt="Sticker Dinos'Art" class="goodie-float">
                   </div>
                   <div class="goodie-label">Sticker Dinos'Art</div>
                 </div>
-                <div class="goodie-item" data-lightbox="images/goodies/Sticker_Collector.png">
+                <div class="goodie-item" data-lightbox="images/goodies/Sticker_Collector.jpg">
                   <div class="goodie-img-wrap">
-                    <img src="images/goodies/Sticker_Collector.png" alt="Sticker Collector" class="goodie-float">
+                    <img src="images/goodies/Sticker_Collector.jpg" alt="Sticker Collector" class="goodie-float">
                   </div>
                   <div class="goodie-label">Sticker Collector</div>
                 </div>
@@ -349,10 +349,10 @@
               </div>
               <div class="goodie-table-section">
                 <h3 class="goodie-table-title">Table de Beer Pong</h3>
-                <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.png">
-                  <img src="images/goodies/Table_5.png" alt="Table Beer Pong Dinos'Art" class="goodie-table-img">
+                <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.jpg">
+                  <img src="images/goodies/Table_5.jpg" alt="Table Beer Pong Dinos'Art" class="goodie-table-img">
                 </div>
-                <p class="goodie-table-desc">La table officielle du Dinos'Art — faite main avec amour</p>
+                <p class="goodie-table-desc">La table officielle du Dinos'Art â€” faite main avec amour</p>
               </div>
             </div>
           </div>
@@ -441,79 +441,97 @@
         <section class="page" id="page-nous">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>L'Équipe</h2>
-              <p>Qui se cache derrière le Dinos'Art ?</p>
+              <h2>L'Ã‰quipe</h2>
+              <p>Qui se cache derriÃ¨re le Dinos'Art ?</p>
             </div>
             <div id="team-content">
               <div class="team-group-photo">
-                <img src="images/team/Groupe.jpg" alt="L'Équipe Dinos'Art">
+                <img src="images/team/Groupe.jpg" alt="L'Ã‰quipe Dinos'Art">
                 <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
               </div>
 
               <div class="pole-section">
                 <div class="pole-header">
-                  <img src="images/team/PoleBureau.jpg" alt="Le Bureau" class="pole-photo">
                   <div class="pole-info">
                     <h3 class="pole-name">Le Bureau</h3>
-                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réus, administratif, budget et organisation générale du Dinos'Art.</p>
+                    <p class="pole-desc">L'Ã©quipe de direction qui coordonne tout : rÃ©unions, administratif, budget et organisation gÃ©nÃ©rale du Dinos'Art.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
-                  <div class="member-card" data-member-modal="victor">
-                    <img src="images/team/Victor.jpg" alt="Victor" class="member-photo">
-                    <div class="member-name">Victor</div>
-                    <div class="member-role">Président</div>
+                  <div class="member-card" data-member-modal="anne">
+                    <img src="images/team/Anne.jpg" alt="Anne" class="member-photo">
+                    <div class="member-name">Anne</div>
+                    <div class="member-role">PrÃ©sidente</div>
                   </div>
-                  <div class="member-card" data-member-modal="lila">
-                    <img src="images/team/Lila.jpg" alt="Lila" class="member-photo">
-                    <div class="member-name">Lila</div>
-                    <div class="member-role">Vice-Présidente</div>
+                  <div class="member-card" data-member-modal="cyrielle">
+                    <img src="images/team/Cyrielle.jpg" alt="Cyrielle" class="member-photo">
+                    <div class="member-name">Cyrielle</div>
+                    <div class="member-role">TrÃ©soriÃ¨re</div>
                   </div>
-                  <div class="member-card" data-member-modal="enekio">
-                    <img src="images/team/Enekio.jpg" alt="Enékio" class="member-photo">
-                    <div class="member-name">Enékio</div>
-                    <div class="member-role">Trésorier</div>
+                  <div class="member-card" data-member-modal="candy">
+                    <img src="images/team/Candy.jpg" alt="Candy" class="member-photo">
+                    <div class="member-name">Candy</div>
+                    <div class="member-role">SecrÃ©taire</div>
                   </div>
-                  <div class="member-card" data-member-modal="camille">
-                    <img src="images/team/Camille.jpg" alt="Camille" class="member-photo">
-                    <div class="member-name">Camille</div>
-                    <div class="member-role">Secrétaire</div>
+                  <div class="member-card" data-member-modal="kimlee">
+                    <img src="images/team/Kimlee.jpg" alt="Kimlee" class="member-photo">
+                    <div class="member-name">Kimlee</div>
+                    <div class="member-role">VP Externe</div>
+                  </div>
+                  <div class="member-card" data-member-modal="anais">
+                    <img src="images/team/Anais.jpg" alt="AnaÃ¯s" class="member-photo">
+                    <div class="member-name">AnaÃ¯s</div>
+                    <div class="member-role">VP Interne</div>
+                  </div>
+                  <div class="member-card" data-member-modal="ingrid">
+                    <img src="images/team/Ingrid.jpg" alt="Ingrid" class="member-photo">
+                    <div class="member-name">Ingrid</div>
+                    <div class="member-role">Vice-TrÃ©soriÃ¨re</div>
                   </div>
                 </div>
               </div>
 
               <div class="pole-section">
                 <div class="pole-header">
-                  <img src="images/team/PoleComm.jpg" alt="Pôle Com" class="pole-photo">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle Communication</h3>
-                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le Dinos'Art brille partout !</p>
+                    <h3 class="pole-name">PÃ´le Communication</h3>
+                    <p class="pole-desc">RÃ©seaux sociaux, visuels, goodies, site web... C'est grÃ¢ce Ã  eux que le Dinos'Art brille partout !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
-                  <div class="member-card" data-member-modal="felix">
-                    <img src="images/team/Felix.jpg" alt="Félix" class="member-photo">
-                    <div class="member-name">Félix</div>
+                  <div class="member-card" data-member-modal="marie">
+                    <img src="images/team/Marie.jpg" alt="Marie" class="member-photo">
+                    <div class="member-name">Marie</div>
                     <div class="member-role">Respo Comm</div>
                   </div>
-                  <div class="member-card" data-member-modal="margaux">
-                    <img src="images/team/Margaux.jpg" alt="Margaux" class="member-photo">
-                    <div class="member-name">Margaux</div>
-                    <div class="member-role">Co-Respo Comm</div>
-                  </div>
-                  <div class="member-card" data-member-modal="nathanael">
-                    <img src="images/team/Nathanael.jpg" alt="Nathanaël" class="member-photo">
-                    <div class="member-name">Nathanaël</div>
+                  <div class="member-card" data-member-modal="anouk">
+                    <img src="images/team/Anouk.jpg" alt="Anouk" class="member-photo">
+                    <div class="member-name">Anouk</div>
                     <div class="member-role">Comm</div>
                   </div>
-                  <div class="member-card" data-member-modal="lea">
-                    <img src="images/team/Lea.jpg" alt="Léa" class="member-photo">
-                    <div class="member-name">Léa</div>
+                  <div class="member-card" data-member-modal="jade">
+                    <img src="images/team/Jade.jpg" alt="Jade" class="member-photo">
+                    <div class="member-name">Jade</div>
                     <div class="member-role">Comm</div>
                   </div>
-                  <div class="member-card" data-member-modal="ethan">
-                    <img src="images/team/Ethan.jpg" alt="Ethan" class="member-photo">
-                    <div class="member-name">Ethan</div>
+                  <div class="member-card" data-member-modal="timothee">
+                    <img src="images/team/Thimote.jpg" alt="TimothÃ©e" class="member-photo">
+                    <div class="member-name">TimothÃ©e</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="annael">
+                    <img src="images/team/Annael.jpg" alt="AnnaÃ«l" class="member-photo">
+                    <div class="member-name">AnnaÃ«l</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="ismail">
+                    <img src="images/team/Ismail.jpg" alt="Ismail" class="member-photo">
+                    <div class="member-name">Ismail</div>
+                    <div class="member-role">Comm</div>
+                  </div>
+                  <div class="member-card" data-member-modal="amicie">
+                    <img src="images/team/Amicie.jpg" alt="Amicie" class="member-photo">
+                    <div class="member-name">Amicie</div>
                     <div class="member-role">Comm</div>
                   </div>
                 </div>
@@ -521,36 +539,30 @@
 
               <div class="pole-section">
                 <div class="pole-header">
-                  <img src="images/team/PoleEvent.jpg" alt="Pôle Event" class="pole-photo">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle Événementiel</h3>
-                    <p class="pole-desc">Les architectes de vos moments mémorables ! Soirées, voyages, activités... ils gèrent tout de A à Z.</p>
+                    <h3 class="pole-name">PÃ´le Ã‰vÃ©nementiel</h3>
+                    <p class="pole-desc">Les architectes de vos moments mÃ©morables ! SoirÃ©es, activitÃ©s, voyages... ils gÃ¨rent tout de A Ã  Z.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
-                  <div class="member-card" data-member-modal="louis">
-                    <img src="images/team/Louis.jpg" alt="Louis" class="member-photo">
-                    <div class="member-name">Louis</div>
+                  <div class="member-card" data-member-modal="bastien">
+                    <img src="images/team/Bastien.jpg" alt="Bastien" class="member-photo">
+                    <div class="member-name">Bastien</div>
                     <div class="member-role">Respo Event</div>
                   </div>
-                  <div class="member-card" data-member-modal="jeanne">
-                    <img src="images/team/Jeanne.jpg" alt="Jeanne" class="member-photo">
-                    <div class="member-name">Jeanne</div>
+                  <div class="member-card" data-member-modal="yann">
+                    <img src="images/team/Yann.jpg" alt="Yann" class="member-photo">
+                    <div class="member-name">Yann</div>
+                    <div class="member-role">Respo Event</div>
+                  </div>
+                  <div class="member-card" data-member-modal="edouard">
+                    <img src="images/team/Edouard.jpg" alt="Edouard" class="member-photo">
+                    <div class="member-name">Edouard</div>
                     <div class="member-role">Event</div>
                   </div>
-                  <div class="member-card" data-member-modal="sacha">
-                    <img src="images/team/Sacha.jpg" alt="Sacha" class="member-photo">
-                    <div class="member-name">Sacha</div>
-                    <div class="member-role">Event</div>
-                  </div>
-                  <div class="member-card" data-member-modal="soline">
-                    <img src="images/team/Soline.jpg" alt="Soline" class="member-photo">
-                    <div class="member-name">Soline</div>
-                    <div class="member-role">Event</div>
-                  </div>
-                  <div class="member-card" data-member-modal="antoine">
-                    <img src="images/team/Antoine.jpg" alt="Antoine" class="member-photo">
-                    <div class="member-name">Antoine</div>
+                  <div class="member-card" data-member-modal="manu">
+                    <img src="images/team/Manu.jpg" alt="Manu" class="member-photo">
+                    <div class="member-name">Manu</div>
                     <div class="member-role">Event</div>
                   </div>
                 </div>
@@ -558,54 +570,46 @@
 
               <div class="pole-section">
                 <div class="pole-header">
-                  <img src="images/team/PoleLDD.jpg" alt="Pôle L3D" class="pole-photo">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle L3D</h3>
-                    <p class="pole-desc">Logistique, Démarche et Développement Durable. Ils négocient les partos, comptent les sous et font gaffe à la planète !</p>
+                    <h3 class="pole-name">PÃ´le L3D</h3>
+                    <p class="pole-desc">Logistique, DÃ©marches et DÃ©veloppement Durable. Ils nÃ©gocient les partos, gÃ¨rent le matos et font gaffe Ã  la planÃ¨te !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
-                  <div class="member-card" data-member-modal="andreas">
-                    <img src="images/team/Andreas.jpg" alt="Andréas" class="member-photo">
-                    <div class="member-name">Andréas</div>
+                  <div class="member-card" data-member-modal="ambre">
+                    <img src="images/team/Ambre.jpg" alt="Ambre" class="member-photo">
+                    <div class="member-name">Ambre</div>
                     <div class="member-role">Respo Log</div>
                   </div>
-                  <div class="member-card" data-member-modal="lucas">
-                    <img src="images/team/Lucas.jpg" alt="Lucas" class="member-photo">
-                    <div class="member-name">Lucas</div>
-                    <div class="member-role">Respo Dém</div>
+                  <div class="member-card" data-member-modal="gaetan">
+                    <img src="images/team/Gaetan.jpg" alt="Gaetan" class="member-photo">
+                    <div class="member-name">Gaetan</div>
+                    <div class="member-role">Log</div>
                   </div>
-                  <div class="member-card" data-member-modal="joseph">
-                    <img src="images/team/Joseph.jpg" alt="Joseph" class="member-photo">
-                    <div class="member-name">Joseph</div>
-                    <div class="member-role">Dém</div>
+                  <div class="member-card" data-member-modal="eliott">
+                    <img src="images/team/Eliott.jpg" alt="Eliott" class="member-photo">
+                    <div class="member-name">Eliott</div>
+                    <div class="member-role">Log</div>
                   </div>
-                  <div class="member-card" data-member-modal="max">
-                    <img src="images/team/Max.jpg" alt="Max" class="member-photo">
-                    <div class="member-name">Max</div>
+                  <div class="member-card" data-member-modal="nicolas">
+                    <img src="images/team/Nicolas.jpg" alt="Nicolas" class="member-photo">
+                    <div class="member-name">Nicolas</div>
+                    <div class="member-role">Respo Dem</div>
+                  </div>
+                  <div class="member-card" data-member-modal="tanguy">
+                    <img src="images/team/Tanguy.jpg" alt="Tanguy" class="member-photo">
+                    <div class="member-name">Tanguy</div>
+                    <div class="member-role">Dem</div>
+                  </div>
+                  <div class="member-card" data-member-modal="iuri">
+                    <img src="images/team/Iuri.jpg" alt="Iuri" class="member-photo">
+                    <div class="member-name">Iuri</div>
+                    <div class="member-role">Dem</div>
+                  </div>
+                  <div class="member-card" data-member-modal="pauline">
+                    <img src="images/team/Pauline.jpg" alt="Pauline" class="member-photo">
+                    <div class="member-name">Pauline</div>
                     <div class="member-role">Respo DD</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pole-section">
-                <div class="pole-header">
-                  <img src="images/team/PoleProd.jpg" alt="Pôle Prod" class="pole-photo">
-                  <div class="pole-info">
-                    <h3 class="pole-name">Pôle Production</h3>
-                    <p class="pole-desc">Les créatifs du Dinos'Art : films, clips, musiques, site web... Ils donnent vie aux idées et les partagent au monde !</p>
-                  </div>
-                </div>
-                <div class="pole-members-grid">
-                  <div class="member-card" data-member-modal="felix">
-                    <img src="images/team/Felix.jpg" alt="Félix" class="member-photo">
-                    <div class="member-name">Félix</div>
-                    <div class="member-role">Respo Film & Site</div>
-                  </div>
-                  <div class="member-card" data-member-modal="ethan">
-                    <img src="images/team/Ethan.jpg" alt="Ethan" class="member-photo">
-                    <div class="member-name">Ethan</div>
-                    <div class="member-role">Respo Musique</div>
                   </div>
                 </div>
               </div>
@@ -877,7 +881,7 @@
       <div id="pack-card-stage" class="pack-card-stage" style="display:none">
         <div class="pack-counter"><span id="pack-reveal-count">0</span> / <span id="pack-reveal-total">0</span></div>
         <div class="pack-card-container" id="pack-card-container">
-          <div class="pack-tap-prompt">Touche pour révéler</div>
+          <div class="pack-tap-prompt">Touche pour rÃ©vÃ©ler</div>
         </div>
       </div>
       <button id="pack-close" class="btn-secondary" style="display:none">Fermer</button>
@@ -901,7 +905,7 @@
       <div class="player-modal-header">
         <img id="player-avatar" src="" alt="" class="player-modal-avatar">
         <h3 id="player-pseudo">Joueur</h3>
-        <p id="player-score" class="player-score">0 pièces</p>
+        <p id="player-score" class="player-score">0 piÃ¨ces</p>
       </div>
       <div id="player-badges" class="badges-grid"></div>
       <div id="player-admin-actions" style="display:none">
@@ -927,13 +931,13 @@
   <div id="modal-challenge" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3 id="challenge-modal-title">Nouveau Défi</h3>
-      <input type="text" id="ch-titre" placeholder="Titre du défi">
+      <h3 id="challenge-modal-title">Nouveau DÃ©fi</h3>
+      <input type="text" id="ch-titre" placeholder="Titre du dÃ©fi">
       <textarea id="ch-desc" placeholder="Description"></textarea>
       <select id="ch-diff">
-        <option value="facile">Facile — 50 pièces</option>
-        <option value="moyen">Moyen — 150 pièces</option>
-        <option value="difficile">Difficile — 300 pièces</option>
+        <option value="facile">Facile â€” 50 piÃ¨ces</option>
+        <option value="moyen">Moyen â€” 150 piÃ¨ces</option>
+        <option value="difficile">Difficile â€” 300 piÃ¨ces</option>
       </select>
       <button class="btn-primary" id="btn-save-challenge">Enregistrer</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
@@ -944,10 +948,10 @@
   <div id="modal-validate" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3>Valider le défi</h3>
+      <h3>Valider le dÃ©fi</h3>
       <p id="validate-challenge-name"></p>
       <select id="validate-user-select">
-        <option value="">Choisir un joueur…</option>
+        <option value="">Choisir un joueurâ€¦</option>
       </select>
       <button class="btn-primary" id="btn-confirm-validate">Valider</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
