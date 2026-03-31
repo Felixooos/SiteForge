@@ -1273,12 +1273,21 @@
     if (!points || points < 10) { toast('Points invalides.', 'error'); return; }
     if (!supabase) { toast('Connexion serveur indisponible.', 'error'); return; }
     const today = new Date().toISOString().slice(0,10);
-    const { error } = await supabase.rpc('rpc_admin_set_sutom_word', {
-      p_site_id: SITE_ID,
-      p_word: word,
-      p_points: points,
-      p_date: today,
+    // Essaie le RPC securise, sinon upsert direct (admin RLS)
+    let error;
+    const rpcRes = await supabase.rpc('rpc_admin_set_sutom_word', {
+      p_site_id: SITE_ID, p_word: word, p_points: points, p_date: today,
     });
+    if (rpcRes.error) {
+      // RPC pas encore deploye : fallback upsert direct
+      const upsertRes = await supabase.from('bda_sutom_words').upsert({
+        site_id: SITE_ID, play_date: today, word: word, points: points,
+        created_by: state.user?.email || 'admin',
+      }, { onConflict: 'site_id,play_date' });
+      error = upsertRes.error;
+    } else {
+      error = rpcRes.error;
+    }
     if (error) { toast('Erreur: ' + error.message, 'error'); return; }
     await loadSutomWords();
     // Reset today's session so the new word takes effect
