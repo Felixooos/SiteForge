@@ -1882,7 +1882,7 @@
 
     var drawn = [];
     for (var i = 0; i < count; i++) {
-      var isShiny = Math.random() < (pack.shiny_chance || 0.05);
+      var isShiny = Math.random() < (pack.shiny_chance || 0.01);
       var pool = available.filter(function(c) { return c.is_shiny === isShiny; });
       if (pool.length === 0) pool = available.filter(function(c) { return !c.is_shiny; });
       if (pool.length === 0) pool = available;
@@ -1900,7 +1900,7 @@
     $('#info-pack-name').textContent = pack.name;
     $('#info-pack-stats').innerHTML = `
       <div class="info-stat-row"><span class="info-stat-label">Cartes par pack</span><span class="info-stat-value">${pack.cards_count}</span></div>
-      <div class="info-stat-row"><span class="info-stat-label">Chance Shiny</span><span class="info-stat-value">${((pack.shiny_chance || 0.05) * 100).toFixed(0)}%</span></div>
+      <div class="info-stat-row"><span class="info-stat-label">Chance Shiny</span><span class="info-stat-value">${((pack.shiny_chance || 0.01) * 100).toFixed(0)}%</span></div>
     `;
     openModal('modal-pack-info');
   }
@@ -2368,7 +2368,9 @@
     if (userBadges.length === 0) return '';
     return userBadges.map(ub => {
       const badge = state.badges.find(b => b.id === ub.badge_id);
-      return badge ? `<span class="lb-badge" title="${escAttr(badge.name)}">${badge.icon}</span>` : '';
+      if (!badge) return '';
+      var icon = getBadgeSVG(badge.condition_type) || badge.icon;
+      return '<span class="lb-badge" title="' + escAttr(badge.name) + '">' + icon + '</span>';
     }).join('');
   }
 
@@ -2865,9 +2867,10 @@
     const badgesContainer = $('#profil-badges');
     badgesContainer.innerHTML = state.badges.map(badge => {
       const earned = state.userBadges.some(ub => ub.badge_id === badge.id);
+      var icon = getBadgeSVG(badge.condition_type) || badge.icon;
       return `
         <div class="badge-item ${earned ? 'earned' : 'locked'}">
-          <div class="badge-icon">${badge.icon}</div>
+          <div class="badge-icon">${icon}</div>
           <div class="badge-name">${escHtml(badge.name)}</div>
         </div>
       `;
@@ -3125,6 +3128,17 @@
   }
 
   // ==================== UTILS ====================
+
+  function getBadgeSVG(conditionType) {
+    var svgs = {
+      cards_collected: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="4" y="2" width="18" height="24" rx="3" fill="none" stroke="#22c55e" stroke-width="2"/><rect x="8" y="5" width="18" height="24" rx="3" fill="none" stroke="#4ade80" stroke-width="2"/><path d="M12 14l2 2 4-4" stroke="#22c55e" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+      shiny_collected: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="6" y="4" width="20" height="24" rx="3" fill="none" stroke="#f59e0b" stroke-width="2"/><path d="M16 10l1.5 3 3.5.5-2.5 2.5.5 3.5L16 18l-3 1.5.5-3.5L11 13.5l3.5-.5z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1"/></svg>',
+      all_normal: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="5" y="3" width="22" height="26" rx="3" fill="none" stroke="#60a5fa" stroke-width="2"/><path d="M11 10h10M11 15h10M11 20h6" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/><circle cx="23" cy="23" r="5" fill="#22c55e" stroke="none"/><path d="M21 23l1.5 1.5 3-3" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
+      all_shiny: '<svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 4l3.5 7 7.5 1-5.5 5.5 1.5 7.5L16 21l-7 4 1.5-7.5L5 12l7.5-1z" fill="none" stroke="#f59e0b" stroke-width="2"/><path d="M16 10l1.8 3.6 4 .6-2.9 2.8.7 3.9L16 18.5l-3.6 1.9.7-3.9-2.9-2.8 4-.6z" fill="#fbbf24"/></svg>',
+      all_cards: '<svg viewBox="0 0 32 32" width="28" height="28"><path d="M8 22l8-16 8 16z" fill="none" stroke="#c084fc" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="16" r="3" fill="#c084fc"/><path d="M6 25h20" stroke="#c084fc" stroke-width="2" stroke-linecap="round"/></svg>',
+    };
+    return svgs[conditionType] || null;
+  }
 
   function getEggSVG(tier, size) {
     var w = size || 120;

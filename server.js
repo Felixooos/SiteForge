@@ -407,11 +407,11 @@ app.post('/admin/api/projects/:projectId/upload', upload.single('image'), async 
     if (['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
       const keepPng = ext === '.png';
       if (keepPng) {
-        buffer = await sharp(buffer).resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).png({ compressionLevel: 8 }).toBuffer();
+        buffer = await sharp(buffer).rotate().resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).png({ compressionLevel: 8 }).toBuffer();
         filename = `${Date.now()}.png`;
         contentType = 'image/png';
       } else {
-        buffer = await sharp(buffer).resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).jpeg({ quality: 82 }).toBuffer();
+        buffer = await sharp(buffer).rotate().resize(1200, null, { withoutEnlargement: true, fit: 'inside' }).jpeg({ quality: 82 }).toBuffer();
         filename = `${Date.now()}.jpg`;
         contentType = 'image/jpeg';
       }

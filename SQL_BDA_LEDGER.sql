@@ -12,8 +12,10 @@
 -- ============================================================
 -- 1. TRIGGER : synchronise automatiquement etudiants.solde
 --    Appelé après chaque INSERT dans transactions.
---    Logique incrémentale : solde += NEW.montant
+--    Logique : RECALCUL COMPLET depuis la table transactions
 --    (montant positif = gain, montant négatif = dépense)
+--    Avantage : même si un RPC bugué touchait directement etudiants,
+--    le trigger rétablit la valeur correcte après chaque INSERT.
 -- ============================================================
 CREATE OR REPLACE FUNCTION fn_sync_solde_on_transaction()
 RETURNS TRIGGER
@@ -23,7 +25,12 @@ SET search_path = public
 AS $$
 BEGIN
   UPDATE etudiants
-  SET solde = solde + NEW.montant
+  SET solde = (
+    SELECT COALESCE(SUM(montant), 0)
+    FROM transactions
+    WHERE site_id            = NEW.site_id
+      AND destinataire_email = NEW.destinataire_email
+  )
   WHERE site_id = NEW.site_id
     AND email   = NEW.destinataire_email;
   RETURN NEW;
@@ -34,6 +41,33 @@ DROP TRIGGER IF EXISTS trg_sync_solde_after_transaction ON transactions;
 CREATE TRIGGER trg_sync_solde_after_transaction
 AFTER INSERT ON transactions
 FOR EACH ROW EXECUTE FUNCTION fn_sync_solde_on_transaction();
+
+-- ============================================================
+-- 1b. FONCTION DE RÉCONCILIATION
+--     À appeler manuellement si des soldes sont décalés
+--     SELECT bda_reconcile_soldes('bda');
+-- ============================================================
+CREATE OR REPLACE FUNCTION bda_reconcile_soldes(p_site_id TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_count INTEGER;
+BEGIN
+  UPDATE etudiants e
+  SET solde = (
+    SELECT COALESCE(SUM(t.montant), 0)
+    FROM transactions t
+    WHERE t.site_id            = e.site_id
+      AND t.destinataire_email = e.email
+  )
+  WHERE e.site_id = p_site_id;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  RETURN jsonb_build_object('success', TRUE, 'users_updated', v_count);
+END;
+$$;
 
 
 -- ============================================================
@@ -161,13 +195,103 @@ $$;
 
 
 -- ============================================================
+-- 5. MISE À JOUR : bda_validate_static_defi
+--    Plus de UPDATE etudiants — le trigger gère ça.
+-- ============================================================
+CREATE OR REPLACE FUNCTION bda_validate_static_defi(
+  p_site_id      TEXT,
+  p_target_email TEXT,
+  p_points       INTEGER,
+  p_defi_title   TEXT
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_admin_email TEXT;
+  v_is_admin    BOOLEAN;
+BEGIN
+  v_admin_email := auth.jwt() ->> 'email';
+
+  SELECT (is_admin OR is_super_admin) INTO v_is_admin
+  FROM etudiants
+  WHERE email = v_admin_email AND site_id = p_site_id;
+
+  IF NOT COALESCE(v_is_admin, FALSE) THEN
+    RETURN jsonb_build_object('error', 'Not authorized');
+  END IF;
+
+  IF p_points <= 0 OR p_points > 2000 THEN
+    RETURN jsonb_build_object('error', 'Points invalides');
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM etudiants WHERE email = p_target_email AND site_id = p_site_id) THEN
+    RETURN jsonb_build_object('error', 'User not found');
+  END IF;
+
+  -- Insérer la transaction → le trigger met à jour etudiants.solde automatiquement
+  INSERT INTO transactions (site_id, destinataire_email, montant, raison, admin_email)
+  VALUES (p_site_id, p_target_email, p_points, 'Défi: ' || p_defi_title, v_admin_email);
+
+  RETURN jsonb_build_object(
+    'success', TRUE,
+    'points_added', p_points,
+    'new_solde', (SELECT solde FROM etudiants WHERE email = p_target_email AND site_id = p_site_id)
+  );
+END;
+$$;
+
+-- ============================================================
+-- 6. MISE À JOUR : rpc_reward_sutom
+--    Plus de UPDATE etudiants — le trigger gère ça.
+-- ============================================================
+CREATE OR REPLACE FUNCTION rpc_reward_sutom(p_site_id TEXT, p_day TEXT, p_points INT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_email   TEXT := auth.jwt() ->> 'email';
+  v_already INT;
+BEGIN
+  IF v_email IS NULL THEN
+    RAISE EXCEPTION 'Non authentifie';
+  END IF;
+
+  IF p_points <= 0 OR p_points > 500 THEN
+    RAISE EXCEPTION 'Points invalides';
+  END IF;
+
+  -- Anti-doublon : une récompense Sutom par joueur par jour
+  SELECT COUNT(*) INTO v_already
+  FROM transactions
+  WHERE site_id            = p_site_id
+    AND destinataire_email = v_email
+    AND raison             = 'Sutom du ' || p_day;
+
+  IF v_already > 0 THEN
+    RETURN;
+  END IF;
+
+  -- Insérer la transaction → le trigger met à jour etudiants.solde automatiquement
+  INSERT INTO transactions (site_id, destinataire_email, montant, raison, admin_email)
+  VALUES (p_site_id, v_email, p_points, 'Sutom du ' || p_day, NULL);
+END;
+$$;
+
+-- ============================================================
 -- FIN
 -- ============================================================
--- ✅ Trigger fn_sync_solde_on_transaction sur transactions INSERT
--- ✅ RLS transactions mis à jour : admin gains + user dépenses
--- ✅ bda_add_points  : insère transaction seulement (trigger ← solde)
--- ✅ bda_validate_challenge : idem
--- 
+-- ✅ Trigger fn_sync_solde_on_transaction : RECALCUL COMPLET (SUM)
+-- ✅ bda_reconcile_soldes(site_id)        : réconciliation manuelle
+-- ✅ RLS transactions : admin gains + user dépenses
+-- ✅ bda_add_points           : INSERT transaction only
+-- ✅ bda_validate_challenge   : INSERT transaction only
+-- ✅ bda_validate_static_defi : INSERT transaction only
+-- ✅ rpc_reward_sutom         : INSERT transaction only
+--
 -- CÔTÉ CLIENT (main.js) :
 --   Achats de pack → INSERT dans transactions (montant négatif)
---   Plus de mise à jour directe de etudiants.solde
+--   Reload profil après achat → solde toujours à jour

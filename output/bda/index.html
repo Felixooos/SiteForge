@@ -12,7 +12,7 @@
   <title>Dinos'Art</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=13">
+  <link rel="stylesheet" href="assets/style.css?v=18">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -20,8 +20,8 @@
   <!-- ========== AUTH GATE ========== -->
   <div id="auth-gate" class="auth-gate">
     <div class="auth-card">
-      <div class="auth-logo">BDA</div>
-      <h1 class="auth-title">BDA</h1>
+      <div class="auth-logo">Dinos'Art</div>
+      <h1 class="auth-title">Dinos'Art</h1>
       <p class="auth-subtitle">Collecte, défie, domine.</p>
 
       <!-- Login Form -->
@@ -30,6 +30,7 @@
         <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
         <button id="btn-login" class="btn-primary">Se connecter</button>
         <p class="auth-switch">Pas de compte ? <a href="#" id="show-register">Créer un compte</a></p>
+        <p class="auth-switch"><a href="#" id="show-forgot">Mot de passe oublié ?</a></p>
       </div>
 
       <!-- Register Form -->
@@ -39,6 +40,28 @@
         <input type="password" id="register-password" placeholder="Mot de passe (min. 6 car.)">
         <button id="btn-register" class="btn-primary">Créer mon compte</button>
         <p class="auth-switch">Déjà un compte ? <a href="#" id="show-login">Se connecter</a></p>
+      </div>
+
+      <!-- Forgot Password Form -->
+      <div id="auth-forgot" class="auth-form" style="display:none">
+        <div id="forgot-step-email">
+          <p class="auth-forgot-text">Entre ton email pour recevoir un code de réinitialisation.</p>
+          <input type="email" id="forgot-email" placeholder="Email" autocomplete="email">
+          <button id="btn-forgot" class="btn-primary">Envoyer le code</button>
+        </div>
+        <div id="forgot-step-code" style="display:none">
+          <p class="auth-forgot-text">Code envoyé ! Entre le code reçu par email.</p>
+          <input type="text" id="forgot-code" placeholder="Code à 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+          <button id="btn-verify-code" class="btn-primary">Vérifier le code</button>
+        </div>
+        <div id="forgot-step-newpw" style="display:none">
+          <p class="auth-forgot-text">Code validé ! Choisis ton nouveau mot de passe.</p>
+          <input type="password" id="forgot-newpw" placeholder="Nouveau mot de passe (min. 6 car.)" autocomplete="new-password">
+          <input type="password" id="forgot-confirmpw" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+          <button id="btn-set-newpw" class="btn-primary">Enregistrer le mot de passe</button>
+        </div>
+        <p id="forgot-success" class="auth-success" style="display:none">Mot de passe mis à jour ! Tu peux te connecter.</p>
+        <p class="auth-switch"><a href="#" id="back-to-login">Retour à la connexion</a></p>
       </div>
 
       <div class="auth-divider"><span>ou</span></div>
@@ -67,6 +90,7 @@
     <!-- Mode Segmented Control -->
     <div class="mode-segmented" id="mode-segmented">
       <button class="mode-seg-btn active" id="mode-btn-game" data-mode="game">Jeu</button>
+      <button class="mode-seg-btn" id="mode-btn-hotlines" data-mode="hotlines">Hotlines</button>
       <button class="mode-seg-btn" id="mode-btn-info" data-mode="info">Infos</button>
       <div class="mode-seg-indicator" id="mode-seg-indicator"></div>
     </div>
@@ -82,11 +106,11 @@
               <h2>Boutique</h2>
               <p>Achète des packs, joue au Sutom et gagne des pièces</p>
             </div>
-            <div id="packs-list" class="packs-grid">
-              <!-- Dynamically filled -->
-            </div>
             <div id="sutom-widget" class="sutom-widget">
               <!-- Sutom rendered by JS -->
+            </div>
+            <div id="packs-list" class="packs-grid">
+              <!-- Dynamically filled -->
             </div>
           </div>
         </section>
@@ -138,14 +162,17 @@
         <section class="page" id="page-defis">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>Défis</h2>
-              <p>Relève les défis et gagne des pièces</p>
+              <h2>D&eacute;fis</h2>
+              <p>Rel&egrave;ve les d&eacute;fis et gagne des pi&egrave;ces</p>
             </div>
+            <input type="text" id="defi-search" class="defi-search-input" placeholder="Rechercher un d&eacute;fi...">
             <div class="defis-categories">
               <button class="cat-btn active" data-cat="all">Tous</button>
-              <button class="cat-btn" data-cat="facile">50</button>
-              <button class="cat-btn" data-cat="moyen">150</button>
-              <button class="cat-btn" data-cat="difficile">300</button>
+              <button class="cat-btn cat-niveau1" data-cat="niveau1">Niv.1</button>
+              <button class="cat-btn cat-niveau2" data-cat="niveau2">Niv.2</button>
+              <button class="cat-btn cat-niveau3" data-cat="niveau3">Niv.3</button>
+              <button class="cat-btn cat-niveau4" data-cat="niveau4">Niv.4</button>
+              <button class="cat-btn cat-niveau5" data-cat="niveau5">Niv.5</button>
             </div>
             <div id="defis-list" class="defis-list">
               <!-- Dynamically filled -->
@@ -181,21 +208,6 @@
               </div>
 
               <div class="profil-section">
-                <h3>Badges</h3>
-                <div id="profil-badges" class="badges-grid">
-                  <!-- Dynamically filled -->
-                </div>
-              </div>
-
-              <div class="profil-section">
-                <h3>Modifier mon profil</h3>
-                <div class="edit-form">
-                  <input type="text" id="edit-pseudo" placeholder="Nouveau pseudo" maxlength="20">
-                  <button class="btn-secondary" id="btn-save-pseudo">Enregistrer</button>
-                </div>
-              </div>
-
-              <div class="profil-section">
                 <h3>Ma Carte Perso</h3>
                 <div class="card-creator-wrapper">
                   <!-- Live preview card -->
@@ -225,6 +237,30 @@
                     </label>
                     <button class="btn-primary" id="btn-create-card">Soumettre la carte</button>
                   </div>
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Badges</h3>
+                <div id="profil-badges" class="badges-grid">
+                  <!-- Dynamically filled -->
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Modifier mon profil</h3>
+                <div class="edit-form">
+                  <input type="text" id="edit-pseudo" placeholder="Nouveau pseudo" maxlength="20">
+                  <button class="btn-secondary" id="btn-save-pseudo">Enregistrer</button>
+                </div>
+              </div>
+
+              <div class="profil-section">
+                <h3>Changer le mot de passe</h3>
+                <div class="password-form">
+                  <input type="password" id="new-password" placeholder="Nouveau mot de passe (min. 6 car.)" autocomplete="new-password">
+                  <input type="password" id="confirm-password" placeholder="Confirmer le mot de passe" autocomplete="new-password">
+                  <button class="btn-primary" id="btn-change-password">Changer le mot de passe</button>
                 </div>
               </div>
 
@@ -271,7 +307,7 @@
                 <div class="sponsor-card"><div class="sponsor-text">Wonderbox</div></div>
               </div>
               <div class="sponsors-cta">
-                <p>Envie de devenir partenaire du BDA ? Contactez-nous !</p>
+                <p>Envie de devenir partenaire du Dinos'Art ? Contactez-nous !</p>
               </div>
             </div>
           </div>
@@ -282,15 +318,15 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Goodies</h2>
-              <p>Nos produits BDA</p>
+              <p>Nos produits Dinos'Art</p>
             </div>
             <div id="goodies-content" class="goodies-layout">
               <div class="goodies-products">
                 <div class="goodie-item" data-lightbox="images/goodies/Sticker.png">
                   <div class="goodie-img-wrap">
-                    <img src="images/goodies/Sticker.png" alt="Sticker BDA" class="goodie-float">
+                    <img src="images/goodies/Sticker.png" alt="Sticker Dinos'Art" class="goodie-float">
                   </div>
-                  <div class="goodie-label">Sticker BDA</div>
+                  <div class="goodie-label">Sticker Dinos'Art</div>
                 </div>
                 <div class="goodie-item" data-lightbox="images/goodies/Sticker_Collector.png">
                   <div class="goodie-img-wrap">
@@ -302,7 +338,7 @@
                   <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-normal">
                     <canvas id="ecocup-canvas-normal"></canvas>
                   </div>
-                  <div class="goodie-label">Ecocup BDA</div>
+                  <div class="goodie-label">Ecocup Dinos'Art</div>
                 </div>
                 <div class="goodie-item">
                   <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-collector">
@@ -314,9 +350,9 @@
               <div class="goodie-table-section">
                 <h3 class="goodie-table-title">Table de Beer Pong</h3>
                 <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.png">
-                  <img src="images/goodies/Table_5.png" alt="Table Beer Pong BDA" class="goodie-table-img">
+                  <img src="images/goodies/Table_5.png" alt="Table Beer Pong Dinos'Art" class="goodie-table-img">
                 </div>
-                <p class="goodie-table-desc">La table officielle du BDA — faite main avec amour</p>
+                <p class="goodie-table-desc">La table officielle du Dinos'Art — faite main avec amour</p>
               </div>
             </div>
           </div>
@@ -327,7 +363,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Planning</h2>
-              <p>Campagnes BDA 2026</p>
+              <p>Campagnes Dinos'Art 2026</p>
             </div>
             <div id="planning-content" class="planning-timeline">
               <div class="planning-phase">
@@ -385,7 +421,7 @@
                 <div class="planning-date-badge"><span class="planning-day">07</span><span class="planning-month">AVR</span></div>
                 <div class="planning-details">
                   <div class="planning-title">Mardi &mdash; Debat des prez</div>
-                  <div class="planning-desc">Petit-dejeuner livre, dejeuner puis debat des presidents BDA.</div>
+                  <div class="planning-desc">Petit-dejeuner livre, dejeuner puis debat des presidents Dinos'Art.</div>
                   <div class="planning-meta">07h30 &rarr; 20h00</div>
                 </div>
               </div>
@@ -406,11 +442,11 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>L'Équipe</h2>
-              <p>Qui se cache derrière le BDA ?</p>
+              <p>Qui se cache derrière le Dinos'Art ?</p>
             </div>
             <div id="team-content">
               <div class="team-group-photo">
-                <img src="images/team/Groupe.jpg" alt="L'Équipe BDA">
+                <img src="images/team/Groupe.jpg" alt="L'Équipe Dinos'Art">
                 <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
               </div>
 
@@ -419,7 +455,7 @@
                   <img src="images/team/PoleBureau.jpg" alt="Le Bureau" class="pole-photo">
                   <div class="pole-info">
                     <h3 class="pole-name">Le Bureau</h3>
-                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réus, administratif, budget et organisation générale du BDA.</p>
+                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réus, administratif, budget et organisation générale du Dinos'Art.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -451,7 +487,7 @@
                   <img src="images/team/PoleComm.jpg" alt="Pôle Com" class="pole-photo">
                   <div class="pole-info">
                     <h3 class="pole-name">Pôle Communication</h3>
-                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le BDA brille partout !</p>
+                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le Dinos'Art brille partout !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -557,7 +593,7 @@
                   <img src="images/team/PoleProd.jpg" alt="Pôle Prod" class="pole-photo">
                   <div class="pole-info">
                     <h3 class="pole-name">Pôle Production</h3>
-                    <p class="pole-desc">Les créatifs du BDA : films, clips, musiques, site web... Ils donnent vie aux idées et les partagent au monde !</p>
+                    <p class="pole-desc">Les créatifs du Dinos'Art : films, clips, musiques, site web... Ils donnent vie aux idées et les partagent au monde !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -600,10 +636,10 @@
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Soiree dansante</div>
-                    <div class="prog-item-desc">Maintenir la soiree dansante de l'integration permettant de faire connaitre le BDA, par le biais de differentes activites.</div>
+                    <div class="prog-item-desc">Maintenir la soiree dansante de l'integration permettant de faire connaitre le Dinos'Art, par le biais de differentes activites.</div>
                   </div>
                   <div class="prog-item">
-                    <div class="prog-item-name">Aprem BDA</div>
+                    <div class="prog-item-name">Aprem Dinos'Art</div>
                     <div class="prog-item-desc">Retour a une apres-midi a la residence pendant l'integration ou les assos d'arts pourront proposer des stands decouverte.</div>
                   </div>
                   <div class="prog-item">
@@ -652,7 +688,7 @@
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Le B'art a Jeux</div>
-                    <div class="prog-item-desc">Un bar a jeux en collaboration avec CAG. Vous pourrez vous assoir, un jeu vous est conseille et le BDA proposerait boisson et nourriture. L'occasion de se decouvrir notamment en debut d'annee.</div>
+                    <div class="prog-item-desc">Un bar a jeux en collaboration avec CAG. Vous pourrez vous assoir, un jeu vous est conseille et le Dinos'Art proposerait boisson et nourriture. L'occasion de se decouvrir notamment en debut d'annee.</div>
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Newsletter</div>
@@ -705,23 +741,23 @@
     <!-- Bottom Navigation Bar (Game Mode) -->
     <nav class="bottom-nav" id="bottom-nav">
       <button class="nav-item" data-page="0">
-        <svg viewBox="0 0 24 24"><path d="M20 12v8H4v-8l8-8 8 8zM12 2L2 12h3v8h14v-8h3L12 2z"/><circle cx="12" cy="14" r="3"/></svg>
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="7" ry="9" fill="currentColor" opacity="0.2"/><ellipse cx="12" cy="14" rx="7" ry="9" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="9" cy="12" rx="1.5" ry="2" fill="currentColor" opacity="0.4"/><ellipse cx="15" cy="11" rx="1" ry="1.5" fill="currentColor" opacity="0.3"/><path d="M8 6.5Q12 4 16 6.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M12 5V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="2.5" r="1" fill="currentColor"/></svg>
         <span>Boutique</span>
       </button>
       <button class="nav-item" data-page="1">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/><rect x="2" y="3" width="20" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 9c0-1.5 1.5-3 4-1s4-.5 4-2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="9" cy="14" r="1.2" fill="currentColor"/><circle cx="13" cy="15" r="0.8" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/></svg>
         <span>Dinodex</span>
       </button>
       <button class="nav-item active" data-page="2">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M6 18h4v-6H6zm7 0h4v-10h-4z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M16 3l-1.5 2.5L16 7l-1 1.5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Classement</span>
       </button>
       <button class="nav-item" data-page="3">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="2"/></svg>
-        <span>Défis</span>
+        <svg viewBox="0 0 24 24"><path d="M7 4l2 6M12 3l0 6M17 4l-2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="15" r="2" fill="currentColor"/></svg>
+        <span>D\u00e9fis</span>
       </button>
       <button class="nav-item" data-page="4">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 4c-2 0-4 2-4 5 0 2 1 3 2 4l-1 3c0 1 .5 2 1.5 2h3c1 0 1.5-1 1.5-2l-1-3c1-1 2-2 2-4 0-3-2-5-4-5z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="9" r="0.8" fill="currentColor"/><circle cx="14" cy="9" r="0.8" fill="currentColor"/><path d="M7 5l-2-2M17 5l2-2M12 4V1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         <span>Profil</span>
       </button>
     </nav>
@@ -749,9 +785,89 @@
         <span>Programme</span>
       </button>
     </nav>
+
+    <!-- ========== HOTLINES MODE ========== -->
+    <div class="hotlines-container" id="hotlines-container" style="display:none">
+      <div class="page-scroll">
+        <!-- Admin controls (hidden for non-admins) -->
+        <div id="hotlines-admin-bar" class="hotlines-admin-bar" style="display:none">
+          <div class="hotlines-admin-row">
+            <span class="hotlines-status-label" id="hotlines-status-text">Hotlines desactivees</span>
+            <button class="hotlines-toggle-btn" id="hotlines-toggle-btn">Activer</button>
+          </div>
+          <button class="btn-secondary btn-sm" id="hotlines-manage-menu" style="margin-top:8px;width:100%">Gerer le menu</button>
+          <button class="btn-secondary btn-sm" id="hotlines-view-dashboard" style="margin-top:8px;width:100%">Dashboard commandes</button>
+        </div>
+
+        <!-- Menu / Order Section (visible when active) -->
+        <div id="hotlines-order-section">
+          <div class="page-header">
+            <h2>Hotlines</h2>
+            <p id="hotlines-subtitle">Commande a manger !</p>
+          </div>
+          <div id="hotlines-closed-msg" class="hotlines-closed" style="display:none">
+            <div class="hotlines-closed-icon">X</div>
+            <h3>Les hotlines sont fermees</h3>
+            <p>Reviens plus tard pendant les campagnes !</p>
+          </div>
+          <div id="hotlines-menu-grid" class="hotlines-menu-grid">
+            <!-- Menu items rendered by JS -->
+          </div>
+          <div id="hotlines-order-form" class="hotlines-order-form" style="display:none">
+            <h3>Passer commande</h3>
+            <div id="hotlines-cart-summary" class="hotlines-cart-summary"></div>
+            <input type="text" id="hotlines-nom" placeholder="Nom" maxlength="50">
+            <input type="text" id="hotlines-prenom" placeholder="Prenom" maxlength="50">
+            <input type="tel" id="hotlines-telephone" placeholder="Telephone" maxlength="15">
+            <input type="text" id="hotlines-lieu" placeholder="Lieu de livraison" maxlength="100">
+            <button class="btn-primary" id="hotlines-submit-order">Soumettre la commande</button>
+          </div>
+        </div>
+
+        <!-- My Order Recap (visible after ordering) -->
+        <div id="hotlines-my-order" class="hotlines-my-order" style="display:none">
+          <div class="page-header">
+            <h2>Ma commande</h2>
+          </div>
+          <div id="hotlines-my-order-content"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ========== MODALS ========== -->
+
+  <!-- HOTLINES ADMIN: Menu Management Modal -->
+  <div id="modal-hotlines-menu" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content modal-tall">
+      <h3>Gestion du menu</h3>
+      <div id="hotlines-menu-admin-list" class="hotlines-menu-admin-list"></div>
+      <div class="hotlines-add-item">
+        <h4>Ajouter un plat</h4>
+        <input type="text" id="hm-name" placeholder="Nom du plat" maxlength="60">
+        <textarea id="hm-desc" placeholder="Description" maxlength="200"></textarea>
+        <label class="file-upload">
+          Photo du plat
+          <input type="file" id="hm-image" accept="image/*" style="display:none">
+        </label>
+        <span id="hm-image-name" class="hm-image-name"></span>
+        <button class="btn-primary" id="hm-add-btn">Ajouter au menu</button>
+      </div>
+      <button class="btn-secondary modal-close-btn" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
+
+  <!-- HOTLINES ADMIN: Dashboard Modal -->
+  <div id="modal-hotlines-dashboard" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content modal-tall">
+      <h3>Dashboard Commandes</h3>
+      <div id="hotlines-dashboard-stats" class="hotlines-dash-stats"></div>
+      <div id="hotlines-dashboard-list" class="hotlines-dash-list"></div>
+      <button class="btn-secondary modal-close-btn" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
 
   <!-- Pack Opening Animation Modal -->
   <div id="modal-pack" class="modal" style="display:none">
@@ -905,6 +1021,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=13"></script>
+  <script src="assets/main.js?v=18"></script>
 </body>
 </html>

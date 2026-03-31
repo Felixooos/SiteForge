@@ -730,7 +730,8 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 .lb-badges {
   display: flex; gap: 3px; margin-top: 2px;
 }
-.lb-badge { font-size: 12px; }
+.lb-badge { font-size: 12px; display: inline-flex; vertical-align: middle; }
+.lb-badge svg { width: 14px; height: 14px; }
 .lb-score {
   font-weight: 700; font-size: 0.9rem; color: var(--accent);
   flex-shrink: 0;
@@ -950,6 +951,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   display: flex; align-items: center; justify-content: center;
   font-size: 22px;
 }
+.badge-icon svg { width: 28px; height: 28px; flex-shrink: 0; }
 .badge-item.earned .badge-icon {
   border-color: var(--accent);
   box-shadow: 0 0 10px rgba(245,158,11,0.3);
@@ -1748,17 +1750,21 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 .pack-grid-card-front {
   background: var(--bg-card);
   border: 2px solid var(--border);
-  padding: 5px;
+  padding: 0;
 }
 .pack-grid-card-front img {
-  width: 100%; height: 68%; object-fit: cover;
-  border-radius: 5px;
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 8px;
 }
 .pack-grid-card-front .grid-card-name {
-  font-size: 0.6rem; font-weight: 700; color: var(--text-light);
-  margin-top: 3px; text-align: center;
+  position: absolute; bottom: 0; left: 0; right: 0;
+  font-size: 0.55rem; font-weight: 700; color: white;
+  padding: 3px 4px;
+  text-align: center;
   font-family: var(--font-heading);
-  line-height: 1.15;
+  line-height: 1.1;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  border-radius: 0 0 8px 8px;
   overflow: hidden; text-overflow: ellipsis;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
 }
@@ -1827,16 +1833,20 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 }
 .normal-card-front img {
   width: 100%;
-  height: 75%;
+  height: 100%;
   object-fit: cover;
+  border-radius: 14px;
 }
 .normal-card-front .reveal-name {
+  position: absolute; bottom: 0; left: 0; right: 0;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1rem;
-  color: var(--text-light);
-  padding: 8px;
+  font-size: 0.85rem;
+  color: white;
+  padding: 8px 6px;
   text-align: center;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  border-radius: 0 0 14px 14px;
 }
 
 /* Shiny suspense card */
@@ -1884,24 +1894,29 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 }
 .shiny-card-front img {
   width: 100%;
-  height: 60%;
+  height: 100%;
   object-fit: cover;
+  border-radius: 14px;
 }
 .shiny-card-front .reveal-name {
+  position: absolute; bottom: 24px; left: 0; right: 0;
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 1rem;
-  color: var(--text-light);
+  font-size: 0.9rem;
+  color: white;
   padding: 6px;
   text-align: center;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
 }
 .shiny-card-front .reveal-shiny-badge {
-  font-size: 0.85rem;
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  font-size: 0.7rem;
   font-weight: 800;
   background: linear-gradient(135deg, #f59e0b, #fbbf24);
   color: #0a1a0d;
-  padding: 4px 14px;
+  padding: 3px 12px;
   border-radius: 20px;
+  z-index: 2;
 }
 
 /* Phase 1: spinning — card spins fast, ALWAYS showing the back face.

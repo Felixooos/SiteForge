@@ -111,8 +111,53 @@ $$;
 
 
 -- ============================================================
+-- 3. Valider un defi statique (hardcode) pour un joueur (admin only)
+-- ============================================================
+CREATE OR REPLACE FUNCTION bda_validate_static_defi(
+  p_site_id      TEXT,
+  p_target_email TEXT,
+  p_points       INTEGER,
+  p_defi_title   TEXT
+) RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_admin_email TEXT;
+  v_is_admin    BOOLEAN;
+BEGIN
+  v_admin_email := auth.jwt() ->> 'email';
+
+  SELECT (is_admin OR is_super_admin) INTO v_is_admin
+  FROM etudiants
+  WHERE email = v_admin_email AND site_id = p_site_id;
+
+  IF NOT COALESCE(v_is_admin, FALSE) THEN
+    RETURN jsonb_build_object('error', 'Not authorized');
+  END IF;
+
+  IF p_points <= 0 OR p_points > 2000 THEN
+    RETURN jsonb_build_object('error', 'Points invalides');
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM etudiants WHERE email = p_target_email AND site_id = p_site_id) THEN
+    RETURN jsonb_build_object('error', 'User not found');
+  END IF;
+
+  -- Insérer la transaction → le trigger met à jour etudiants.solde automatiquement
+  INSERT INTO transactions (site_id, destinataire_email, montant, raison, admin_email)
+  VALUES (p_site_id, p_target_email, p_points, 'Défi: ' || p_defi_title, v_admin_email);
+
+  RETURN jsonb_build_object('success', TRUE, 'points_added', p_points);
+END;
+$$;
+
+
+-- ============================================================
 -- FIN
 -- ============================================================
--- ✅ bda_add_points(site_id, target_email, points)
--- ✅ bda_validate_challenge(site_id, challenge_id, target_email)
--- Utilisation côté client : supabase.rpc('bda_add_points', {...})
+-- bda_add_points(site_id, target_email, points)
+-- bda_validate_challenge(site_id, challenge_id, target_email)
+-- bda_validate_static_defi(site_id, target_email, points, defi_title)
+-- Utilisation cote client : supabase.rpc('bda_add_points', {...})
