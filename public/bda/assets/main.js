@@ -823,7 +823,7 @@
         '<div class="pack-egg-icon">' + getEggSVG(eggTier, 80) + '</div>' +
         '<div class="pack-info">' +
           '<div class="pack-name">' + escHtml(pack.name) + '</div>' +
-          '<div class="pack-desc">' + escHtml(pack.description) + '</div>' +
+          '<div class="pack-desc">' + (i === 0 ? '1\u20137 cartes \u00b7 1% shiny' : i === 1 ? '3\u20139 cartes \u00b7 5% shiny' : '5\u201312 cartes \u00b7 10% shiny') + '</div>' +
           '<div class="pack-actions">' +
             '<button class="pack-price" data-pack-id="' + pack.id + '"' + (state.isGuest || (state.profile && state.profile.solde < pack.price) ? ' disabled' : '') + '>' +
               pack.price +
@@ -1789,8 +1789,8 @@
             <div class="shiny-card-back"><span>?</span></div>
             <div class="shiny-card-front">
               ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="">` : '<div style="font-size:60px">?</div>'}
-              <div class="reveal-name">${escHtml(card.name)}</div>
-              <div class="reveal-shiny-badge">SHINY</div>
+              <div class="reveal-name" style="opacity:0;transition:opacity 0.4s">${escHtml(card.name)}</div>
+              <div class="reveal-shiny-badge" style="opacity:0;transition:opacity 0.4s">SHINY</div>
             </div>
           </div>
         </div>
@@ -1804,6 +1804,12 @@
         container.classList.remove('shiny-reveal-active');
       }, 2900);
       container.onclick = null;
+      setTimeout(() => {
+        const nameEl = container.querySelector('.reveal-name');
+        const badgeEl = container.querySelector('.reveal-shiny-badge');
+        if (nameEl) nameEl.style.opacity = '1';
+        if (badgeEl) badgeEl.style.opacity = '1';
+      }, 4050);
       setTimeout(() => {
         if (state.packRevealIndex >= cards.length) {
           showPackSummary();
@@ -1820,7 +1826,7 @@
             <div class="normal-card-back"><span>?</span></div>
             <div class="normal-card-front">
               ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="">` : '<div style="font-size:60px">?</div>'}
-              <div class="reveal-name">${escHtml(card.name)}</div>
+              <div class="reveal-name" style="opacity:0;transition:opacity 0.4s">${escHtml(card.name)}</div>
             </div>
           </div>
         </div>
@@ -1828,6 +1834,10 @@
       requestAnimationFrame(() => {
         container.querySelector('.normal-flip-card').classList.add('flipped');
       });
+      setTimeout(() => {
+        const nameEl = container.querySelector('.reveal-name');
+        if (nameEl) nameEl.style.opacity = '1';
+      }, 650);
       if (state.packRevealIndex >= cards.length) {
         setTimeout(() => { showPackSummary(); }, 700);
       }
@@ -1842,15 +1852,16 @@
     var html = '';
     for (var si = 0; si < cards.length; si++) {
       var sc = cards[si];
-      html += '<div class="pack-grid-card' + (sc.is_shiny ? ' shiny' : '') + ' flipped" style="animation-delay:' + (si * 0.08) + 's">' +
-        '<div class="pack-grid-card-inner">' +
-          '<div class="pack-grid-card-back"><span>?</span></div>' +
-          '<div class="pack-grid-card-front">' +
-            (sc.image_url ? '<img src="' + escAttr(sc.image_url) + '" alt="">' : '<div style="font-size:28px;color:var(--text-dim)">?</div>') +
-            '<div class="grid-card-name">' + escHtml(sc.name) + '</div>' +
-            (sc.is_shiny ? '<div class="grid-card-shiny">SHINY</div>' : '') +
+      html += '<div class="pack-summary-item' + (sc.is_shiny ? ' shiny' : '') + '" style="animation-delay:' + (si * 0.06) + 's">' +
+        '<div class="pack-grid-card' + (sc.is_shiny ? ' shiny' : '') + ' flipped">' +
+          '<div class="pack-grid-card-inner">' +
+            '<div class="pack-grid-card-back"><span>?</span></div>' +
+            '<div class="pack-grid-card-front">' +
+              (sc.image_url ? '<img src="' + escAttr(sc.image_url) + '" alt="">' : '<div style="font-size:28px;color:var(--text-dim)">?</div>') +
+            '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="pack-summary-card-name">' + escHtml(sc.name) + (sc.is_shiny ? '<span class="pack-summary-shiny"> S</span>' : '') + '</div>' +
       '</div>';
     }
     container.innerHTML = html;
