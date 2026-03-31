@@ -73,6 +73,11 @@
     packRevealIndex: 0,
     sutomSession: null,
     sutomWords: [],
+    hotlinesConfig: null,
+    hotlinesMenu: [],
+    hotlinesOrders: [],
+    hotlinesMyOrder: null,
+    hotlinesCart: {},
   };
 
   // ==================== DOM REFS ====================
@@ -184,8 +189,10 @@
     // Mode segmented control
     const btnGame = $('#mode-btn-game');
     const btnInfo = $('#mode-btn-info');
+    const btnHotlines = $('#mode-btn-hotlines');
     if (btnGame) btnGame.addEventListener('click', () => switchMode('game'));
     if (btnInfo) btnInfo.addEventListener('click', () => switchMode('info'));
+    if (btnHotlines) btnHotlines.addEventListener('click', () => switchMode('hotlines'));
 
     // Info mode swipe
     initInfoSwipe();
@@ -250,33 +257,45 @@
     if (state.mode === newMode) return;
     const gameContainer = els.swipeContainer;
     const infoContainer = $('#swipe-container-info');
+    const hotlinesContainer = $('#hotlines-container');
     const gameNav = $('#bottom-nav');
     const infoNav = $('#bottom-nav-info');
     const btnGame = $('#mode-btn-game');
     const btnInfo = $('#mode-btn-info');
+    const btnHotlines = $('#mode-btn-hotlines');
 
     state.mode = newMode;
 
+    // Hide all
+    gameContainer.style.display = 'none';
+    infoContainer.style.display = 'none';
+    hotlinesContainer.style.display = 'none';
+    gameNav.style.display = 'none';
+    infoNav.style.display = 'none';
+    btnGame.classList.remove('active');
+    btnInfo.classList.remove('active');
+    btnHotlines.classList.remove('active');
+
     if (newMode === 'info') {
-      gameContainer.style.display = 'none';
-      gameNav.style.display = 'none';
       infoContainer.style.display = 'block';
       infoContainer.classList.add('mode-transition-enter');
       infoNav.style.display = 'flex';
-      btnGame.classList.remove('active');
       btnInfo.classList.add('active');
       state.infoPage = 2;
       goToInfoPage(state.infoPage, false);
       initEcocups();
       setTimeout(() => infoContainer.classList.remove('mode-transition-enter'), 400);
+    } else if (newMode === 'hotlines') {
+      hotlinesContainer.style.display = 'block';
+      hotlinesContainer.classList.add('mode-transition-enter');
+      btnHotlines.classList.add('active');
+      renderHotlines();
+      setTimeout(() => hotlinesContainer.classList.remove('mode-transition-enter'), 400);
     } else {
-      infoContainer.style.display = 'none';
-      infoNav.style.display = 'none';
       gameContainer.style.display = 'block';
       gameContainer.classList.add('mode-transition-enter');
       gameNav.style.display = 'flex';
       btnGame.classList.add('active');
-      btnInfo.classList.remove('active');
       goToPage(state.currentPage, false);
       setTimeout(() => gameContainer.classList.remove('mode-transition-enter'), 400);
     }
@@ -284,16 +303,16 @@
 
   // ==================== TEAM MEMBERS DATA ====================
   const membersData = {
-    victor: { name: 'Victor', role: 'Président', pole: 'Le Bureau', photo: 'images/team/Victor.jpg', desc: 'Le chef d\'orchestre du BDA ! Victor coordonne toutes les opérations et veille à ce que chaque projet avance dans les temps.' },
+    victor: { name: 'Victor', role: 'Président', pole: 'Le Bureau', photo: 'images/team/Victor.jpg', desc: 'Le chef d\'orchestre du Dinos\'Art ! Victor coordonne toutes les opérations et veille à ce que chaque projet avance dans les temps.' },
     lila: { name: 'Lila', role: 'Vice-Présidente', pole: 'Le Bureau', photo: 'images/team/Lila.jpg', desc: 'Le bras droit du président, Lila gère les relations internes et remplace Victor quand il est débordé (souvent).' },
     enekio: { name: 'Enékio', role: 'Trésorier', pole: 'Le Bureau', photo: 'images/team/Enekio.jpg', desc: 'Le gardien des finances ! Enékio s\'assure que chaque centime est bien dépensé et que le budget tient la route.' },
-    camille: { name: 'Camille', role: 'Secrétaire', pole: 'Le Bureau', photo: 'images/team/Camille.jpg', desc: 'La mémoire du BDA. Camille rédige les comptes-rendus, organise les réunions et garde une trace de tout.' },
-    felix: { name: 'Félix', role: 'Respo Comm & Site & Film', pole: 'Communication / Prod', photo: 'images/team/Felix.jpg', desc: 'Le touche-à-tout créatif : réseaux sociaux, site web, et réalisation des films du BDA. Dort pas beaucoup.' },
+    camille: { name: 'Camille', role: 'Secrétaire', pole: 'Le Bureau', photo: 'images/team/Camille.jpg', desc: 'La m\u00e9moire du Dinos\'Art. Camille rédige les comptes-rendus, organise les réunions et garde une trace de tout.' },
+    felix: { name: 'Félix', role: 'Respo Comm & Site & Film', pole: 'Communication / Prod', photo: 'images/team/Felix.jpg', desc: 'Le touche-à-tout créatif : réseaux sociaux, site web, et réalisation des films du Dinos\'Art. Dort pas beaucoup.' },
     margaux: { name: 'Margaux', role: 'Co-Respo Comm', pole: 'Communication', photo: 'images/team/Margaux.jpg', desc: 'Margaux co-pilote la communication avec un œil artistique et une énergie débordante pour les visuels.' },
-    nathanael: { name: 'Nathanaël', role: 'Comm', pole: 'Communication', photo: 'images/team/Nathanael.jpg', desc: 'Toujours là pour un coup de main sur les affiches et les stories Instagram du BDA.' },
-    lea: { name: 'Léa', role: 'Comm', pole: 'Communication', photo: 'images/team/Lea.jpg', desc: 'Créative et dynamique, Léa apporte sa touche perso à chaque visuel du BDA.' },
+    nathanael: { name: 'Nathanaël', role: 'Comm', pole: 'Communication', photo: 'images/team/Nathanael.jpg', desc: 'Toujours là pour un coup de main sur les affiches et les stories Instagram du Dinos\'Art.' },
+    lea: { name: 'Léa', role: 'Comm', pole: 'Communication', photo: 'images/team/Lea.jpg', desc: 'Créative et dynamique, Léa apporte sa touche perso à chaque visuel du Dinos\'Art.' },
     ethan: { name: 'Ethan', role: 'Comm & Respo Musique', pole: 'Communication / Prod', photo: 'images/team/Ethan.jpg', desc: 'Passionné de musique, Ethan compose les ambiances sonores et aide sur la communication.' },
-    louis: { name: 'Louis', role: 'Respo Event', pole: 'Événementiel', photo: 'images/team/Louis.jpg', desc: 'L\'architecte des événements ! Louis planifie et orchestre chaque soirée et activité du BDA.' },
+    louis: { name: 'Louis', role: 'Respo Event', pole: 'Événementiel', photo: 'images/team/Louis.jpg', desc: 'L\'architecte des événements ! Louis planifie et orchestre chaque soirée et activit\u00e9 du Dinos\'Art.' },
     jeanne: { name: 'Jeanne', role: 'Event', pole: 'Événementiel', photo: 'images/team/Jeanne.jpg', desc: 'Jeanne met l\'ambiance et s\'assure que chaque événement est mémorable !' },
     sacha: { name: 'Sacha', role: 'Event', pole: 'Événementiel', photo: 'images/team/Sacha.jpg', desc: 'Toujours motivé, Sacha est le premier à monter les tables et le dernier à les ranger.' },
     soline: { name: 'Soline', role: 'Event', pole: 'Événementiel', photo: 'images/team/Soline.jpg', desc: 'Soline apporte une touche de créativité et d\'organisation à chaque événement.' },
@@ -429,12 +448,31 @@
       e.preventDefault();
       $('#auth-login').style.display = 'none';
       $('#auth-register').style.display = 'block';
+      $('#auth-forgot').style.display = 'none';
+      $('#auth-error').textContent = '';
     });
     $('#show-login').addEventListener('click', (e) => {
       e.preventDefault();
       $('#auth-register').style.display = 'none';
+      $('#auth-forgot').style.display = 'none';
       $('#auth-login').style.display = 'block';
+      $('#auth-error').textContent = '';
     });
+    $('#show-forgot').addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#auth-login').style.display = 'none';
+      $('#auth-register').style.display = 'none';
+      $('#auth-forgot').style.display = 'block';
+      $('#auth-error').textContent = '';
+      $('#forgot-success').style.display = 'none';
+    });
+    $('#back-to-login').addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#auth-forgot').style.display = 'none';
+      $('#auth-login').style.display = 'block';
+      $('#auth-error').textContent = '';
+    });
+    $('#btn-forgot').addEventListener('click', handleForgotPassword);
     $('#btn-logout').addEventListener('click', handleLogout);
     $('#btn-guest-login').addEventListener('click', () => {
       handleLogout();
@@ -443,6 +481,105 @@
     // Enter key on inputs
     $('#login-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
     $('#register-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
+    $('#forgot-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleForgotPassword(); });
+    $('#btn-verify-code').addEventListener('click', handleVerifyRecoveryCode);
+    $('#forgot-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyRecoveryCode(); });
+    $('#btn-set-newpw').addEventListener('click', handleSetNewPassword);
+    $('#forgot-newpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
+    $('#forgot-confirmpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
+
+    // Handle password recovery callback (when user clicks the email link)
+    handlePasswordRecovery();
+  }
+
+  async function handleForgotPassword() {
+    const email = $('#forgot-email').value.trim();
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+    $('#forgot-success').style.display = 'none';
+    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) { errEl.textContent = error.message; return; }
+      $('#forgot-success').style.display = 'block';
+      $('#forgot-step-email').style.display = 'none';
+      $('#forgot-step-code').style.display = 'block';
+      $('#forgot-code').focus();
+    } catch (e) {
+      errEl.textContent = 'Erreur lors de l\'envoi.';
+    }
+  }
+
+  async function handleVerifyRecoveryCode() {
+    const email = $('#forgot-email').value.trim();
+    const token = ($('#forgot-code').value || '').trim();
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+    if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
+      if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
+      // OTP valid — session is now open, show new password step
+      $('#forgot-step-code').style.display = 'none';
+      $('#forgot-step-newpw').style.display = 'block';
+      $('#forgot-newpw').focus();
+    } catch (e) {
+      errEl.textContent = 'Erreur de v\u00e9rification.';
+    }
+  }
+
+  async function handleSetNewPassword() {
+    const newPw = $('#forgot-newpw').value;
+    const confirmPw = $('#forgot-confirmpw').value;
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+    if (!newPw) { errEl.textContent = 'Entre un nouveau mot de passe.'; return; }
+    if (newPw.length < 6) { errEl.textContent = 'Minimum 6 caract\u00e8res.'; return; }
+    if (newPw !== confirmPw) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPw });
+      if (error) { errEl.textContent = error.message; return; }
+      $('#forgot-step-newpw').style.display = 'none';
+      $('#forgot-success').style.display = 'block';
+      await supabase.auth.signOut();
+      setTimeout(() => {
+        $('#auth-forgot').style.display = 'none';
+        $('#auth-login').style.display = 'block';
+        $('#forgot-success').style.display = 'none';
+        $('#forgot-step-email').style.display = 'block';
+        $('#forgot-email').value = '';
+        $('#forgot-code').value = '';
+        $('#forgot-newpw').value = '';
+        $('#forgot-confirmpw').value = '';
+        $('#auth-error').textContent = '';
+      }, 2500);
+    } catch (e) {
+      errEl.textContent = 'Erreur lors de la mise \u00e0 jour.';
+    }
+  }
+
+  async function handlePasswordRecovery() {
+    // Supabase appends #access_token=...&type=recovery to URL
+    if (!supabase) return;
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      // Supabase client handles the token exchange automatically
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        state.user = session.user;
+        state.isGuest = false;
+        await loadProfile();
+        showApp();
+        // Navigate to profile page so user can change password
+        goToPage(4);
+        toast('Connecte ! Change ton mot de passe ci-dessous.', 'success');
+        // Clean the URL hash
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }
   }
 
   async function handleLogin() {
@@ -568,6 +705,9 @@
       loadLeaderboard(),
       loadCustomCards(),
       loadSutomWords(),
+      loadHotlinesConfig(),
+      loadHotlinesMenu(),
+      loadHotlinesOrders(),
     ]);
     updateUI();
   }
@@ -644,7 +784,7 @@
     switch (index) {
       case 0: renderBoutique(); break;
       case 1: renderPokedex(); break;
-      case 2: renderClassement(); break;
+      case 2: loadLeaderboard().then(renderClassement); break;
       case 3: renderDefis(); break;
       case 4: renderProfil(); break;
     }
@@ -657,6 +797,7 @@
     renderClassement();
     renderDefis();
     renderProfil();
+    renderHotlines();
   }
 
   function updateCoins() {
@@ -676,21 +817,23 @@
       return;
     }
 
-    container.innerHTML = state.packs.map((pack, i) => `
-      <div class="pack-card tier-${i}">
-        <div class="pack-egg-icon">${i === 0 ? '?' : i === 1 ? '?' : '?'}</div>
-        <div class="pack-info">
-          <div class="pack-name">${escHtml(pack.name)}</div>
-          <div class="pack-desc">${escHtml(pack.description)}</div>
-          <div class="pack-actions">
-            <button class="pack-price" data-pack-id="${pack.id}" ${state.isGuest || (state.profile && state.profile.solde < pack.price) ? 'disabled' : ''}>
-              ${pack.price}
-            </button>
-            <button class="pack-info-btn" data-pack-info="${pack.id}">i</button>
-          </div>
-        </div>
-      </div>
-    `).join('');
+    container.innerHTML = state.packs.map(function(pack, i) {
+      var eggTier = i === 0 ? 'green' : i === 1 ? 'purple' : 'gold';
+      return '<div class="pack-card tier-' + i + '">' +
+        '<div class="pack-egg-icon">' + getEggSVG(eggTier, 80) + '</div>' +
+        '<div class="pack-info">' +
+          '<div class="pack-name">' + escHtml(pack.name) + '</div>' +
+          '<div class="pack-desc">' + escHtml(pack.description) + '</div>' +
+          '<div class="pack-actions">' +
+            '<button class="pack-price" data-pack-id="' + pack.id + '"' + (state.isGuest || (state.profile && state.profile.solde < pack.price) ? ' disabled' : '') + '>' +
+              pack.price +
+            '</button>' +
+            '<button class="pack-info-btn" data-pack-info="' + pack.id + '">i</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
 
     // Buy pack handlers
     container.querySelectorAll('.pack-price').forEach(btn => {
@@ -743,10 +886,10 @@
     const s = state.sutomSession;
 
     const previewCells = s.word.split('').map((ch,i) =>
-      '<span class="sutom-preview-cell' + (i === 0 ? '' : ' empty') + '">' + (i === 0 ? escHtml(ch) : '') + '</span>'
+      '<span class="sutom-preview-cell' + (s.solved ? ' well' : (i === 0 ? '' : ' empty')) + '">' + (s.solved ? escHtml(ch) : (i === 0 ? escHtml(ch) : '')) + '</span>'
     ).join('');
 
-    const isSuperAdmin = !!(state.profile && state.profile.is_super_admin);
+    const canAdminSutom = !!(state.profile && (state.profile.is_super_admin || state.profile.is_admin || state.profile.is_creator));
     wrap.innerHTML =
       '<div class="sutom-launch-card' + (s.solved ? ' solved' : '') + '" id="sutom-launch">' +
         '<div class="sutom-launch-title">SUTOM</div>' +
@@ -756,7 +899,7 @@
           ? '<div class="sutom-launch-done">Deja joue aujourd\'hui !</div>'
           : '<div class="sutom-launch-reward">+' + s.points + ' pts</div>') +
       '</div>' +
-      (isSuperAdmin ? '<button class="sutom-admin-btn" id="sutom-admin-open">Changer le mot (admin)</button>' : '');
+      (canAdminSutom ? '<button class="sutom-admin-btn" id="sutom-admin-open">Changer le mot (admin)</button>' : '');
 
     const launch = $('#sutom-launch');
     if (launch && !s.solved) launch.addEventListener('click', openSutomGame);
@@ -810,7 +953,6 @@
     for (let r = 0; r < SUTOM_MAX; r++) {
       const row = document.createElement('div');
       row.className = 'sutom-row';
-      row.dataset.row = r;
       for (let c = 0; c < len; c++) {
         const cell = document.createElement('span');
         cell.className = 'sutom-cell';
@@ -854,7 +996,7 @@
     if (!board) return;
     s.tries.forEach((guess, rowIdx) => {
       const result = evaluateSutomGuess(guess, s.word);
-      const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+      const cells = board.querySelectorAll('.sutom-cell[data-row="' + rowIdx + '"]');
       guess.split('').forEach((ch, ci) => {
         if (cells[ci]) {
           cells[ci].textContent = ch;
@@ -978,7 +1120,7 @@
   function shakeRow(rowIdx) {
     const board = $('#sutom-board');
     if (!board) return;
-    const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+    const cells = board.querySelectorAll('.sutom-cell[data-row="' + rowIdx + '"]');
     cells.forEach(c => { c.style.animation = 'none'; c.offsetHeight; c.style.animation = 'sutomShake 0.3s ease'; });
     setTimeout(() => cells.forEach(c => c.style.animation = ''), 350);
   }
@@ -1041,7 +1183,7 @@
     return new Promise(resolve => {
       const board = $('#sutom-board');
       if (!board) { resolve(); return; }
-      const cells = board.querySelectorAll('[data-row="' + rowIdx + '"]');
+      const cells = board.querySelectorAll('.sutom-cell[data-row="' + rowIdx + '"]');
       let i = 0;
       function flipNext() {
         if (i >= cells.length) { resolve(); return; }
@@ -1087,16 +1229,15 @@
     if (localStorage.getItem(solvedKey) === '1') return;
     const points = Number(state.sutomSession.points || 0);
     if (!points) return;
-    const { error } = await supabase.from('transactions').insert({
-      site_id: SITE_ID,
-      destinataire_email: state.user.email,
-      montant: points,
-      raison: 'Sutom du ' + day,
-      admin_email: null,
+    const { error } = await supabase.rpc('rpc_reward_sutom', {
+      p_site_id: SITE_ID,
+      p_day: day,
+      p_points: points,
     });
     if (!error) {
       localStorage.setItem(solvedKey, '1');
-      if (state.profile) { state.profile.solde += points; updateCoins(); }
+      await loadProfile();
+      updateCoins();
       await loadLeaderboard();
       renderClassement();
     }
@@ -1141,6 +1282,395 @@
     renderSutom();
   }
 
+  /* ===== HOTLINES — food ordering system ===== */
+  async function loadHotlinesConfig() {
+    if (!supabase) return;
+    const { data } = await supabase.from('bda_hotlines_config').select('*').eq('site_id', SITE_ID).single();
+    state.hotlinesConfig = data || { is_active: false };
+  }
+
+  async function loadHotlinesMenu() {
+    if (!supabase) return;
+    const { data } = await supabase.from('bda_hotlines_menu').select('*').eq('site_id', SITE_ID).eq('available', true).order('display_order');
+    state.hotlinesMenu = data || [];
+  }
+
+  async function loadHotlinesOrders() {
+    if (!supabase || state.isGuest) { state.hotlinesOrders = []; return; }
+    const isAdmin = state.profile && (state.profile.is_admin || state.profile.is_super_admin || state.profile.is_creator);
+    if (isAdmin) {
+      const { data } = await supabase.from('bda_hotlines_orders').select('*').eq('site_id', SITE_ID).order('created_at', { ascending: false });
+      state.hotlinesOrders = data || [];
+    } else {
+      const { data } = await supabase.from('bda_hotlines_orders').select('*').eq('site_id', SITE_ID).eq('user_email', state.user.email).order('created_at', { ascending: false }).limit(1);
+      state.hotlinesOrders = data || [];
+    }
+    state.hotlinesMyOrder = state.hotlinesOrders.find(o => o.user_email === (state.user?.email || '')) || null;
+  }
+
+  function renderHotlines() {
+    const isAdmin = !!(state.profile && (state.profile.is_admin || state.profile.is_super_admin || state.profile.is_creator));
+    const isActive = !!(state.hotlinesConfig && state.hotlinesConfig.is_active);
+
+    // Admin bar
+    const adminBar = $('#hotlines-admin-bar');
+    if (adminBar) {
+      adminBar.style.display = isAdmin ? 'block' : 'none';
+      const statusText = $('#hotlines-status-text');
+      const toggleBtn = $('#hotlines-toggle-btn');
+      if (statusText) statusText.textContent = isActive ? 'Hotlines activees' : 'Hotlines desactivees';
+      if (toggleBtn) {
+        toggleBtn.textContent = isActive ? 'Desactiver' : 'Activer';
+        toggleBtn.className = 'hotlines-toggle-btn' + (isActive ? ' active' : '');
+      }
+    }
+
+    // Mode segmented hotlines button visibility
+    const hotlinesBtn = $('#mode-btn-hotlines');
+    if (hotlinesBtn) {
+      // Always visible for admin, only visible when active for non-admin
+      if (!isAdmin && !isActive) {
+        hotlinesBtn.style.display = 'none';
+      } else {
+        hotlinesBtn.style.display = '';
+      }
+      // Green indicator when user has an order
+      if (state.hotlinesMyOrder) {
+        hotlinesBtn.classList.add('hotlines-has-order');
+      } else {
+        hotlinesBtn.classList.remove('hotlines-has-order');
+      }
+    }
+
+    // Closed message
+    const closedMsg = $('#hotlines-closed-msg');
+    const menuGrid = $('#hotlines-menu-grid');
+    const orderForm = $('#hotlines-order-form');
+    const myOrder = $('#hotlines-my-order');
+    const orderSection = $('#hotlines-order-section');
+
+    // User already has an order? Show recap
+    if (state.hotlinesMyOrder && !isAdmin) {
+      if (orderSection) orderSection.style.display = 'none';
+      if (myOrder) {
+        myOrder.style.display = 'block';
+        renderMyOrderRecap();
+      }
+      return;
+    }
+
+    if (orderSection) orderSection.style.display = 'block';
+    if (myOrder) myOrder.style.display = 'none';
+
+    if (!isActive && !isAdmin) {
+      if (closedMsg) closedMsg.style.display = 'block';
+      if (menuGrid) menuGrid.style.display = 'none';
+      if (orderForm) orderForm.style.display = 'none';
+      return;
+    }
+
+    if (closedMsg) closedMsg.style.display = 'none';
+    if (menuGrid) menuGrid.style.display = '';
+
+    // Render menu
+    if (menuGrid) {
+      if (state.hotlinesMenu.length === 0) {
+        menuGrid.innerHTML = '<div class="empty-state"><p>Aucun plat disponible</p></div>';
+      } else {
+        menuGrid.innerHTML = state.hotlinesMenu.map(item => {
+          const qty = state.hotlinesCart[item.id] || 0;
+          return '<div class="hotlines-menu-item">' +
+            (item.image_url ? '<img src="' + escAttr(item.image_url) + '" alt="" class="hotlines-item-img">' : '<div class="hotlines-item-img-placeholder"></div>') +
+            '<div class="hotlines-item-info">' +
+              '<div class="hotlines-item-name">' + escHtml(item.name) + '</div>' +
+              (item.description ? '<div class="hotlines-item-desc">' + escHtml(item.description) + '</div>' : '') +
+            '</div>' +
+            '<div class="hotlines-qty-ctrl">' +
+              '<button class="qty-btn qty-minus" data-item-id="' + item.id + '">-</button>' +
+              '<span class="qty-value">' + qty + '</span>' +
+              '<button class="qty-btn qty-plus" data-item-id="' + item.id + '">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        menuGrid.querySelectorAll('.qty-plus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.dataset.itemId);
+            state.hotlinesCart[id] = (state.hotlinesCart[id] || 0) + 1;
+            renderHotlines();
+          });
+        });
+        menuGrid.querySelectorAll('.qty-minus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.dataset.itemId);
+            if (state.hotlinesCart[id] > 0) state.hotlinesCart[id]--;
+            renderHotlines();
+          });
+        });
+      }
+    }
+
+    // Show order form if any item is selected
+    const totalItems = Object.values(state.hotlinesCart).reduce((a, b) => a + b, 0);
+    if (orderForm) {
+      orderForm.style.display = totalItems > 0 ? 'block' : 'none';
+    }
+
+    // Cart summary
+    if (totalItems > 0 && orderForm) {
+      const summary = $('#hotlines-cart-summary');
+      if (summary) {
+        let lines = [];
+        for (const [id, qty] of Object.entries(state.hotlinesCart)) {
+          if (qty <= 0) continue;
+          const item = state.hotlinesMenu.find(m => m.id === parseInt(id));
+          if (!item) continue;
+          lines.push(escHtml(item.name) + ' x' + qty);
+        }
+        summary.innerHTML = lines.map(l => '<div class="cart-line">' + l + '</div>').join('');
+      }
+    }
+  }
+
+  function renderMyOrderRecap() {
+    const container = $('#hotlines-my-order-content');
+    if (!container || !state.hotlinesMyOrder) return;
+    const o = state.hotlinesMyOrder;
+    const items = o.items || [];
+    container.innerHTML =
+      '<div class="order-recap-card order-confirmed">' +
+        '<div class="order-recap-badge">Commande validee</div>' +
+        '<div class="order-recap-info">' +
+          '<div><strong>' + escHtml(o.prenom) + ' ' + escHtml(o.nom) + '</strong></div>' +
+          '<div>Tel : ' + escHtml(o.telephone) + '</div>' +
+          '<div>Lieu : ' + escHtml(o.lieu) + '</div>' +
+        '</div>' +
+        '<div class="order-recap-items">' +
+          items.map(i => '<div class="order-recap-line">' + escHtml(i.name) + ' x' + i.qty + '</div>').join('') +
+        '</div>' +
+      '</div>';
+  }
+
+  function initHotlines() {
+    // Toggle active
+    const toggleBtn = $('#hotlines-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', async () => {
+        if (!supabase) return;
+        const newState = !(state.hotlinesConfig && state.hotlinesConfig.is_active);
+        // Upsert config
+        const { error } = await supabase.from('bda_hotlines_config').upsert({
+          site_id: SITE_ID, is_active: newState, updated_by: state.user?.email || 'admin',
+        }, { onConflict: 'site_id' });
+        if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+        if (!state.hotlinesConfig) state.hotlinesConfig = {};
+        state.hotlinesConfig.is_active = newState;
+        toast(newState ? 'Hotlines activees !' : 'Hotlines desactivees.', 'success');
+        renderHotlines();
+      });
+    }
+
+    // Manage menu
+    const manageBtn = $('#hotlines-manage-menu');
+    if (manageBtn) manageBtn.addEventListener('click', openHotlinesMenuAdmin);
+
+    // Dashboard
+    const dashBtn = $('#hotlines-view-dashboard');
+    if (dashBtn) dashBtn.addEventListener('click', openHotlinesDashboard);
+
+    // Submit order
+    const submitBtn = $('#hotlines-submit-order');
+    if (submitBtn) submitBtn.addEventListener('click', submitHotlinesOrder);
+
+    // File input in menu admin
+    const hmImage = $('#hm-image');
+    if (hmImage) hmImage.addEventListener('change', () => {
+      const name = hmImage.files[0]?.name || '';
+      const label = $('#hm-image-name');
+      if (label) label.textContent = name;
+    });
+
+    // Add menu item
+    const addBtn = $('#hm-add-btn');
+    if (addBtn) addBtn.addEventListener('click', addHotlinesMenuItem);
+  }
+
+  async function submitHotlinesOrder() {
+    if (state.isGuest) { toast('Connecte-toi pour commander.', 'error'); return; }
+    if (!supabase) return;
+
+    const nom = $('#hotlines-nom')?.value.trim();
+    const prenom = $('#hotlines-prenom')?.value.trim();
+    const telephone = $('#hotlines-telephone')?.value.trim();
+    const lieu = $('#hotlines-lieu')?.value.trim();
+
+    if (!nom || !prenom || !telephone || !lieu) { toast('Remplis tous les champs.', 'error'); return; }
+
+    const items = [];
+    for (const [id, qty] of Object.entries(state.hotlinesCart)) {
+      if (qty <= 0) continue;
+      const item = state.hotlinesMenu.find(m => m.id === parseInt(id));
+      if (!item) continue;
+      items.push({ menu_id: item.id, name: item.name, qty });
+    }
+
+    if (items.length === 0) { toast('Ajoute des plats a ta commande.', 'error'); return; }
+
+    const { error } = await supabase.from('bda_hotlines_orders').insert({
+      site_id: SITE_ID,
+      user_email: state.user.email,
+      nom, prenom, telephone, lieu,
+      items, total: 0,
+      status: 'pending',
+    });
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+
+    toast('Commande envoyee !', 'success');
+    state.hotlinesCart = {};
+    await loadHotlinesOrders();
+    renderHotlines();
+  }
+
+  /* --- Admin: menu management --- */
+  function openHotlinesMenuAdmin() {
+    const modal = $('#modal-hotlines-menu');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    renderHotlinesMenuAdmin();
+  }
+
+  async function renderHotlinesMenuAdmin() {
+    // Reload all menu items (including unavailable ones for admin)
+    if (!supabase) return;
+    const { data } = await supabase.from('bda_hotlines_menu').select('*').eq('site_id', SITE_ID).order('display_order');
+    const allMenuItems = data || [];
+
+    const list = $('#hotlines-menu-admin-list');
+    if (!list) return;
+
+    if (allMenuItems.length === 0) {
+      list.innerHTML = '<p style="color:var(--text-dim);font-size:0.85rem">Aucun plat dans le menu.</p>';
+      return;
+    }
+
+    list.innerHTML = allMenuItems.map(item =>
+      '<div class="hm-admin-item">' +
+        (item.image_url ? '<img src="' + escAttr(item.image_url) + '" class="hm-admin-img">' : '') +
+        '<div class="hm-admin-info">' +
+          '<div class="hm-admin-name">' + escHtml(item.name) + '</div>' +
+        '</div>' +
+        '<button class="hm-admin-del" data-item-id="' + item.id + '">X</button>' +
+      '</div>'
+    ).join('');
+
+    list.querySelectorAll('.hm-admin-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt(btn.dataset.itemId);
+        await supabase.from('bda_hotlines_menu').delete().eq('id', id);
+        toast('Plat supprime', 'success');
+        renderHotlinesMenuAdmin();
+        await loadHotlinesMenu();
+        renderHotlines();
+      });
+    });
+  }
+
+  async function addHotlinesMenuItem() {
+    if (!supabase) return;
+    const name = $('#hm-name')?.value.trim();
+    const desc = $('#hm-desc')?.value.trim() || '';
+    const price = 0;
+    const fileInput = $('#hm-image');
+
+    if (!name) { toast('Nom du plat requis.', 'error'); return; }
+
+    let imageUrl = '';
+    if (fileInput && fileInput.files[0]) {
+      try {
+        imageUrl = await uploadImageToStorage(fileInput.files[0], 'hotlines');
+      } catch (e) { toast('Erreur upload image', 'error'); console.warn('Image upload failed:', e); }
+    }
+
+    // Get next display order
+    const order = state.hotlinesMenu.length;
+
+    const { error } = await supabase.from('bda_hotlines_menu').insert({
+      site_id: SITE_ID, name, description: desc, price, image_url: imageUrl, display_order: order,
+    });
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+
+    toast('Plat ajoute !', 'success');
+    // Reset form
+    if ($('#hm-name')) $('#hm-name').value = '';
+    if ($('#hm-desc')) $('#hm-desc').value = '';
+
+    if (fileInput) fileInput.value = '';
+    if ($('#hm-image-name')) $('#hm-image-name').textContent = '';
+
+    await loadHotlinesMenu();
+    renderHotlinesMenuAdmin();
+    renderHotlines();
+  }
+
+  /* --- Admin: dashboard --- */
+  function openHotlinesDashboard() {
+    const modal = $('#modal-hotlines-dashboard');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    renderHotlinesDashboard();
+  }
+
+  async function renderHotlinesDashboard() {
+    await loadHotlinesOrders();
+    const orders = state.hotlinesOrders;
+
+    // Stats
+    const statsEl = $('#hotlines-dashboard-stats');
+    if (statsEl) {
+      const totalOrders = orders.length;
+      const pending = orders.filter(o => o.status === 'pending').length;
+      const delivered = orders.filter(o => o.status === 'delivered').length;
+      statsEl.innerHTML =
+        '<div class="dash-stat"><span class="dash-stat-value">' + totalOrders + '</span><span class="dash-stat-label">Commandes</span></div>' +
+        '<div class="dash-stat"><span class="dash-stat-value">' + pending + '</span><span class="dash-stat-label">En attente</span></div>' +
+        '<div class="dash-stat"><span class="dash-stat-value">' + delivered + '</span><span class="dash-stat-label">Livrees</span></div>';
+    }
+
+    // Order list
+    const listEl = $('#hotlines-dashboard-list');
+    if (!listEl) return;
+
+    if (orders.length === 0) {
+      listEl.innerHTML = '<p style="color:var(--text-dim);font-size:0.85rem">Aucune commande.</p>';
+      return;
+    }
+
+    listEl.innerHTML = orders.map(o => {
+      const items = o.items || [];
+      const statusClass = o.status === 'delivered' ? 'delivered' : o.status === 'pending' ? 'pending' : '';
+      return '<div class="dash-order ' + statusClass + '">' +
+        '<div class="dash-order-header">' +
+          '<strong>' + escHtml(o.prenom) + ' ' + escHtml(o.nom) + '</strong>' +
+          '<span class="dash-order-status">' + (o.status === 'delivered' ? 'Livree' : 'En attente') + '</span>' +
+        '</div>' +
+        '<div class="dash-order-meta">Tel: ' + escHtml(o.telephone) + ' | Lieu: ' + escHtml(o.lieu) + '</div>' +
+        '<div class="dash-order-items">' +
+          items.map(i => escHtml(i.name) + ' x' + i.qty).join(', ') +
+        '</div>' +
+        (o.status !== 'delivered' ? '<button class="btn-sm btn-primary dash-deliver-btn" data-order-id="' + o.id + '">Marquer livree</button>' : '') +
+      '</div>';
+    }).join('');
+
+    listEl.querySelectorAll('.dash-deliver-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const orderId = parseInt(btn.dataset.orderId);
+        await supabase.from('bda_hotlines_orders').update({ status: 'delivered' }).eq('id', orderId);
+        toast('Commande marquee livree', 'success');
+        renderHotlinesDashboard();
+      });
+    });
+  }
+
   async function buyPack(packId) {
     if (state.isGuest) { toast('Connecte-toi pour acheter !', 'error'); return; }
     const pack = state.packs.find(p => p.id === packId);
@@ -1155,7 +1685,10 @@
 
     modal.style.display = 'flex';
     egg.style.display = 'block';
-    egg.className = 'pack-egg';
+    var packIdx = state.packs.indexOf(pack);
+    var eggTier = packIdx <= 0 ? 'green' : packIdx === 1 ? 'purple' : 'gold';
+    egg.className = 'pack-egg egg-' + eggTier;
+    egg.innerHTML = getEggSVG(eggTier);
     stage.style.display = 'none';
     closeBtn.style.display = 'none';
 
@@ -1207,8 +1740,11 @@
     state.packRevealCards = drawnCards;
     state.packRevealIndex = 0;
 
-    // Animate egg crack
-    setTimeout(() => { egg.classList.add('cracking'); }, 800);
+    // Animate: idle wobble -> intensify -> shake hard -> crack
+    setTimeout(() => { egg.classList.add('shake-1'); }, 600);
+    setTimeout(() => { egg.classList.remove('shake-1'); egg.classList.add('shake-2'); }, 1600);
+    setTimeout(() => { egg.classList.remove('shake-2'); egg.classList.add('shake-3'); }, 2400);
+    setTimeout(() => { egg.classList.add('cracking'); }, 3200);
 
     // After egg cracks, show sequential card stage
     setTimeout(() => {
@@ -1219,11 +1755,12 @@
       const container = $('#pack-card-container');
       container.innerHTML = '<div class="pack-tap-prompt">Touche pour r\u00e9v\u00e9ler</div>';
       container.onclick = revealNextCard;
-    }, 1800);
+    }, 4000);
 
     closeBtn.onclick = () => {
       modal.style.display = 'none';
-      loadUserCards().then(() => {
+      Promise.all([loadUserCards(), loadProfile()]).then(() => {
+        updateCoins();
         renderPokedex();
         renderBoutique();
         checkBadges();
@@ -1856,14 +2393,161 @@
   }
 
   // ==================== PAGE 3: DEFIS ====================
+  const DEFI_LEVELS = [
+    {
+      id: 'niveau1', name: 'NIVEAU 1 : Petit Raptor', sub: 'D\u00e9fis d\'\u00e9chauffement \u2014 10 \u00e0 50 Points',
+      groups: [
+        { points: 10, items: [
+          { t: 'Ramener un gros b\u00e2ton \u00e0 notre Aprem Rez (+5 si d\u00e9cor\u00e9) (+20 si vainqueur du concours)', tag: 'Standard' },
+          { t: 'Draguer Tanguy sobre (+15 point si smack \u00e0 la fin, consenti sinon Oscar)', tag: 'Standard' },
+          { t: 'Demander \u00e0 Timoth\u00e9e de noter son outfit (de la personne qui demande) sur 10 (+15 si 10/10)', tag: 'Standard' },
+          { t: 'Se mettre du vernis vert fonc\u00e9 (+5 sur les pieds, +5 si envoy\u00e9 \u00e0 Cyrielle (que les pieds))', tag: 'Standard' },
+          { t: 'Expliquer \u00e0 Pauline pourquoi il faut \u00e9goutter son riz', tag: 'Standard' },
+          { t: 'Tunnel Cyrielle sur le Cac40', tag: 'Standard' },
+          { t: 'Demander \u00e0 Bastien comment s\'est pass\u00e9 son WEL', tag: 'Standard' },
+          { t: 'Apporter un candy\'up \u00e0 Candy', tag: 'Standard' },
+          { t: 'Expliquer l\'importance du tri s\u00e9lectif et son principe \u00e0 Bastien B\u00e9couarn', tag: 'DD' },
+          { t: 'Planter une plante', tag: 'DD' },
+          { t: 'Expliquer \u00e0 Eliott que Vald c\'est surcot\u00e9', tag: 'Standard' },
+          { t: 'Expliquer \u00e0 Anne Joly pourquoi elle est jolie', tag: 'Standard' },
+        ]},
+        { points: 50, items: [
+          { t: 'Trouver au moins 5 faux raccords du film (+2 point par faux raccord suppl\u00e9mentaire)', tag: 'Standard' },
+          { t: 'Se poster en faisant la danse de liste en story insta avec musique', tag: 'Standard' },
+          { t: 'Faire le poisson sur le bar en torchtot', tag: 'Standard' },
+          { t: 'Offrir un plat picard \u00e0 Le Picart', tag: 'Standard' },
+          { t: 'Ramener une manivelle \u00e0 Ga\u00ebtan Manouvel', tag: 'Standard' },
+          { t: 'Offrir de la nourriture au matcha \u00e0 Kimlee', tag: 'Standard' },
+          { t: 'Faire un po\u00e8me pour Yann (il en veut plein)', tag: 'Standard' },
+          { t: 'Donner son vrai compte (appli de rencontre) pendant 15 minutes \u00e0 Manu, Yann, Bastien ou Eliott', tag: 'Standard' },
+          { t: 'Offrir un Brie Soyeux \u00e0 Ana\u00efs Brissieux', tag: 'Standard' },
+          { t: 'Manger des macaroni en Cuccaroni', tag: 'Standard' },
+          { t: 'Ramener des cacahu\u00e8tes et une Goudale \u00e0 Manu (pour le go\u00fbter)', tag: 'Standard' },
+          { t: 'Faire un d\u00e9bat houleux sur qui gagne entre un T-Rex et un spinosaure et s\'\u00e9nerver vraiment fort en torchot', tag: 'Standard' },
+          { t: 'Mettre en bio insta "plus sauvage qu\'un T-Rex..." pendant les campagnes', tag: 'Standard' },
+          { t: 'Passer une journ\u00e9e de cours en chausson', tag: 'Standard' },
+          { t: 'Chanter une chanson en arabe \u00e0 Ismail le beau gosse', tag: 'Standard' },
+          { t: 'Donner de la nourriture en forme de dinosaure \u00e0 Ambre', tag: 'Standard' },
+          { t: 'Ecrire un po\u00e8me en portugais \u00e0 Jade', tag: 'Standard' },
+          { t: 'Enterrer un os pour occuper les futurs arch\u00e9ologues', tag: 'Standard' },
+          { t: 'Offrir un cubi de ros\u00e9 \u00e0 Nicolas', tag: 'Standard' },
+          { t: 'Offrir de la peinture marron \u00e0 Yann le peintre', tag: 'Standard' },
+          { t: 'Gagner un 1v1 \u00e0 brawlhalla contre Ana\u00efs', tag: 'Standard' },
+          { t: 'Faire dire \u00e0 une personne de l\'autre liste que les Din\'s sont mieux', tag: 'Standard' },
+          { t: 'Offrir un dessin de Tyrannus \u00e0 Ana\u00eblle', tag: 'Standard' },
+          { t: 'Offrir du bicarbonate de soude \u00e0 Anouk', tag: 'Standard' },
+          { t: 'Faire un film sur Marie', tag: 'Standard' },
+          { t: 'Apprendre les deux chansons des dins (10 points par chanson)', tag: 'Standard' },
+          { t: 'Trouver combien de temps a pris la voiture de Ga\u00ebtan pour arriver au WEL', tag: 'Standard' },
+          { t: 'Trouver combien de temps d\'avance a pris la voiture de Yann pour arriver au WEL', tag: 'Standard' },
+          { t: 'Ramener un caf\u00e9 chaud (avec lait et un peu de sucre) \u00e0 Ingrid', tag: 'Standard' },
+          { t: '\u00c9crire "votez Din\'s" sur 5 tableaux dans Centrale', tag: 'Standard' },
+          { t: 'Faire dire \u00e0 un inconnu "votez Dinz"', tag: 'Standard' },
+          { t: 'Faire un dessert (g\u00e2teau/p\u00e2tisserie/etc) vegan \u00e0 Pauline', tag: 'DD' },
+          { t: 'Faire un c\u00e2lin \u00e0 un arbre pendant 15 minutes', tag: 'DD' },
+          { t: 'Ramener son propre mug et ses propres couverts et assiettes toute la semaine', tag: 'DD' },
+        ]},
+      ],
+    },
+    {
+      id: 'niveau2', name: 'NIVEAU 2 : Chasseur de la Jungle', sub: 'D\u00e9fis Interm\u00e9diaires \u2014 100 \u00e0 200 Points',
+      groups: [
+        { points: 100, items: [
+          { t: 'Faire un \u00e9dit sur Gaetan Manouvel qui fait foot (+10 pour la meilleure prestation)', tag: 'Standard' },
+          { t: 'Venir \u00e0 notre aprem Rez / Venir \u00e0 notre torchtot / Venir \u00e0 notre fin d\'aprem', tag: 'Standard' },
+          { t: '\u00c9tablir une correspondance entre Jeffrey Epstein et les dinos sur wikipedia', tag: 'Standard' },
+          { t: '5 selfies avec des chauves', tag: 'Standard' },
+          { t: 'Imprimer Pops le Tric\u00e9ratops au fablab', tag: 'Standard' },
+          { t: 'Offrir un tutu rose \u00e0 manu, et le forcer \u00e0 le porter', tag: 'Standard' },
+          { t: 'Faire un photomontage cringe de kendji girac en dinosaure et le poster sans contexte en story insta', tag: 'Standard' },
+          { t: '\u00catre habill\u00e9 en vert toutes les campagnes', tag: 'Standard' },
+          { t: 'Tunelle un madz/croco en lui expliquant que le vert des din\'s est bien plus beau', tag: 'Standard' },
+          { t: 'Manger un piment en torchtot', tag: 'Standard' },
+          { t: 'Battre Nicolas en cul-sec de 30 cl de ros\u00e9', tag: 'Standard' },
+          { t: 'Draguer luri avec un air de guitare', tag: 'Standard' },
+          { t: 'Voler les chaussures d\'\u00c9douard et les donner \u00e0 Amicie sans contexte', tag: 'Standard' },
+          { t: 'Venir avec l\'objet le plus al\u00e9atoire \u00e0 la place du cartable en cours (bonus de 10 si performance remarquable)', tag: 'Standard' },
+          { t: 'Gossiper un truc \u00e9norme, attention risque de diffusion (point variable)', tag: 'Standard' },
+          { t: 'Faire une danse orientale \u00e0 Ismail', tag: 'Standard' },
+          { t: 'Demander un autographe \u00e0 un inconnu "parce qu\'il est c\u00e9l\u00e8bre" (+10 point si vous arrivez \u00e0 vous faire signer sur le corps...)', tag: 'Standard' },
+          { t: 'Dire "aller les Dinz" dans le groupe familial', tag: 'Standard' },
+          { t: 'Faire du papier recycl\u00e9 et noter un cours dessus', tag: 'DD' },
+          { t: 'Laver ses v\u00eatements dans la fontaine de grand\' place (+10 bonus si pleine journ\u00e9e)', tag: 'DD' },
+          { t: 'Trouver le compte insta secret de la liste et s\'abonner', tag: 'Standard' },
+          { t: 'Reproduire la sc\u00e8ne de combat du film', tag: 'Standard' },
+        ]},
+        { points: 200, items: [
+          { t: 'Trouver qq de plus petit que Pauline (il doit \u00eatre majeur)', tag: 'Standard' },
+          { t: 'Marquer un coup franc de plus de 20 m avec Gaetan comme gardien', tag: 'Standard' },
+          { t: 'Battre Tanguy 1vs1 au basket', tag: 'Standard' },
+          { t: 'Deviner la bi\u00e8re pr\u00e9f\u00e9r\u00e9e du respo bi\u00e8re (Eliott) et lui en ramener', tag: 'Standard' },
+          { t: '\u00c9tablir une correspondance g\u00e9n\u00e9alogique entre Annael Lebel et Fran\u00e7ois Lebel', tag: 'Standard' },
+          { t: 'Lancer une chenille de plus de 10 personnes dans le cours d\'honneur \u00e0 Centrale', tag: 'Standard' },
+          { t: 'Faire une tier liste des races (de dinosaures) et l\'expliquer sur sanstrash', tag: 'Standard' },
+          { t: 'Pr\u00e9parer un expos\u00e9 avec pdf/slides sur son dinosaure pr\u00e9f\u00e9r\u00e9 et le pr\u00e9senter sur sanstrash', tag: 'Standard' },
+          { t: 'Se filmer en train de tunnel une personne dans la rue sur les dinosaures, et lui expliquer qu\'avec un peu de technique, un pt\u00e9ranodon peut tuer un T-Rex', tag: 'Standard' },
+          { t: 'Faire une soir\u00e9e avec un panneau free hug', tag: 'Standard' },
+          { t: 'Vid\u00e9o de ses darons qui crient "votez Din\'s"', tag: 'Standard' },
+          { t: 'Se faire une green face (se peindre le visage en vert)', tag: 'Standard' },
+          { t: 'Mettre un filtre soutien actif', tag: 'Standard' },
+          { t: 'Faire un "ventriglisse"', tag: 'Standard' },
+          { t: 'Faire la trend non patch\u00e9 : crier dans la rue pour que les gens te regarde, et prendre ensuite une photo pour aura farm', tag: 'Standard' },
+          { t: 'Faire un before \u00e0 l\'un de nos event avec des bi\u00e8res et de la nourriture achet\u00e9es \u00e0 biocoop ou \u00e0 nous anti gaspi', tag: 'DD' },
+          { t: 'Passer litt\u00e9ralement 24h avec un v\u00e9lo (le ramener avec soi dans centrale, dans sa chambre etc)', tag: 'DD' },
+          { t: 'Avoir un temps d\'\u00e9cran de t\u00e9l\u00e9phone d\'1h00 par jour, pendant 3 jours', tag: 'DD' },
+        ]},
+      ],
+    },
+    {
+      id: 'niveau3', name: 'NIVEAU 3 : Poids Lourd du Jurassique', sub: 'D\u00e9fis Difficiles \u2014 300 \u00e0 400 Points',
+      groups: [
+        { points: 300, items: [
+          { t: 'Gagner 5.50 \u20ac en pratiquant son art dans la rue', tag: 'Standard' },
+          { t: 'Courir 3 tours de la rez avec d\u00e9marches v\u00e9lociraptors + crie tr\u00e8s fort', tag: 'Standard' },
+          { t: 'Faire un don du sang', tag: 'Standard' },
+        ]},
+        { points: 350, items: [
+          { t: 'Faire une caricature d\'un prof de Centrale et lui offrir', tag: 'Standard' },
+          { t: 'Venir \u00e0 un cours de L3 math \u00e0 la place de Manu (il peut vous fournir les dates de cours) (+bonus si se fait passer pour lui)', tag: 'Standard' },
+          { t: 'Demander \u00e0 10 personnes dans la rue si "tu me trouves charismatique ?"', tag: 'Standard' },
+          { t: 'Congeler de la pisse dans un ecocup et laisser fondre le gla\u00e7on sur le rebord de sa fen\u00eatre', tag: 'Standard' },
+          { t: 'Avoir les cartes collectors d\'un p\u00f4le (D\u00e9m, Event, Log, Comm) (+20 par p\u00f4le suppl\u00e9mentaire)', tag: 'Standard' },
+          { t: 'Se coller/scotcher sur la porte de centrale pour militer sur l\'\u00e9cologie', tag: 'DD' },
+          { t: 'Faire une toilette s\u00e8che avec des copeaux de bois (pas dans la rez), derri\u00e8re un buisson et l\'utiliser', tag: 'DD' },
+        ]},
+        { points: 400, items: [
+          { t: 'Se filmer en achetant des pr\u00e9servatifs au V2, et dire au caissier qu\'\u00e0 centrale, \u00e7a baise \u00e9norm\u00e9ment', tag: 'Standard' },
+        ]},
+      ],
+    },
+    {
+      id: 'niveau4', name: 'NIVEAU 4 : Pr\u00e9dateur Alpha', sub: 'D\u00e9fis Experts \u2014 500 \u00e0 750 Points',
+      groups: [
+        { points: 500, items: [
+          { t: 'Se prendre en photo devant un squelette d\'un dinosaure dans un mus\u00e9e', tag: 'Standard' },
+        ]},
+        { points: 750, items: [
+          { t: 'Avoir les cartes collector du bureau (Prez, Trez, Screz, VPI, VPE, Vice-Trez)', tag: 'Standard' },
+        ]},
+      ],
+    },
+    {
+      id: 'niveau5', name: 'NIVEAU 5 : L\'Extinction', sub: 'D\u00e9fis L\u00e9gendaires \u2014 900 \u00e0 1000 Points',
+      groups: [
+        { points: 900, items: [
+          { t: 'Se raser un sourcil', tag: 'Standard' },
+        ]},
+        { points: 1000, items: [
+          { t: 'Se faire tatouer un dinosaure (+100 point si vous vous le faites)', tag: 'Standard' },
+          { t: 'Se faire une vasectomie pour ne pas avoir d\'enfant', tag: 'DD' },
+        ]},
+      ],
+    },
+  ];
+
   function renderDefis() {
     const container = $('#defis-list');
     if (!container) return;
-
-    let challenges = state.challenges;
-    if (state.defiFilter !== 'all') {
-      challenges = challenges.filter(c => c.difficulte === state.defiFilter);
-    }
 
     // Show/hide admin FAB
     const fab = document.querySelector('.admin-fab');
@@ -1882,35 +2566,66 @@
       fab.style.display = 'none';
     }
 
-    if (challenges.length === 0) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div><p>Aucun d\u00e9fi disponible</p></div>';
-      return;
-    }
-
+    // Also render DB-based challenges if admin has created any (admin tools)
     const completedIds = new Set(state.validations.map(v => v.challenge_id));
 
-    container.innerHTML = challenges.map(ch => {
-      const done = completedIds.has(ch.id);
-      return `
-        <div class="defi-card">
-          <div class="defi-top">
-            <div class="defi-title">${escHtml(ch.titre)}</div>
-            <div class="defi-points ${ch.difficulte}">${DIFF_POINTS[ch.difficulte] || ch.points} pts</div>
-          </div>
-          <div class="defi-desc">${escHtml(ch.description)}</div>
-          ${done ? '<div class="defi-status">D\u00e9fi compl\u00e9t\u00e9</div>' : ''}
-          ${state.isAdmin ? `
-            <div class="defi-admin-actions">
-              <button class="defi-btn-validate" data-validate-ch="${ch.id}">Valider</button>
-              <button class="defi-btn-edit" data-edit-ch="${ch.id}">Editer</button>
-              <button class="defi-btn-delete" data-delete-ch="${ch.id}">Suppr.</button>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
+    let levels = DEFI_LEVELS;
+    if (state.defiFilter !== 'all') {
+      levels = levels.filter(l => l.id === state.defiFilter);
+    }
 
-    // Admin handlers
+    // Search filter
+    const searchQuery = ($('#defi-search')?.value || '').trim().toLowerCase();
+    const normalize = function(s) { return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
+
+    let html = '';
+    let defiIdx = 0;
+    for (const level of levels) {
+      let levelHtml = '';
+      for (const group of level.groups) {
+        let groupHtml = '';
+        for (const item of group.items) {
+          if (searchQuery && normalize(item.t).indexOf(normalize(searchQuery)) === -1) continue;
+          const tagClass = item.tag === 'DD' ? 'tag-dd' : 'tag-standard';
+          groupHtml += '<div class="defi-card' + (state.isAdmin ? ' defi-admin-clickable' : '') + '" data-static-defi="' + defiIdx + '" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">' +
+            '<div class="defi-top"><div class="defi-title">' + escHtml(item.t) + '<span class="defi-tag ' + tagClass + '">' + escHtml(item.tag) + '</span></div><div class="defi-points ' + level.id + '">' + group.points + ' pts</div></div>' +
+            (state.isAdmin ? '<div class="defi-admin-actions"><button class="defi-btn-validate-static" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">Valider pour un joueur</button></div>' : '') +
+            '</div>';
+          defiIdx++;
+        }
+        if (groupHtml) {
+          levelHtml += '<div class="defi-points-divider">' + group.points + ' POINTS</div>' + groupHtml;
+        }
+      }
+      if (levelHtml) {
+        html += '<div class="defi-level-section">' +
+          '<div class="defi-level-header ' + level.id + '">' + escHtml(level.name) +
+          '<span class="defi-level-pts">' + level.groups.map(function(g) { return g.points; }).join(' - ') + ' pts</span>' +
+          '<div class="defi-level-sub">' + escHtml(level.sub) + '</div></div>' +
+          '<div class="defi-level-body">' + levelHtml + '</div></div>';
+      }
+    }
+
+    // Append DB challenges below if any (for admin validation)
+    if (state.challenges.length > 0 && state.isAdmin) {
+      html += '<div class="defi-level-header niveau1">D\u00e9fis personnalis\u00e9s (admin)<div class="defi-level-sub">D\u00e9fis cr\u00e9\u00e9s depuis l\'interface admin</div></div>';
+      for (const ch of state.challenges) {
+        if (searchQuery && normalize(ch.titre).indexOf(normalize(searchQuery)) === -1) continue;
+        const done = completedIds.has(ch.id);
+        html += '<div class="defi-card"><div class="defi-top"><div class="defi-title">' + escHtml(ch.titre) + '</div><div class="defi-points ' + (ch.difficulte || 'facile') + '">' + (ch.points || 0) + ' pts</div></div>';
+        html += '<div class="defi-desc">' + escHtml(ch.description) + '</div>';
+        if (done) html += '<div class="defi-status">D\u00e9fi compl\u00e9t\u00e9</div>';
+        html += '<div class="defi-admin-actions"><button class="defi-btn-validate" data-validate-ch="' + ch.id + '">Valider</button><button class="defi-btn-edit" data-edit-ch="' + ch.id + '">Editer</button><button class="defi-btn-delete" data-delete-ch="' + ch.id + '">Suppr.</button></div></div>';
+      }
+    }
+
+    if (!html) {
+      html = '<div class="empty-state"><div class="empty-state-icon">--</div><p>Aucun d\u00e9fi trouv\u00e9</p></div>';
+    }
+
+    container.innerHTML = html;
+
+    // Admin handlers for DB challenges
     container.querySelectorAll('.defi-btn-validate').forEach(btn => {
       btn.addEventListener('click', () => openValidateModal(parseInt(btn.dataset.validateCh)));
     });
@@ -1919,6 +2634,13 @@
     });
     container.querySelectorAll('.defi-btn-delete').forEach(btn => {
       btn.addEventListener('click', () => deleteChallenge(parseInt(btn.dataset.deleteCh)));
+    });
+    // Admin handlers for static defis
+    container.querySelectorAll('.defi-btn-validate-static').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openStaticDefiValidateModal(btn.dataset.staticTitle, parseInt(btn.dataset.staticPts));
+      });
     });
   }
 
@@ -1931,6 +2653,14 @@
         renderDefis();
       });
     });
+    const searchInput = $('#defi-search');
+    if (searchInput) {
+      let debounce;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => renderDefis(), 200);
+      });
+    }
   }
 
   function openChallengeEditor(challengeId = null) {
@@ -2004,6 +2734,43 @@
       if (email === state.user?.email) { await loadProfile(); updateCoins(); }
       renderClassement();
       renderDefis();
+    };
+
+    openModal('modal-validate');
+  }
+
+  async function openStaticDefiValidateModal(title, points) {
+    if (!state.isAdmin) return;
+    $('#validate-challenge-name').textContent = title + ' (' + points + ' pts)';
+
+    const select = $('#validate-user-select');
+    select.innerHTML = '<option value="">Choisir un joueur\u2026</option>';
+    state.allUsers.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.email;
+      opt.textContent = u.pseudo || u.email;
+      select.appendChild(opt);
+    });
+
+    $('#btn-confirm-validate').onclick = async () => {
+      const email = select.value;
+      if (!email) { toast('S\u00e9lectionne un joueur', 'error'); return; }
+
+      const { data, error } = await supabase.rpc('bda_validate_static_defi', {
+        p_site_id: SITE_ID,
+        p_target_email: email,
+        p_points: points,
+        p_defi_title: title,
+      });
+
+      if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+      if (data?.error) { toast('Erreur: ' + data.error, 'error'); return; }
+
+      toast('D\u00e9fi valid\u00e9 ! +' + points + ' pts pour ' + (state.allUsers.find(u => u.email === email)?.pseudo || email), 'success');
+      closeAllModals();
+      await loadLeaderboard();
+      if (email === state.user?.email) { await loadProfile(); updateCoins(); }
+      renderClassement();
     };
 
     openModal('modal-validate');
@@ -2088,36 +2855,19 @@
       input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        const formData = new FormData();
-        formData.append('image', file);
-
+        toast('Upload en cours...', '');
         try {
-          const token = (await supabase.auth.getSession()).data.session?.access_token;
-          const res = await fetch(`/admin/api/projects/${SITE_ID}/upload`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + token },
-            body: formData,
-          });
-          const data = await res.json();
-          if (data.url) {
-            await supabase.from('etudiants').update({ photo_profil: data.url }).eq('id', state.profile.id);
-            state.profile.photo_profil = data.url;
-            toast('Avatar mis à jour !', 'success');
-            renderProfil();
-          }
+          const publicUrl = await uploadImageToStorage(file, 'avatars');
+          await supabase.from('etudiants').update({ photo_profil: publicUrl }).eq('id', state.profile.id);
+          state.profile.photo_profil = publicUrl;
+          // Refresh leaderboard entry so photo appears immediately
+          const lbEntry = state.leaderboard.find(p => p.email === state.user.email);
+          if (lbEntry) lbEntry.photo_profil = publicUrl;
+          toast('Avatar mis \u00e0 jour !', 'success');
+          renderProfil();
         } catch (err) {
-          // Fallback: upload directly to supabase storage
-          const ext = file.name.split('.').pop();
-          const fileName = `avatars/${SITE_ID}/${state.user.email.replace(/[^a-z0-9]/gi, '_')}.${ext}`;
-          const { error } = await supabase.storage.from('sites').upload(fileName, file, { upsert: true, contentType: file.type });
-          if (!error) {
-            const { data: { publicUrl } } = supabase.storage.from('sites').getPublicUrl(fileName);
-            await supabase.from('etudiants').update({ photo_profil: publicUrl }).eq('id', state.profile.id);
-            state.profile.photo_profil = publicUrl;
-            toast('Avatar mis à jour !', 'success');
-            renderProfil();
-          }
+          console.error('Avatar upload error:', err);
+          toast('Erreur upload: ' + (err.message || err), 'error');
         }
       };
       input.click();
@@ -2125,6 +2875,21 @@
 
     // Card creator
     initCardCreator();
+
+    // Change password
+    $('#btn-change-password').addEventListener('click', async () => {
+      const newPw = $('#new-password').value;
+      const confirmPw = $('#confirm-password').value;
+      if (!newPw || !confirmPw) { toast('Remplis les deux champs.', 'error'); return; }
+      if (newPw.length < 6) { toast('Minimum 6 caracteres.', 'error'); return; }
+      if (newPw !== confirmPw) { toast('Les mots de passe ne correspondent pas.', 'error'); return; }
+      if (!supabase) { toast('Connexion serveur indisponible.', 'error'); return; }
+      const { error } = await supabase.auth.updateUser({ password: newPw });
+      if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+      toast('Mot de passe mis a jour !', 'success');
+      $('#new-password').value = '';
+      $('#confirm-password').value = '';
+    });
   }
 
   function initCardCreator() {
@@ -2208,29 +2973,11 @@
 
       let imageUrl = editingCardId ? (state.customCards.find(c => c.id === editingCardId)?.image_url || '') : '';
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
         try {
-          const token = (await supabase.auth.getSession()).data.session?.access_token;
-          const res = await fetch(`/admin/api/projects/${SITE_ID}/upload`, {
-            method: 'POST',
-            headers: token ? { 'Authorization': 'Bearer ' + token } : {},
-            body: formData,
-          });
-          const result = await res.json();
-          if (result.url) imageUrl = result.url;
+          imageUrl = await uploadImageToStorage(selectedFile, 'custom-cards');
         } catch (e) {
-          console.warn('Server upload failed, trying Supabase storage:', e);
-          try {
-            const ext = selectedFile.name.split('.').pop();
-            const safeName = `custom_${Date.now()}.${ext}`;
-            const fileName = `custom-cards/${SITE_ID}/${safeName}`;
-            const { error } = await supabase.storage.from('sites').upload(fileName, selectedFile, { upsert: true, contentType: selectedFile.type });
-            if (!error) {
-              const { data: { publicUrl } } = supabase.storage.from('sites').getPublicUrl(fileName);
-              imageUrl = publicUrl;
-            }
-          } catch (e2) { console.warn('Supabase upload also failed:', e2); }
+          console.warn('Image upload failed:', e);
+          toast('Erreur upload image', 'error');
         }
       }
 
@@ -2335,6 +3082,35 @@
   }
 
   // ==================== UTILS ====================
+
+  function getEggSVG(tier, size) {
+    var w = size || 120;
+    var h = Math.round(w * 1.3);
+    var colors = {
+      green:  { shell: '#4ade80', shade: '#22c55e', spot: '#166534', glow: '#4ade8066' },
+      purple: { shell: '#c084fc', shade: '#a855f7', spot: '#581c87', glow: '#c084fc66' },
+      gold:   { shell: '#fbbf24', shade: '#f59e0b', spot: '#92400e', glow: '#fbbf2466' },
+    };
+    var c = colors[tier] || colors.green;
+    return '<svg viewBox="0 0 100 130" width="' + w + '" height="' + h + '" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs>' +
+        '<radialGradient id="eg-' + tier + '" cx="40%" cy="35%" r="60%">' +
+          '<stop offset="0%" stop-color="#fff" stop-opacity="0.4"/>' +
+          '<stop offset="100%" stop-color="' + c.shade + '" stop-opacity="0"/>' +
+        '</radialGradient>' +
+        '<filter id="eg-glow-' + tier + '"><feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="' + c.glow + '"/></filter>' +
+      '</defs>' +
+      '<ellipse cx="50" cy="72" rx="40" ry="55" fill="' + c.shell + '" filter="url(#eg-glow-' + tier + ')"/>' +
+      '<ellipse cx="50" cy="72" rx="40" ry="55" fill="url(#eg-' + tier + ')"/>' +
+      '<ellipse cx="35" cy="55" rx="8" ry="10" fill="' + c.spot + '" opacity="0.35" transform="rotate(-15 35 55)"/>' +
+      '<ellipse cx="62" cy="45" rx="6" ry="8" fill="' + c.spot + '" opacity="0.25" transform="rotate(10 62 45)"/>' +
+      '<ellipse cx="55" cy="80" rx="9" ry="7" fill="' + c.spot + '" opacity="0.3" transform="rotate(5 55 80)"/>' +
+      (tier === 'gold' ? '<ellipse cx="50" cy="60" rx="12" ry="4" fill="#fff" opacity="0.25" transform="rotate(-8 50 60)"/>' : '') +
+      (tier === 'purple' ? '<path d="M38 65 Q50 50 62 65" stroke="' + c.spot + '" stroke-width="2" fill="none" opacity="0.3"/>' : '') +
+      '<ellipse cx="38" cy="42" rx="12" ry="18" fill="#fff" opacity="0.12" transform="rotate(-20 38 42)"/>' +
+    '</svg>';
+  }
+
   function escHtml(str) {
     if (!str) return '';
     const div = document.createElement('div');
@@ -2351,6 +3127,46 @@
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+  /* --- Client-side image compress + EXIF rotation fix --- */
+  function compressImage(file, maxW, maxH, quality) {
+    maxW = maxW || 1200; maxH = maxH || 1200; quality = quality || 0.82;
+    return new Promise(function (resolve) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          if (w > maxW || h > maxH) {
+            var ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio); h = Math.round(h * ratio);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(function (blob) {
+            resolve(blob || file);
+          }, 'image/jpeg', quality);
+        };
+        img.onerror = function () { resolve(file); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function () { resolve(file); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* --- Upload image to Supabase Storage (with compression) --- */
+  async function uploadImageToStorage(file, folder) {
+    var blob = await compressImage(file, 1200, 1200, 0.82);
+    var safeName = folder + '/' + SITE_ID + '/' + Date.now() + '.jpg';
+    var uploadFile = new File([blob], safeName.split('/').pop(), { type: 'image/jpeg' });
+    var result = await supabase.storage.from('sites').upload(safeName, uploadFile, { upsert: true, contentType: 'image/jpeg' });
+    if (result.error) throw result.error;
+    var pub = supabase.storage.from('sites').getPublicUrl(safeName);
+    return pub.data.publicUrl;
+  }
+
   // ==================== INIT ====================
   async function init() {
     await initSupabase();
@@ -2362,6 +3178,7 @@
     initDefiFilters();
     initLeaderboardSearch();
     initProfil();
+    initHotlines();
     initTeamClicks();
     initGoodiesClicks();
 
