@@ -122,10 +122,26 @@ INSERT INTO bda_lots (id, site_id, name, category, image_url, qty_total, qty_rem
   ('musee_piscine',   'bda', 'Musée La Piscine Roubaix — 4 places',                   'partenaire', 'images/lots/musee_piscine.png', 1, 1),
   ('eve_co',          'bda', 'Eve & Co — -25%',                                        'partenaire', 'images/lots/eve_co.png', 1, 1),
   ('garten',          'bda', 'Garten on the Beach — Réduc festival',                   'partenaire', 'images/lots/garten.png', 1, 1),
-  -- Lot goodies
-  ('ecocup_collector','bda', '20 Ecocups Collectors + 20 Stickers Collectors',         'goodies',    'images/lots/ecocup_collector.png', 1, 1)
+  -- Lots goodies
+  ('sticker_collector','bda', 'Sticker Collector',  'goodies', 'images/goodies/Sticker_Collector.png', 20, 20),
+  ('ecocup_collector', 'bda', 'Ecocup Collector',   'goodies', 'images/goodies/Ecocup_Collector.png',  20, 20)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   category = EXCLUDED.category,
   image_url = EXCLUDED.image_url,
   qty_total = EXCLUDED.qty_total;
+
+-- =============================================
+-- RPC: Get lot winners (privacy-safe, no emails)
+-- =============================================
+CREATE OR REPLACE FUNCTION bda_get_lot_winners(p_site_id TEXT)
+RETURNS TABLE(lot_id TEXT, pseudo TEXT, won_at TIMESTAMPTZ)
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+  SELECT lw.lot_id, COALESCE(e.pseudo, 'Joueur') as pseudo, lw.won_at
+  FROM bda_lot_wins lw
+  LEFT JOIN etudiants e ON e.email = lw.user_email AND e.site_id = lw.site_id
+  WHERE lw.site_id = p_site_id
+  ORDER BY lw.won_at DESC;
+$$;

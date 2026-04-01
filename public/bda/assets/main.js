@@ -889,6 +889,8 @@
     'weembi': 'images/lots/weembi.png',
     'weezpark': 'images/lots/weezpark.png',
     'bowling': 'images/lots/planet_bowling.png',
+    'sticker collector': 'images/goodies/Sticker_Collector.png',
+    'ecocup collector': 'images/goodies/Ecocup_Collector.png',
   };
 
   function getLotImage(lot) {
@@ -922,21 +924,50 @@
       var items = lots.filter(function(l) { return l.category === cat.key; });
       if (items.length === 0) return;
       html += '<div class="lots-category"><h4 class="lots-category-title">' + escHtml(cat.title) + '</h4>';
-      html += '<div class="lots-grid">';
-      items.forEach(function(lot) {
-        var remaining = lot.qty_remaining != null ? lot.qty_remaining : lot.qty_total;
-        var soldOut = remaining <= 0;
-        var lotWinners = winnerMap[lot.id] || [];
-        var hasWinner = lotWinners.length > 0;
-        var imgUrl = getLotImage(lot);
-        html += '<div class="lot-card' + (soldOut ? ' sold-out' : '') + (hasWinner ? ' lot-won' : '') + '">' +
-          (imgUrl ? '<div class="lot-img-wrap"><img src="' + escAttr(imgUrl) + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' : '') +
-          '<div class="lot-name">' + escHtml(lot.name) + '</div>' +
-          '<div class="lot-qty">' + (soldOut ? 'Epuis\u00e9' : remaining + '/' + lot.qty_total + ' disponible' + (remaining > 1 ? 's' : '')) + '</div>' +
-          (hasWinner ? '<div class="lot-winners">' + lotWinners.map(function(lw) { return '<span class="lot-winner-chip">Gagn\u00e9 par ' + escHtml(lw.pseudo) + '</span>'; }).join('') + '</div>' : '') +
-        '</div>';
-      });
-      html += '</div></div>';
+
+      if (cat.key === 'goodies') {
+        // Goodies: special goodie-style layout with 3D ecocup
+        html += '<div class="goodies-products goodies-products-lots">';
+        items.forEach(function(lot) {
+          var remaining = lot.qty_remaining != null ? lot.qty_remaining : lot.qty_total;
+          var soldOut = remaining <= 0;
+          var lotWinners = winnerMap[lot.id] || [];
+          var hasWinner = lotWinners.length > 0;
+          var isEcocup = (lot.id || lot.name || '').toLowerCase().indexOf('ecocup') !== -1;
+          var imgUrl = getLotImage(lot);
+          html += '<div class="goodie-item lot-goodie-item' + (soldOut ? ' sold-out' : '') + (hasWinner ? ' lot-won' : '') + '">';
+          if (isEcocup) {
+            html += '<div class="goodie-img-wrap ecocup-3d-container"><canvas class="lot-ecocup-canvas" data-texture="images/goodies/Ecocup_Collector.png"></canvas></div>';
+          } else {
+            html += '<div class="goodie-img-wrap">' + (imgUrl ? '<img src="' + escAttr(imgUrl) + '" alt="" class="goodie-float" onerror="this.style.display=\'none\'">' : '') + '</div>';
+          }
+          html += '<div class="goodie-label">' + escHtml(lot.name) + '</div>';
+          html += '<div class="lot-qty">' + (soldOut ? 'Epuis\u00e9' : remaining + '/' + lot.qty_total + ' disponible' + (remaining > 1 ? 's' : '')) + '</div>';
+          if (hasWinner) {
+            html += '<div class="lot-winners">' + lotWinners.map(function(lw) { return '<span class="lot-winner-chip">Gagn\u00e9 par ' + escHtml(lw.pseudo) + '</span>'; }).join('') + '</div>';
+          }
+          html += '</div>';
+        });
+        html += '</div>';
+      } else {
+        // Normal lot grid
+        html += '<div class="lots-grid">';
+        items.forEach(function(lot) {
+          var remaining = lot.qty_remaining != null ? lot.qty_remaining : lot.qty_total;
+          var soldOut = remaining <= 0;
+          var lotWinners = winnerMap[lot.id] || [];
+          var hasWinner = lotWinners.length > 0;
+          var imgUrl = getLotImage(lot);
+          html += '<div class="lot-card' + (soldOut ? ' sold-out' : '') + (hasWinner ? ' lot-won' : '') + '">' +
+            (imgUrl ? '<div class="lot-img-wrap"><img src="' + escAttr(imgUrl) + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' : '') +
+            '<div class="lot-name">' + escHtml(lot.name) + '</div>' +
+            '<div class="lot-qty">' + (soldOut ? 'Epuis\u00e9' : remaining + '/' + lot.qty_total + ' disponible' + (remaining > 1 ? 's' : '')) + '</div>' +
+            (hasWinner ? '<div class="lot-winners">' + lotWinners.map(function(lw) { return '<span class="lot-winner-chip">Gagn\u00e9 par ' + escHtml(lw.pseudo) + '</span>'; }).join('') + '</div>' : '') +
+          '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
     });
     html += '<div class="lots-proba-info">' +
       '<h4>Chances de lot par oeuf</h4>' +
@@ -946,6 +977,39 @@
     '</div>';
     $('#lots-modal-content').innerHTML = html;
     openModal('modal-lots');
+    // Init 3D ecocup canvases inside the lots modal
+    initLotEcocups();
+  }
+
+  function initLotEcocups() {
+    if (typeof THREE === 'undefined') return;
+    document.querySelectorAll('.lot-ecocup-canvas').forEach(function(canvas) {
+      var texture = canvas.dataset.texture;
+      if (!texture) return;
+      var parent = canvas.parentElement;
+      var size = Math.min(parent.clientWidth, parent.clientHeight) || 140;
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      camera.position.set(0, 2, 14);
+      camera.lookAt(0, 0, 0);
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(size, size);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+      var loader = new THREE.TextureLoader();
+      loader.load(texture, function(tex) {
+        var geo = new THREE.CylinderGeometry(3, 2, 10, 64);
+        var mat = new THREE.MeshBasicMaterial({ map: tex });
+        var cup = new THREE.Mesh(geo, mat);
+        scene.add(cup);
+        function animate() {
+          requestAnimationFrame(animate);
+          cup.rotation.y += 0.01;
+          renderer.render(scene, camera);
+        }
+        animate();
+      });
+    });
   }
 
   /* ===== SUTOM — fullscreen game engine ===== */

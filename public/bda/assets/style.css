@@ -1164,6 +1164,36 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   font-size: 0.65rem; font-weight: 600;
   color: var(--accent); text-align: center;
 }
+/* Goodies lot items in modal */
+.goodies-products-lots {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+.lot-goodie-item {
+  background: linear-gradient(135deg, #2c1510, #3a1e17);
+  border: 1px solid #4a2a20; border-radius: 16px;
+  padding: 16px; text-align: center;
+}
+.lot-goodie-item.lot-won {
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 16px rgba(250,204,21,0.2);
+}
+.lot-goodie-item:not(.lot-won):not(.sold-out) {
+  opacity: 0.6; filter: grayscale(0.5);
+}
+.lot-goodie-item .goodie-img-wrap {
+  width: 100%; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.lot-goodie-item .goodie-img-wrap img {
+  max-width: 90%; max-height: 90%; object-fit: contain;
+}
+.lot-goodie-item .ecocup-3d-container canvas {
+  width: 100% !important; height: 100% !important; border-radius: 12px;
+}
+.lot-goodie-item .lot-qty {
+  color: var(--text-dim); font-size: 0.65rem; margin-top: 4px;
+}
 
 .admin-fab {
   position: fixed; bottom: calc(var(--bottom-nav-h) + 16px);

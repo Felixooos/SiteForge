@@ -34,17 +34,4 @@ CREATE POLICY "bda_defis_admin_delete" ON bda_defis FOR DELETE USING (
   EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_defis.site_id AND (is_admin = TRUE OR is_super_admin = TRUE))
 );
 
--- =============================================
--- RPC: Get lot winners (privacy-safe, no emails)
--- =============================================
-CREATE OR REPLACE FUNCTION bda_get_lot_winners(p_site_id TEXT)
-RETURNS TABLE(lot_id TEXT, pseudo TEXT, won_at TIMESTAMPTZ)
-LANGUAGE sql
-SECURITY DEFINER
-AS $$
-  SELECT lw.lot_id, COALESCE(e.pseudo, 'Joueur') as pseudo, lw.won_at
-  FROM bda_lot_wins lw
-  LEFT JOIN etudiants e ON e.email = lw.user_email AND e.site_id = lw.site_id
-  WHERE lw.site_id = p_site_id
-  ORDER BY lw.won_at DESC;
-$$;
+-- NOTE: bda_get_lot_winners RPC is defined in SQL_BDA_LOTS.sql (after bda_lot_wins table).
