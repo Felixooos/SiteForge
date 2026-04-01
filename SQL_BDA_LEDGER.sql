@@ -282,6 +282,33 @@ END;
 $$;
 
 -- ============================================================
+-- 7. RPC: Leaderboard basé uniquement sur les gains (montant > 0)
+--    Le classement ne doit pas baisser quand on achète des oeufs
+-- ============================================================
+CREATE OR REPLACE FUNCTION bda_leaderboard(p_site_id TEXT)
+RETURNS TABLE(email TEXT, pseudo TEXT, photo_profil TEXT, solde BIGINT, total_earned BIGINT)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    e.email,
+    e.pseudo,
+    e.photo_profil,
+    e.solde,
+    COALESCE((
+      SELECT SUM(t.montant)
+      FROM transactions t
+      WHERE t.site_id = e.site_id
+        AND t.destinataire_email = e.email
+        AND t.montant > 0
+    ), 0) AS total_earned
+  FROM etudiants e
+  WHERE e.site_id = p_site_id
+  ORDER BY total_earned DESC, e.pseudo ASC;
+$$;
+
+-- ============================================================
 -- FIN
 -- ============================================================
 -- ✅ Trigger fn_sync_solde_on_transaction : RECALCUL COMPLET (SUM)

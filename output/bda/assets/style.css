@@ -2673,14 +2673,15 @@ body.mode-info .mode-seg-btn {
   animation: slideUp 0.4s ease-out backwards;
 }
 .pole-header {
-  display: flex; gap: 14px; padding: 16px; align-items: center;
+  display: flex; flex-direction: column; gap: 0; padding: 0;
 }
 .pole-photo {
-  width: 80px; height: 80px; border-radius: 14px;
-  object-fit: cover; border: 2px solid #e74c3c;
-  flex-shrink: 0;
+  width: 100%; height: auto; max-height: 180px;
+  object-fit: cover; object-position: center 30%;
+  border-bottom: 2px solid #e74c3c;
+  display: block;
 }
-.pole-info { flex: 1; }
+.pole-info { flex: 1; padding: 14px 16px 8px; }
 .pole-name {
   font-family: var(--font-heading); font-weight: 800;
   font-size: 1rem; color: #e74c3c; margin-bottom: 4px;

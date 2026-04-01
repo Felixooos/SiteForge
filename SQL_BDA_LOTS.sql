@@ -19,15 +19,19 @@ CREATE INDEX IF NOT EXISTS idx_bda_lots_site ON bda_lots(site_id);
 ALTER TABLE bda_lots ENABLE ROW LEVEL SECURITY;
 
 -- Everyone can read lots (to see what's available)
+DROP POLICY IF EXISTS "bda_lots_select" ON bda_lots;
 CREATE POLICY "bda_lots_select" ON bda_lots FOR SELECT USING (true);
 
 -- Only admins can insert/update/delete
+DROP POLICY IF EXISTS "bda_lots_admin_insert" ON bda_lots;
 CREATE POLICY "bda_lots_admin_insert" ON bda_lots FOR INSERT WITH CHECK (
   EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_lots.site_id AND (is_admin = TRUE OR is_super_admin = TRUE))
 );
+DROP POLICY IF EXISTS "bda_lots_admin_update" ON bda_lots;
 CREATE POLICY "bda_lots_admin_update" ON bda_lots FOR UPDATE USING (
   EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_lots.site_id AND (is_admin = TRUE OR is_super_admin = TRUE))
 );
+DROP POLICY IF EXISTS "bda_lots_admin_delete" ON bda_lots;
 CREATE POLICY "bda_lots_admin_delete" ON bda_lots FOR DELETE USING (
   EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_lots.site_id AND (is_admin = TRUE OR is_super_admin = TRUE))
 );
@@ -47,14 +51,17 @@ CREATE INDEX IF NOT EXISTS idx_bda_lot_wins_user ON bda_lot_wins(user_email);
 ALTER TABLE bda_lot_wins ENABLE ROW LEVEL SECURITY;
 
 -- Users can see their own wins
+DROP POLICY IF EXISTS "bda_lot_wins_select_own" ON bda_lot_wins;
 CREATE POLICY "bda_lot_wins_select_own" ON bda_lot_wins FOR SELECT USING (
   auth.jwt() ->> 'email' = user_email
 );
 -- Admins can see all wins
+DROP POLICY IF EXISTS "bda_lot_wins_select_admin" ON bda_lot_wins;
 CREATE POLICY "bda_lot_wins_select_admin" ON bda_lot_wins FOR SELECT USING (
   EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_lot_wins.site_id AND (is_admin = TRUE OR is_super_admin = TRUE))
 );
 -- System inserts (via service role or authenticated user winning)
+DROP POLICY IF EXISTS "bda_lot_wins_insert" ON bda_lot_wins;
 CREATE POLICY "bda_lot_wins_insert" ON bda_lot_wins FOR INSERT WITH CHECK (
   auth.jwt() ->> 'email' = user_email
 );

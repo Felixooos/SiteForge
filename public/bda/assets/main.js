@@ -762,9 +762,9 @@
 
   async function loadLeaderboard() {
     if (!supabase) return;
-    const { data } = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde').eq('site_id', SITE_ID).order('solde', { ascending: false });
+    const { data } = await supabase.rpc('bda_leaderboard', { p_site_id: SITE_ID });
     state.leaderboard = data || [];
-    state.allUsers = data || [];
+    state.allUsers = (data || []).map(function(p) { return { email: p.email, pseudo: p.pseudo, photo_profil: p.photo_profil, solde: p.solde }; });
   }
 
   async function loadAllUserBadges() {
@@ -2521,7 +2521,7 @@
       if (myIdx >= 0) {
         myPosEl.style.display = 'flex';
         $('#my-pos-rank').textContent = '#' + (myIdx + 1);
-        $('#my-pos-coins').textContent = lb[myIdx].solde.toLocaleString() + ' pts';
+        $('#my-pos-coins').textContent = (lb[myIdx].total_earned || lb[myIdx].solde).toLocaleString() + ' pts';
       } else {
         myPosEl.style.display = 'none';
       }
@@ -2555,7 +2555,7 @@
             <div class="lb-podium-avatar">${avatarContent}</div>
             <div class="lb-podium-rank">${ranks[i]}</div>
             <div class="lb-podium-name">${escHtml(player.pseudo || player.email)}</div>
-            <div class="lb-podium-score">${player.solde.toLocaleString()} pts</div>
+            <div class="lb-podium-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
             ${badgeIcons ? `<div class="lb-badges">${badgeIcons}</div>` : ''}
           </div>
         `;
@@ -2585,7 +2585,7 @@
             <div class="lb-name">${escHtml(player.pseudo || player.email)}</div>
             ${playerBadgeIcons ? `<div class="lb-badges">${playerBadgeIcons}</div>` : ''}
           </div>
-          <div class="lb-score">${player.solde.toLocaleString()} pts</div>
+          <div class="lb-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
           ${state.isAdmin ? `<button class="lb-admin-btn" data-admin-email="${escAttr(player.email)}">+</button>` : ''}
         </div>
       `;
