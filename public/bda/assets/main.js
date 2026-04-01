@@ -2699,26 +2699,6 @@
     const container = $('#defis-list');
     if (!container) return;
 
-    // Show/hide admin FAB
-    const fab = document.querySelector('.admin-fab');
-    if (state.isAdmin && state.currentPage === 3) {
-      if (!fab) {
-        const btn = document.createElement('button');
-        btn.className = 'admin-fab';
-        btn.textContent = '+';
-        btn.style.display = 'block';
-        btn.addEventListener('click', () => openChallengeEditor());
-        els.app.appendChild(btn);
-      } else {
-        fab.style.display = 'block';
-      }
-    } else if (fab) {
-      fab.style.display = 'none';
-    }
-
-    // Also render DB-based challenges if admin has created any (admin tools)
-    const completedIds = new Set(state.validations.map(v => v.challenge_id));
-
     let levels = DEFI_LEVELS;
     if (state.defiFilter !== 'all') {
       levels = levels.filter(l => l.id === state.defiFilter);
@@ -2756,35 +2736,12 @@
       }
     }
 
-    // Append DB challenges below if any (for admin validation)
-    if (state.challenges.length > 0 && state.isAdmin) {
-      html += '<div class="defi-level-header niveau1">D\u00e9fis personnalis\u00e9s (admin)<div class="defi-level-sub">D\u00e9fis cr\u00e9\u00e9s depuis l\'interface admin</div></div>';
-      for (const ch of state.challenges) {
-        if (searchQuery && normalize(ch.titre).indexOf(normalize(searchQuery)) === -1) continue;
-        const done = completedIds.has(ch.id);
-        html += '<div class="defi-card"><div class="defi-top"><div class="defi-title">' + escHtml(ch.titre) + '</div><div class="defi-points ' + (ch.difficulte || 'facile') + '">' + (ch.points || 0) + ' pts</div></div>';
-        html += '<div class="defi-desc">' + escHtml(ch.description) + '</div>';
-        if (done) html += '<div class="defi-status">D\u00e9fi compl\u00e9t\u00e9</div>';
-        html += '<div class="defi-admin-actions"><button class="defi-btn-validate" data-validate-ch="' + ch.id + '">Valider</button><button class="defi-btn-edit" data-edit-ch="' + ch.id + '">Editer</button><button class="defi-btn-delete" data-delete-ch="' + ch.id + '">Suppr.</button></div></div>';
-      }
-    }
-
     if (!html) {
       html = '<div class="empty-state"><div class="empty-state-icon">--</div><p>Aucun d\u00e9fi trouv\u00e9</p></div>';
     }
 
     container.innerHTML = html;
 
-    // Admin handlers for DB challenges
-    container.querySelectorAll('.defi-btn-validate').forEach(btn => {
-      btn.addEventListener('click', () => openValidateModal(parseInt(btn.dataset.validateCh)));
-    });
-    container.querySelectorAll('.defi-btn-edit').forEach(btn => {
-      btn.addEventListener('click', () => openChallengeEditor(parseInt(btn.dataset.editCh)));
-    });
-    container.querySelectorAll('.defi-btn-delete').forEach(btn => {
-      btn.addEventListener('click', () => deleteChallenge(parseInt(btn.dataset.deleteCh)));
-    });
     // Admin handlers for static defis
     container.querySelectorAll('.defi-btn-validate-static').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -2811,82 +2768,6 @@
         debounce = setTimeout(() => renderDefis(), 200);
       });
     }
-  }
-
-  function openChallengeEditor(challengeId = null) {
-    const ch = challengeId ? state.challenges.find(c => c.id === challengeId) : null;
-    $('#challenge-modal-title').textContent = ch ? 'Modifier le Défi' : 'Nouveau Défi';
-    $('#ch-titre').value = ch ? ch.titre : '';
-    $('#ch-desc').value = ch ? ch.description : '';
-    $('#ch-diff').value = ch ? ch.difficulte : 'facile';
-
-    $('#btn-save-challenge').onclick = async () => {
-      const titre = $('#ch-titre').value.trim();
-      const desc = $('#ch-desc').value.trim();
-      const diff = $('#ch-diff').value;
-      if (!titre) { toast('Titre requis', 'error'); return; }
-
-      const points = DIFF_POINTS[diff] || 50;
-
-      if (ch) {
-        const { error: updErr } = await supabase.from('challenges').update({ titre, description: desc, difficulte: diff, points }).eq('id', ch.id);
-        if (updErr) { toast('Erreur: ' + updErr.message, 'error'); return; }
-        toast('Défi modifié', 'success');
-      } else {
-        const { error: insErr } = await supabase.from('challenges').insert({
-          site_id: SITE_ID,
-          titre, description: desc, difficulte: diff, points,
-          published: true, created_by: state.user.email,
-        });
-        if (insErr) { toast('Erreur: ' + insErr.message, 'error'); return; }
-        toast('Défi créé !', 'success');
-      }
-
-      closeAllModals();
-      await loadChallenges();
-      renderDefis();
-    };
-
-    openModal('modal-challenge');
-  }
-
-  async function openValidateModal(challengeId) {
-    const ch = state.challenges.find(c => c.id === challengeId);
-    if (!ch) return;
-    $('#validate-challenge-name').textContent = ch.titre + ' (' + ch.points + ' pts)';
-
-    const select = $('#validate-user-select');
-    select.innerHTML = '<option value="">Choisir un joueur…</option>';
-    state.allUsers.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.email;
-      opt.textContent = u.pseudo || u.email;
-      select.appendChild(opt);
-    });
-
-    $('#btn-confirm-validate').onclick = async () => {
-      const email = select.value;
-      if (!email) { toast('Sélectionne un joueur', 'error'); return; }
-
-      const { data, error } = await supabase.rpc('bda_validate_challenge', {
-        p_site_id: SITE_ID,
-        p_challenge_id: challengeId,
-        p_target_email: email,
-      });
-
-      if (error) { toast('Erreur: ' + error.message, 'error'); return; }
-      if (data?.error === 'already_validated') { toast('Déjà validé pour ce joueur', 'error'); return; }
-      if (data?.error) { toast('Erreur: ' + data.error, 'error'); return; }
-
-      toast('D\u00e9fi valid\u00e9 ! +' + ch.points + ' pts', 'success');
-      closeAllModals();
-      await Promise.all([loadLeaderboard(), loadValidations()]);
-      if (email === state.user?.email) { await loadProfile(); updateCoins(); }
-      renderClassement();
-      renderDefis();
-    };
-
-    openModal('modal-validate');
   }
 
   async function openStaticDefiValidateModal(title, points) {
@@ -2924,14 +2805,6 @@
     };
 
     openModal('modal-validate');
-  }
-
-  async function deleteChallenge(challengeId) {
-    if (!confirm('Supprimer ce défi ?')) return;
-    await supabase.from('challenges').update({ admin_deleted: true }).eq('id', challengeId);
-    toast('Défi supprimé', 'success');
-    await loadChallenges();
-    renderDefis();
   }
 
   // ==================== PAGE 4: PROFIL ====================
@@ -3046,7 +2919,6 @@
   function initCardCreator() {
     const imgInput = $('#cc-image');
     let selectedFile = null;
-    let editingCardId = null;
 
     // Live preview updates
     const liveName = $('#cc-live-name');
@@ -3056,31 +2928,17 @@
     const liveImgArea = $('#cc-live-img-area');
     const submitBtn = $('#btn-create-card');
 
-    // Auto-fill if user already created a card
-    function prefillExistingCard() {
+    function updateButtonLabel() {
       if (state.isGuest || !state.user) return;
-      const existing = state.customCards.find(c => c.creator_email === state.user.email);
-      if (existing) {
-        editingCardId = existing.id;
-        $('#cc-name').value = existing.name || '';
-        $('#cc-desc').value = existing.description || '';
-        $('#cc-attack').value = existing.attack_name || '';
-        $('#cc-damage').value = existing.attack_damage || '';
-        liveName.textContent = existing.name || 'Nom de la carte';
-        liveDesc.textContent = existing.description || 'Description...';
-        liveAtkName.textContent = existing.attack_name || 'Attaque';
-        liveAtkDmg.textContent = (existing.attack_damage || '0') + ' DMG';
-        if (existing.image_url) {
-          liveImgArea.innerHTML = `<img src="${existing.image_url}" alt="Preview">`;
-        }
-        submitBtn.textContent = 'Modifier ma carte';
+      const userCardCount = state.customCards.filter(c => c.creator_email === state.user.email).length;
+      if (userCardCount === 0) {
+        submitBtn.textContent = 'Soumettre la carte (gratuit)';
       } else {
-        editingCardId = null;
-        submitBtn.textContent = 'Soumettre la carte';
+        submitBtn.textContent = 'Cr\u00e9er une carte (200 pts)';
       }
     }
 
-    prefillExistingCard();
+    updateButtonLabel();
 
     $('#cc-name').addEventListener('input', (e) => {
       liveName.textContent = e.target.value || 'Nom de la carte';
@@ -3100,7 +2958,7 @@
       if (selectedFile) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-          liveImgArea.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+          liveImgArea.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
         };
         reader.readAsDataURL(selectedFile);
       }
@@ -3109,10 +2967,14 @@
     $('#btn-create-card').addEventListener('click', async () => {
       if (state.isGuest) { toast('Connecte-toi pour creer une carte', 'error'); return; }
 
-      // Block creation if already has a card (and not in edit mode)
-      if (!editingCardId) {
-        const existing = state.customCards.find(c => c.creator_email === state.user.email);
-        if (existing) { toast('Tu as deja une carte. Modifie-la !', 'error'); return; }
+      const userCardCount = state.customCards.filter(c => c.creator_email === state.user.email).length;
+      const cost = userCardCount === 0 ? 0 : 200;
+
+      if (cost > 0) {
+        if (!state.profile || state.profile.solde < cost) {
+          toast('Pas assez de pi\u00e8ces ! (200 pts requis)', 'error');
+          return;
+        }
       }
 
       const name = $('#cc-name').value.trim();
@@ -3122,37 +2984,65 @@
 
       if (!name) { toast('Nom de la carte requis', 'error'); return; }
 
-      let imageUrl = editingCardId ? (state.customCards.find(c => c.id === editingCardId)?.image_url || '') : '';
+      let imageUrl = '';
       if (selectedFile) {
         try {
           imageUrl = await uploadImageToStorage(selectedFile, 'custom-cards');
         } catch (e) {
           console.warn('Image upload failed:', e);
           toast('Erreur upload image', 'error');
+          return;
         }
       }
 
-      let error;
-      if (editingCardId) {
-        ({ error } = await supabase.from('bda_custom_cards').update({
-          name, description: desc, attack_name: attack, attack_damage: damage,
-          image_url: imageUrl, approved: false,
-        }).eq('id', editingCardId));
-      } else {
-        ({ error } = await supabase.from('bda_custom_cards').insert({
+      // Deduct points if not free
+      if (cost > 0) {
+        await supabase.from('transactions').insert({
           site_id: SITE_ID,
-          creator_email: state.user.email,
-          name, description: desc, attack_name: attack, attack_damage: damage,
-          image_url: imageUrl,
-        }));
+          destinataire_email: state.user.email,
+          montant: -cost,
+          raison: 'Cr\u00e9ation carte personnalis\u00e9e',
+          admin_email: null,
+        });
+        state.profile.solde -= cost;
+        updateCoins();
       }
 
+      const { error } = await supabase.from('bda_custom_cards').insert({
+        site_id: SITE_ID,
+        creator_email: state.user.email,
+        name, description: desc, attack_name: attack, attack_damage: damage,
+        image_url: imageUrl,
+      });
+
       if (!error) {
-        toast(editingCardId ? 'Carte modifi\u00e9e !' : 'Carte soumise ! En attente d\'approbation.', 'success');
+        toast(cost > 0 ? 'Carte soumise ! -200 pts' : 'Carte soumise ! En attente d\'approbation.', 'success');
         selectedFile = null;
         await loadCustomCards();
-        prefillExistingCard();
+        // Reset form
+        $('#cc-name').value = '';
+        $('#cc-desc').value = '';
+        $('#cc-attack').value = '';
+        $('#cc-damage').value = '';
+        liveName.textContent = 'Nom de la carte';
+        liveDesc.textContent = 'Description...';
+        liveAtkName.textContent = 'Attaque';
+        liveAtkDmg.textContent = '0 DMG';
+        liveImgArea.innerHTML = '<span class="cc-live-placeholder">Photo</span>';
+        updateButtonLabel();
       } else {
+        // Refund if insert failed and we already deducted
+        if (cost > 0) {
+          await supabase.from('transactions').insert({
+            site_id: SITE_ID,
+            destinataire_email: state.user.email,
+            montant: cost,
+            raison: 'Remboursement carte (erreur)',
+            admin_email: null,
+          });
+          state.profile.solde += cost;
+          updateCoins();
+        }
         toast('Erreur: ' + error.message, 'error');
       }
     });

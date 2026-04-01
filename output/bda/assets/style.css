@@ -1596,7 +1596,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   .pack-card { padding: 28px 32px; }
   .defis-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: 16px;
   }
   .sponsors-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
