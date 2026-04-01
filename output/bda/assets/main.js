@@ -2593,7 +2593,7 @@
           <div class="lb-podium-item" data-email="${escAttr(player.email)}">
             <div class="lb-podium-avatar">${avatarContent}</div>
             <div class="lb-podium-rank">${ranks[i]}</div>
-            <div class="lb-podium-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_admin || player.is_super_admin ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : ''}</div>
+            <div class="lb-podium-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : (player.is_admin || player.is_super_admin) ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}</div>
             <div class="lb-podium-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
             ${badgeIcons ? `<div class="lb-badges">${badgeIcons}</div>` : ''}
           </div>
@@ -2620,7 +2620,7 @@
           <div class="lb-rank">${globalRank}</div>
           <div class="lb-avatar">${avatarContent}</div>
           <div class="lb-info">
-            <div class="lb-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_admin || player.is_super_admin ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : ''}</div>
+            <div class="lb-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : (player.is_admin || player.is_super_admin) ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}</div>
             ${playerBadgeIcons ? `<div class="lb-badges">${playerBadgeIcons}</div>` : ''}
           </div>
           <div class="lb-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
