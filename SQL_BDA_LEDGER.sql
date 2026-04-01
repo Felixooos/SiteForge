@@ -286,7 +286,7 @@ $$;
 --    Le classement ne doit pas baisser quand on achète des oeufs
 -- ============================================================
 CREATE OR REPLACE FUNCTION bda_leaderboard(p_site_id TEXT)
-RETURNS TABLE(email TEXT, pseudo TEXT, photo_profil TEXT, solde BIGINT, total_earned BIGINT)
+RETURNS TABLE(email TEXT, pseudo TEXT, photo_profil TEXT, solde BIGINT, total_earned BIGINT, is_admin BOOLEAN, is_super_admin BOOLEAN, is_creator BOOLEAN)
 LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
@@ -302,7 +302,10 @@ AS $$
       WHERE t.site_id = e.site_id
         AND t.destinataire_email = e.email
         AND t.montant > 0
-    ), 0) AS total_earned
+    ), 0) AS total_earned,
+    e.is_admin,
+    e.is_super_admin,
+    e.is_creator
   FROM etudiants e
   WHERE e.site_id = p_site_id
   ORDER BY total_earned DESC, e.pseudo ASC;

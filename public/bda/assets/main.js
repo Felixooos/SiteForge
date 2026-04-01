@@ -783,7 +783,7 @@
     var res = await supabase.rpc('bda_leaderboard', { p_site_id: SITE_ID });
     if (res.error || !res.data) {
       // Fallback: compute gains (positive transactions only) per user
-      var etuRes = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde').eq('site_id', SITE_ID);
+      var etuRes = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde, is_admin, is_super_admin, is_creator').eq('site_id', SITE_ID);
       var etudiants = etuRes.data || [];
       var txRes = await supabase.from('transactions').select('destinataire_email, montant').eq('site_id', SITE_ID).gt('montant', 0);
       var txData = txRes.data || [];
@@ -797,7 +797,7 @@
     } else {
       state.leaderboard = res.data;
     }
-    state.allUsers = state.leaderboard.map(function(p) { return { email: p.email, pseudo: p.pseudo, photo_profil: p.photo_profil, solde: p.solde }; });
+    state.allUsers = state.leaderboard.map(function(p) { return { email: p.email, pseudo: p.pseudo, photo_profil: p.photo_profil, solde: p.solde, is_admin: p.is_admin, is_super_admin: p.is_super_admin, is_creator: p.is_creator }; });
   }
 
   async function loadAllUserBadges() {
@@ -2593,7 +2593,7 @@
           <div class="lb-podium-item" data-email="${escAttr(player.email)}">
             <div class="lb-podium-avatar">${avatarContent}</div>
             <div class="lb-podium-rank">${ranks[i]}</div>
-            <div class="lb-podium-name">${escHtml(player.pseudo || player.email)}</div>
+            <div class="lb-podium-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_admin || player.is_super_admin ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : ''}</div>
             <div class="lb-podium-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
             ${badgeIcons ? `<div class="lb-badges">${badgeIcons}</div>` : ''}
           </div>
@@ -2621,7 +2621,7 @@
           <div class="lb-rank">${globalRank}</div>
           <div class="lb-avatar">${avatarContent}</div>
           <div class="lb-info">
-            <div class="lb-name">${escHtml(player.pseudo || player.email)}</div>
+            <div class="lb-name ${player.is_creator ? 'name-creator' : (player.is_admin || player.is_super_admin) ? 'name-admin' : ''}">${escHtml(player.pseudo || player.email)}${player.is_admin || player.is_super_admin ? '<span class="role-tag role-tag-admin">ADMIN</span>' : ''}${player.is_creator ? '<span class="role-tag role-tag-creator">CREA</span>' : ''}</div>
             ${playerBadgeIcons ? `<div class="lb-badges">${playerBadgeIcons}</div>` : ''}
           </div>
           <div class="lb-score">${(player.total_earned || player.solde).toLocaleString()} pts</div>
@@ -2681,7 +2681,12 @@
     const avatar = $('#player-avatar');
     avatar.src = player.photo_profil || DEFAULT_AVATAR;
     avatar.onerror = () => { avatar.src = DEFAULT_AVATAR; };
-    $('#player-pseudo').textContent = player.pseudo || player.email;
+    var pseudoEl = $('#player-pseudo');
+    pseudoEl.textContent = '';
+    pseudoEl.className = '';
+    if (player.is_creator) pseudoEl.classList.add('name-creator');
+    else if (player.is_admin || player.is_super_admin) pseudoEl.classList.add('name-admin');
+    pseudoEl.textContent = player.pseudo || player.email;
     $('#player-score').textContent = player.solde + ' pi\u00e8ces';
 
     // Show badges for this player
@@ -3243,7 +3248,11 @@
     if (!state.profile) return;
 
     const p = state.profile;
-    $('#profil-pseudo').textContent = p.pseudo || 'Sans pseudo';
+    var ppEl = $('#profil-pseudo');
+    ppEl.className = '';
+    if (p.is_creator) ppEl.classList.add('name-creator');
+    else if (p.is_admin || p.is_super_admin) ppEl.classList.add('name-admin');
+    ppEl.textContent = p.pseudo || 'Sans pseudo';
     $('#profil-email').textContent = state.user?.email || state._otpEmail || '';
     $('#profil-coins').textContent = p.solde.toLocaleString();
 
