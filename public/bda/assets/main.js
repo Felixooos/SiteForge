@@ -268,6 +268,16 @@
 
     state.mode = newMode;
 
+    // Theme class on body
+    document.body.classList.remove('mode-info', 'mode-hotlines');
+    if (newMode === 'info') document.body.classList.add('mode-info');
+    else if (newMode === 'hotlines') document.body.classList.add('mode-hotlines');
+
+    // Update theme-color meta
+    var tc = newMode === 'info' ? '#1a0a08' : newMode === 'hotlines' ? '#0a0d1a' : '#0a1a0d';
+    var metaTC = document.querySelector('meta[name="theme-color"]');
+    if (metaTC) metaTC.setAttribute('content', tc);
+
     // Hide all
     gameContainer.style.display = 'none';
     infoContainer.style.display = 'none';
@@ -2822,17 +2832,50 @@
     updateTotalDisplay();
     if (bonusInput) bonusInput.oninput = updateTotalDisplay;
 
-    const select = $('#validate-user-select');
-    select.innerHTML = '<option value="">Choisir un joueur\u2026</option>';
-    state.allUsers.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.email;
-      opt.textContent = u.pseudo || u.email;
-      select.appendChild(opt);
-    });
+    const searchInput = $('#validate-user-search');
+    const hiddenEmail = $('#validate-user-email');
+    const resultsDiv = $('#validate-user-results');
+    searchInput.value = '';
+    hiddenEmail.value = '';
+    resultsDiv.innerHTML = '';
+    resultsDiv.style.display = 'none';
+
+    function renderUserResults(query) {
+      resultsDiv.innerHTML = '';
+      if (!query) { resultsDiv.style.display = 'none'; return; }
+      var q = query.toLowerCase();
+      var matches = state.allUsers.filter(function(u) {
+        return (u.pseudo && u.pseudo.toLowerCase().indexOf(q) !== -1) || u.email.toLowerCase().indexOf(q) !== -1;
+      }).slice(0, 8);
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = '<div class="validate-search-empty">Aucun joueur trouv\u00e9</div>';
+        resultsDiv.style.display = 'block';
+        return;
+      }
+      matches.forEach(function(u) {
+        var item = document.createElement('div');
+        item.className = 'validate-search-item';
+        item.textContent = u.pseudo || u.email;
+        item.onclick = function() {
+          searchInput.value = u.pseudo || u.email;
+          hiddenEmail.value = u.email;
+          resultsDiv.style.display = 'none';
+        };
+        resultsDiv.appendChild(item);
+      });
+      resultsDiv.style.display = 'block';
+    }
+
+    searchInput.oninput = function() {
+      hiddenEmail.value = '';
+      renderUserResults(searchInput.value.trim());
+    };
+    searchInput.onfocus = function() {
+      if (searchInput.value.trim()) renderUserResults(searchInput.value.trim());
+    };
 
     $('#btn-confirm-validate').onclick = async () => {
-      const email = select.value;
+      var email = hiddenEmail.value;
       if (!email) { toast('S\u00e9lectionne un joueur', 'error'); return; }
 
       var bonus = parseInt(bonusInput ? bonusInput.value : 0) || 0;

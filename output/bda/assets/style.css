@@ -1416,6 +1416,33 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   width: 80px; text-align: center;
 }
 
+/* Validate search */
+.validate-search-wrap {
+  position: relative; margin-bottom: 8px;
+}
+.validate-search-wrap input[type="text"] {
+  width: 100%; padding: 10px 12px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 0.95rem;
+}
+.validate-search-results {
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 10;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 0 0 10px 10px; max-height: 180px; overflow-y: auto;
+  display: none;
+}
+.validate-search-item {
+  padding: 10px 12px; cursor: pointer; font-size: 0.9rem;
+  color: var(--text); border-bottom: 1px solid var(--border);
+}
+.validate-search-item:last-child { border-bottom: none; }
+.validate-search-item:hover, .validate-search-item:active {
+  background: var(--primary); color: #fff;
+}
+.validate-search-empty {
+  padding: 10px 12px; font-size: 0.85rem; color: var(--text-dim); font-style: italic;
+}
+
 /* Pack opening animation */
 .pack-opening {
   background: transparent !important;
@@ -2285,6 +2312,32 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
   width: 20px; height: 3px; border-radius: 2px;
   background: linear-gradient(90deg, #e74c3c, #f39c12);
+}
+
+/* ---- Info mode global theme override ---- */
+body.mode-info {
+  background: #1a0a08;
+}
+body.mode-info .top-bar {
+  background: #1a0a08;
+  border-bottom-color: #4a2a20;
+}
+body.mode-info .top-bar-title {
+  background: linear-gradient(135deg, #e74c3c, #f39c12);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body.mode-info .coins-display {
+  background: #2c1510;
+  border-color: #4a2a20;
+  color: #f39c12;
+}
+body.mode-info .mode-segmented {
+  background: #2c1510;
+  border-color: #4a2a20;
+}
+body.mode-info .mode-seg-btn {
+  color: #b08070;
 }
 
 /* ---- Planning ---- */
