@@ -10,10 +10,10 @@
   <meta name="supabase-url" content="https://pkzdzbhykshhnipzxpeu.supabase.co">
   <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBremR6Ymh5a3NoaG5pcHp4cGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNzI1NTUsImV4cCI6MjA4NDg0ODU1NX0.CFmD3DUtODibWM-KFcgJoJN79JOWjicHx3sP4cLjTbA">
   <title>Dinoz'Art</title>
-  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="icon" type="image/png" href="images/team/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=22">
+  <link rel="stylesheet" href="assets/style.css?v=23">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -21,7 +21,7 @@
   <!-- ========== AUTH GATE ========== -->
   <div id="auth-gate" class="auth-gate">
     <div class="auth-card">
-      <img src="images/logo.png" alt="" class="auth-logo-img">
+      <img src="images/team/logo.png" alt="" class="auth-logo-img">
       <h1 class="auth-title">Dinoz'Art</h1>
 
       <!-- Step 0: Choose action -->
@@ -48,13 +48,12 @@
         </div>
       </div>
 
-      <!-- Step 1b: Login (email + code on same screen) -->
+      <!-- Step 1b: Login (email + password) -->
       <div id="auth-login" class="auth-form" style="display:none">
-        <p class="auth-forgot-text">Entre ton email et le code re&#231;u.</p>
         <input type="email" id="login-email" placeholder="Email" autocomplete="email">
-        <input type="text" id="login-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+        <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
         <button id="btn-verify-login" class="btn-primary">Se connecter</button>
-        <p class="auth-switch"><a href="#" id="login-resend">Renvoyer un code</a> &middot; <a href="#" id="login-back">Retour</a></p>
+        <p class="auth-switch"><a href="#" id="login-back">Retour</a></p>
       </div>
 
       <p id="auth-error" class="auth-error"></p>
@@ -67,7 +66,7 @@
     <!-- Top Bar -->
     <header class="top-bar">
       <div class="top-bar-left">
-        <img src="images/logo.png" alt="" class="top-bar-logo">
+        <img src="images/team/logo.png" alt="" class="top-bar-logo">
         <span class="top-bar-title">Dinoz'Art</span>
       </div>
       <div class="top-bar-right">
@@ -1015,6 +1014,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=22"></script>
+  <script src="assets/main.js?v=23"></script>
 </body>
 </html>

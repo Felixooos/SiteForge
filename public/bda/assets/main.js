@@ -457,8 +457,8 @@
     $('#btn-guest-login').addEventListener('click', () => { handleLogout(); });
 
     // Register flow
-    $('#btn-send-register').addEventListener('click', () => handleSendOtp('register'));
-    $('#btn-verify-register').addEventListener('click', () => handleVerifyOtp('register'));
+    $('#btn-send-register').addEventListener('click', handleSendOtp);
+    $('#btn-verify-register').addEventListener('click', handleVerifyOtp);
     $('#register-back').addEventListener('click', (e) => { e.preventDefault(); showAuthStep('choice'); });
     $('#register-code-back').addEventListener('click', (e) => {
       e.preventDefault();
@@ -468,16 +468,15 @@
       $('#auth-error').textContent = '';
     });
 
-    // Login flow (single screen: email + code + verify)
-    $('#btn-verify-login').addEventListener('click', handleLoginVerify);
-    $('#login-resend').addEventListener('click', handleLoginResend);
+    // Login flow (email + password)
+    $('#btn-verify-login').addEventListener('click', handleLoginPassword);
     $('#login-back').addEventListener('click', (e) => { e.preventDefault(); showAuthStep('choice'); });
 
     // Enter key
-    $('#register-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp('register'); });
-    $('#register-pseudo').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp('register'); });
-    $('#register-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp('register'); });
-    $('#login-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoginVerify(); });
+    $('#register-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#register-pseudo').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#register-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp(); });
+    $('#login-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoginPassword(); });
   }
 
   function showAuthStep(step) {
@@ -485,14 +484,14 @@
     $('#auth-register').style.display = step === 'register' ? 'block' : 'none';
     $('#auth-login').style.display = step === 'login' ? 'block' : 'none';
     $('#auth-error').textContent = '';
-    // Reset sub-steps
     if (step === 'register') {
       $('#register-step-email').style.display = 'block';
       $('#register-step-code').style.display = 'none';
     }
   }
 
-  async function handleSendOtp(mode) {
+  // Register: send OTP code
+  async function handleSendOtp() {
     const email = $('#register-email').value.trim();
     const pseudo = ($('#register-pseudo').value || '').trim();
     const errEl = $('#auth-error');
@@ -508,12 +507,9 @@
       const { error } = await supabase.auth.signInWithOtp({ email, options: opts });
       if (error) { errEl.textContent = error.message; return; }
 
-      // Store for verification step
       state._otpEmail = email;
       state._otpPseudo = pseudo;
-      state._otpMode = mode;
 
-      // Show code step
       $('#register-step-email').style.display = 'none';
       $('#register-step-code').style.display = 'block';
       $('#register-code').focus();
@@ -522,66 +518,7 @@
     }
   }
 
-  // Login: resend code for existing account
-  async function handleLoginResend(e) {
-    if (e) e.preventDefault();
-    const email = $('#login-email').value.trim();
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
-      if (error) {
-        if (error.message.toLowerCase().includes('user not found')) {
-          errEl.textContent = 'Aucun compte avec cet email. Cr\u00e9e un compte d\'abord.';
-        } else {
-          errEl.textContent = error.message;
-        }
-        return;
-      }
-      toast('Code envoy\u00e9 !', 'success');
-    } catch (e) {
-      errEl.textContent = 'Erreur lors de l\'envoi du code.';
-    }
-  }
-
-  // Login: verify email + code on single screen
-  async function handleLoginVerify() {
-    const email = $('#login-email').value.trim();
-    const token = ($('#login-code').value || '').trim();
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
-    if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-
-    state._otpEmail = email;
-    state._otpPseudo = '';
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: 'email'
-      });
-      if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
-
-      state.user = data.user;
-      if (state.user && !state.user.email) state.user.email = email;
-      state.isGuest = false;
-
-      await loadProfile();
-      showApp();
-    } catch (e) {
-      errEl.textContent = 'Erreur de v\u00e9rification.';
-    }
-  }
-
-  // Register: verify OTP code
+  // Register: verify OTP code, then set it as the account password
   async function handleVerifyOtp() {
     const token = ($('#register-code').value || '').trim();
     const errEl = $('#auth-error');
@@ -601,6 +538,9 @@
       state.user = data.user;
       if (state.user && !state.user.email) state.user.email = state._otpEmail;
       state.isGuest = false;
+
+      // Set the OTP code as the account password so user can login with it
+      await supabase.auth.updateUser({ password: token });
 
       // Check if etudiants row exists, create if needed
       const { data: profile } = await supabase
@@ -629,6 +569,36 @@
       showApp();
     } catch (e) {
       errEl.textContent = 'Erreur de v\u00e9rification.';
+    }
+  }
+
+  // Login: email + password (signInWithPassword)
+  async function handleLoginPassword() {
+    const email = $('#login-email').value.trim();
+    const password = ($('#login-password').value || '');
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+
+    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    if (!password) { errEl.textContent = 'Entre ton mot de passe.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errEl.textContent = 'Email ou mot de passe incorrect.';
+        return;
+      }
+
+      state.user = data.user;
+      if (state.user && !state.user.email) state.user.email = email;
+      state._otpEmail = email;
+      state.isGuest = false;
+
+      await loadProfile();
+      showApp();
+    } catch (e) {
+      errEl.textContent = 'Erreur de connexion.';
     }
   }
 
