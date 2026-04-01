@@ -78,6 +78,8 @@
     hotlinesOrders: [],
     hotlinesMyOrder: null,
     hotlinesCart: {},
+    dbDefis: [],
+    lotWinners: [],
     lots: [],
     defiTransactions: [], // transactions related to defi validations
   };
@@ -680,6 +682,8 @@
       loadHotlinesMenu(),
       loadHotlinesOrders(),
       loadLots(),
+      loadDefisFromDB(),
+      loadLotWinners(),
     ]);
     updateUI();
   }
@@ -742,6 +746,18 @@
     if (!supabase) { state.defiTransactions = []; return; }
     const { data } = await supabase.from('transactions').select('destinataire_email, montant, raison, created_at').eq('site_id', SITE_ID).like('raison', 'D\u00e9fi:%');
     state.defiTransactions = data || [];
+  }
+
+  async function loadDefisFromDB() {
+    if (!supabase) { state.dbDefis = []; return; }
+    const { data } = await supabase.from('bda_defis').select('*').eq('site_id', SITE_ID).order('created_at', { ascending: false });
+    state.dbDefis = data || [];
+  }
+
+  async function loadLotWinners() {
+    if (!supabase) { state.lotWinners = []; return; }
+    const { data } = await supabase.rpc('bda_get_lot_winners', { p_site_id: SITE_ID });
+    state.lotWinners = data || [];
   }
 
   async function loadLeaderboard() {
@@ -846,6 +862,44 @@
     renderSutom();
   }
 
+  // Map lot names to local images
+  var LOT_IMAGE_MAP = {
+    'cinema': 'images/lots/cinema.png',
+    'cin\u00e9ma': 'images/lots/cinema.png',
+    'eve': 'images/lots/eve_co.png',
+    'fnac': 'images/lots/fnac.png',
+    'garten': 'images/lots/garten.png',
+    'goolfy': 'images/lots/goolfy.png',
+    'jbl': 'images/lots/jbl_go2.png',
+    'lush': 'images/lots/lush.png',
+    'metrobowling': 'images/lots/metrobowling.png',
+    'metro bowling': 'images/lots/metrobowling.png',
+    'mus\u00e9e': 'images/lots/musee_piscine.png',
+    'piscine': 'images/lots/musee_piscine.png',
+    'ngo': 'images/lots/ngo_shoes.png',
+    'pass royale': 'images/lots/pass_royale.png',
+    'clash': 'images/lots/pass_royale.png',
+    'planet': 'images/lots/planet_bowling.png',
+    'ruban': 'images/lots/ruban_led.png',
+    'led': 'images/lots/ruban_led.png',
+    'starship': 'images/lots/starship_laser.png',
+    'laser': 'images/lots/starship_laser.png',
+    'team break': 'images/lots/team_break.png',
+    'uber': 'images/lots/uber_eats.png',
+    'weembi': 'images/lots/weembi.png',
+    'weezpark': 'images/lots/weezpark.png',
+    'bowling': 'images/lots/planet_bowling.png',
+  };
+
+  function getLotImage(lot) {
+    if (lot.image_url) return lot.image_url;
+    var name = (lot.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    for (var key in LOT_IMAGE_MAP) {
+      if (name.indexOf(key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')) !== -1) return LOT_IMAGE_MAP[key];
+    }
+    return '';
+  }
+
   function showLotsModal() {
     const categories = [
       { key: 'principal', title: 'Lots Principaux' },
@@ -853,6 +907,16 @@
       { key: 'goodies', title: 'Lots Goodies' },
     ];
     var lots = state.lots || [];
+    var winners = state.lotWinners || [];
+
+    // Build winner lookup: lot_id -> [{pseudo, won_at}]
+    var winnerMap = {};
+    for (var wi = 0; wi < winners.length; wi++) {
+      var w = winners[wi];
+      if (!winnerMap[w.lot_id]) winnerMap[w.lot_id] = [];
+      winnerMap[w.lot_id].push(w);
+    }
+
     var html = '';
     categories.forEach(function(cat) {
       var items = lots.filter(function(l) { return l.category === cat.key; });
@@ -862,10 +926,14 @@
       items.forEach(function(lot) {
         var remaining = lot.qty_remaining != null ? lot.qty_remaining : lot.qty_total;
         var soldOut = remaining <= 0;
-        html += '<div class="lot-card' + (soldOut ? ' sold-out' : '') + '">' +
-          '<div class="lot-img-wrap"><img src="' + escAttr(lot.image_url || '') + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' +
+        var lotWinners = winnerMap[lot.id] || [];
+        var hasWinner = lotWinners.length > 0;
+        var imgUrl = getLotImage(lot);
+        html += '<div class="lot-card' + (soldOut ? ' sold-out' : '') + (hasWinner ? ' lot-won' : '') + '">' +
+          (imgUrl ? '<div class="lot-img-wrap"><img src="' + escAttr(imgUrl) + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' : '') +
           '<div class="lot-name">' + escHtml(lot.name) + '</div>' +
           '<div class="lot-qty">' + (soldOut ? 'Epuis\u00e9' : remaining + '/' + lot.qty_total + ' disponible' + (remaining > 1 ? 's' : '')) + '</div>' +
+          (hasWinner ? '<div class="lot-winners">' + lotWinners.map(function(lw) { return '<span class="lot-winner-chip">Gagn\u00e9 par ' + escHtml(lw.pseudo) + '</span>'; }).join('') + '</div>' : '') +
         '</div>';
       });
       html += '</div></div>';
@@ -2710,11 +2778,130 @@
     },
   ];
 
+  const LEVEL_META = {
+    niveau1: { name: 'NIVEAU 1 : Petit Raptor', sub: 'D\u00e9fis d\'\u00e9chauffement \u2014 10 \u00e0 50 Points' },
+    niveau2: { name: 'NIVEAU 2 : Chasseur de la Jungle', sub: 'D\u00e9fis Interm\u00e9diaires \u2014 100 \u00e0 200 Points' },
+    niveau3: { name: 'NIVEAU 3 : Poids Lourd du Jurassique', sub: 'D\u00e9fis Difficiles \u2014 300 \u00e0 400 Points' },
+    niveau4: { name: 'NIVEAU 4 : Pr\u00e9dateur Alpha', sub: 'D\u00e9fis Experts \u2014 500 \u00e0 750 Points' },
+    niveau5: { name: 'NIVEAU 5 : L\'Extinction', sub: 'D\u00e9fis L\u00e9gendaires \u2014 900 \u00e0 1000 Points' },
+  };
+
+  function getDefiLevels() {
+    if (state.dbDefis && state.dbDefis.length > 0) {
+      var levelMap = {};
+      for (var i = 0; i < state.dbDefis.length; i++) {
+        var d = state.dbDefis[i];
+        if (!levelMap[d.level_id]) levelMap[d.level_id] = {};
+        if (!levelMap[d.level_id][d.points]) levelMap[d.level_id][d.points] = [];
+        levelMap[d.level_id][d.points].push({ t: d.title, tag: d.tag, dbId: d.id, createdAt: d.created_at });
+      }
+      var levels = [];
+      var order = ['niveau1','niveau2','niveau3','niveau4','niveau5'];
+      for (var oi = 0; oi < order.length; oi++) {
+        var lid = order[oi];
+        if (!levelMap[lid]) continue;
+        var meta = LEVEL_META[lid];
+        var groups = [];
+        var pts = Object.keys(levelMap[lid]).map(Number).sort(function(a,b){return a-b;});
+        for (var pi = 0; pi < pts.length; pi++) {
+          var items = levelMap[lid][pts[pi]];
+          items.sort(function(a,b){ return new Date(b.createdAt||0) - new Date(a.createdAt||0); });
+          groups.push({ points: pts[pi], items: items });
+        }
+        levels.push({ id: lid, name: meta.name, sub: meta.sub, groups: groups });
+      }
+      return levels;
+    }
+    return DEFI_LEVELS;
+  }
+
+  async function seedDefisFromHardcoded() {
+    if (!supabase || !state.isAdmin) return;
+    var rows = [];
+    for (var li = 0; li < DEFI_LEVELS.length; li++) {
+      var level = DEFI_LEVELS[li];
+      for (var gi = 0; gi < level.groups.length; gi++) {
+        var group = level.groups[gi];
+        for (var ii = 0; ii < group.items.length; ii++) {
+          rows.push({ site_id: SITE_ID, level_id: level.id, points: group.points, title: group.items[ii].t, tag: group.items[ii].tag });
+        }
+      }
+    }
+    const { error } = await supabase.from('bda_defis').insert(rows);
+    if (error) { toast('Erreur initialisation: ' + error.message, 'error'); return; }
+    toast('D\u00e9fis initialis\u00e9s !', 'success');
+    await loadDefisFromDB();
+    renderDefis();
+  }
+
+  function openAddDefiModal() {
+    $('#add-defi-level').value = 'niveau1';
+    $('#add-defi-points').value = '';
+    $('#add-defi-title').value = '';
+    $('#add-defi-tag').value = 'Standard';
+    openModal('modal-add-defi');
+  }
+
+  async function confirmAddDefi() {
+    var level = $('#add-defi-level').value;
+    var points = parseInt($('#add-defi-points').value);
+    var title = $('#add-defi-title').value.trim();
+    var tag = $('#add-defi-tag').value;
+    if (!title) { toast('Texte requis', 'error'); return; }
+    if (!points || points <= 0) { toast('Points requis', 'error'); return; }
+    const { error } = await supabase.from('bda_defis').insert({ site_id: SITE_ID, level_id: level, points: points, title: title, tag: tag });
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+    toast('D\u00e9fi ajout\u00e9 !', 'success');
+    closeAllModals();
+    await loadDefisFromDB();
+    renderDefis();
+  }
+
+  function openEditDefiModal(dbId) {
+    var defi = state.dbDefis.find(function(d) { return d.id === dbId; });
+    if (!defi) return;
+    $('#edit-defi-id').value = dbId;
+    $('#edit-defi-level').value = defi.level_id;
+    $('#edit-defi-points').value = defi.points;
+    $('#edit-defi-title').value = defi.title;
+    $('#edit-defi-tag').value = defi.tag;
+    openModal('modal-edit-defi');
+  }
+
+  async function confirmEditDefi() {
+    var id = parseInt($('#edit-defi-id').value);
+    var level = $('#edit-defi-level').value;
+    var points = parseInt($('#edit-defi-points').value);
+    var title = $('#edit-defi-title').value.trim();
+    var tag = $('#edit-defi-tag').value;
+    if (!title) { toast('Texte requis', 'error'); return; }
+    if (!points || points <= 0) { toast('Points requis', 'error'); return; }
+    const { error } = await supabase.from('bda_defis').update({ level_id: level, points: points, title: title, tag: tag }).eq('id', id);
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+    toast('D\u00e9fi modifi\u00e9 !', 'success');
+    closeAllModals();
+    await loadDefisFromDB();
+    renderDefis();
+  }
+
+  async function confirmDeleteDefi() {
+    var id = parseInt($('#edit-defi-id').value);
+    if (!confirm('Supprimer ce d\u00e9fi ?')) return;
+    const { error } = await supabase.from('bda_defis').delete().eq('id', id);
+    if (error) { toast('Erreur: ' + error.message, 'error'); return; }
+    toast('D\u00e9fi supprim\u00e9', 'success');
+    closeAllModals();
+    await loadDefisFromDB();
+    renderDefis();
+  }
+
   function renderDefis() {
     const container = $('#defis-list');
     if (!container) return;
 
-    // Build lookup: defi title → list of validated players
+    var useDB = state.dbDefis && state.dbDefis.length > 0;
+
+    // Build lookup: defi title -> list of validated players
     var defiPlayers = {};
     for (var ti = 0; ti < state.defiTransactions.length; ti++) {
       var tx = state.defiTransactions[ti];
@@ -2728,7 +2915,7 @@
       });
     }
 
-    let levels = DEFI_LEVELS;
+    let levels = getDefiLevels();
     if (state.defiFilter !== 'all') {
       levels = levels.filter(l => l.id === state.defiFilter);
     }
@@ -2737,7 +2924,17 @@
     const searchQuery = ($('#defi-search')?.value || '').trim().toLowerCase();
     const normalize = function(s) { return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
 
+    // Admin seed button if DB is empty
     let html = '';
+    if (state.isAdmin && !useDB) {
+      html += '<button class="btn-primary" id="btn-seed-defis" style="margin-bottom:12px;width:100%">Initialiser les d\u00e9fis dans la base</button>';
+    }
+
+    // Admin add button
+    if (state.isAdmin && useDB) {
+      html += '<button class="btn-primary defi-add-btn" id="btn-add-defi">+ Ajouter un d\u00e9fi</button>';
+    }
+
     let defiIdx = 0;
     for (const level of levels) {
       let levelHtml = '';
@@ -2748,8 +2945,11 @@
           const tagClass = item.tag === 'DD' ? 'tag-dd' : 'tag-standard';
           var players = defiPlayers[item.t] || [];
           var playerCount = players.length;
+          var hasDbId = item.dbId != null;
           groupHtml += '<div class="defi-card defi-expandable" data-static-defi="' + defiIdx + '" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">' +
-            '<div class="defi-top"><div class="defi-title">' + escHtml(item.t) + '<span class="defi-tag ' + tagClass + '">' + escHtml(item.tag) + '</span></div><div class="defi-points ' + level.id + '">' + group.points + ' pts</div></div>' +
+            '<div class="defi-top"><div class="defi-title">' + escHtml(item.t) + '<span class="defi-tag ' + tagClass + '">' + escHtml(item.tag) + '</span></div><div class="defi-points ' + level.id + '">' + group.points + ' pts</div>' +
+            (state.isAdmin && hasDbId ? '<button class="defi-dots-btn" data-defi-db-id="' + item.dbId + '">...</button>' : '') +
+            '</div>' +
             (playerCount > 0 ? '<div class="defi-validated-count">' + playerCount + ' valid\u00e9' + (playerCount > 1 ? 's' : '') + '</div>' : '') +
             '<div class="defi-players-detail" style="display:none">' +
               (playerCount > 0 ? players.map(function(p) { return '<span class="defi-player-chip">' + escHtml(p.name) + ' <small>(+' + p.pts + ')</small></span>'; }).join('') : '<span class="defi-no-players">Aucune validation pour le moment</span>') +
@@ -2771,16 +2971,32 @@
       }
     }
 
-    if (!html) {
-      html = '<div class="empty-state"><div class="empty-state-icon">--</div><p>Aucun d\u00e9fi trouv\u00e9</p></div>';
+    if (!html || (html.indexOf('defi-level-section') === -1 && html.indexOf('btn-seed-defis') === -1 && html.indexOf('btn-add-defi') === -1)) {
+      html += '<div class="empty-state"><div class="empty-state-icon">--</div><p>Aucun d\u00e9fi trouv\u00e9</p></div>';
     }
 
     container.innerHTML = html;
 
+    // Seed button handler
+    var seedBtn = $('#btn-seed-defis');
+    if (seedBtn) seedBtn.addEventListener('click', seedDefisFromHardcoded);
+
+    // Add button handler
+    var addBtn = $('#btn-add-defi');
+    if (addBtn) addBtn.addEventListener('click', openAddDefiModal);
+
+    // 3-dot edit buttons
+    container.querySelectorAll('.defi-dots-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openEditDefiModal(parseInt(btn.dataset.defiDbId));
+      });
+    });
+
     // Click to expand/collapse validated players
     container.querySelectorAll('.defi-expandable').forEach(function(card) {
       card.addEventListener('click', function(e) {
-        if (e.target.closest('.defi-admin-actions')) return;
+        if (e.target.closest('.defi-admin-actions') || e.target.closest('.defi-dots-btn')) return;
         var detail = card.querySelector('.defi-players-detail');
         if (detail) {
           var isOpen = detail.style.display !== 'none';
@@ -2816,6 +3032,14 @@
         debounce = setTimeout(() => renderDefis(), 200);
       });
     }
+
+    // Defi add/edit modal buttons
+    var addDefiConfirm = $('#btn-add-defi-confirm');
+    if (addDefiConfirm) addDefiConfirm.addEventListener('click', confirmAddDefi);
+    var editDefiConfirm = $('#btn-edit-defi-confirm');
+    if (editDefiConfirm) editDefiConfirm.addEventListener('click', confirmEditDefi);
+    var deleteDefiBtn = $('#btn-delete-defi');
+    if (deleteDefiBtn) deleteDefiBtn.addEventListener('click', confirmDeleteDefi);
   }
 
   async function openStaticDefiValidateModal(title, points) {

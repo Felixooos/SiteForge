@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="images/team/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=29">
+  <link rel="stylesheet" href="assets/style.css?v=30">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -948,6 +948,54 @@
     </div>
   </div>
 
+  <!-- Add Defi Modal -->
+  <div id="modal-add-defi" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3>Ajouter un d&eacute;fi</h3>
+      <select id="add-defi-level">
+        <option value="niveau1">Niveau 1 (10-50 pts)</option>
+        <option value="niveau2">Niveau 2 (100-200 pts)</option>
+        <option value="niveau3">Niveau 3 (300-400 pts)</option>
+        <option value="niveau4">Niveau 4 (500-750 pts)</option>
+        <option value="niveau5">Niveau 5 (900-1000 pts)</option>
+      </select>
+      <input type="number" id="add-defi-points" placeholder="Points" min="1">
+      <textarea id="add-defi-title" placeholder="Texte du d&eacute;fi" rows="3" style="resize:vertical"></textarea>
+      <select id="add-defi-tag">
+        <option value="Standard">Standard</option>
+        <option value="DD">DD</option>
+      </select>
+      <button class="btn-primary" id="btn-add-defi-confirm">Ajouter</button>
+      <button class="btn-secondary modal-close-btn">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Edit Defi Modal -->
+  <div id="modal-edit-defi" class="modal" style="display:none">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3>Modifier le d&eacute;fi</h3>
+      <input type="hidden" id="edit-defi-id">
+      <select id="edit-defi-level">
+        <option value="niveau1">Niveau 1 (10-50 pts)</option>
+        <option value="niveau2">Niveau 2 (100-200 pts)</option>
+        <option value="niveau3">Niveau 3 (300-400 pts)</option>
+        <option value="niveau4">Niveau 4 (500-750 pts)</option>
+        <option value="niveau5">Niveau 5 (900-1000 pts)</option>
+      </select>
+      <input type="number" id="edit-defi-points" placeholder="Points" min="1">
+      <textarea id="edit-defi-title" placeholder="Texte du d&eacute;fi" rows="3" style="resize:vertical"></textarea>
+      <select id="edit-defi-tag">
+        <option value="Standard">Standard</option>
+        <option value="DD">DD</option>
+      </select>
+      <button class="btn-primary" id="btn-edit-defi-confirm">Enregistrer</button>
+      <button class="btn-secondary" id="btn-delete-defi" style="background:#ef4444;color:white;border-color:#ef4444">Supprimer</button>
+      <button class="btn-secondary modal-close-btn">Annuler</button>
+    </div>
+  </div>
+
   <!-- Custom Card Full View (for saving as PNG) -->
   <div id="modal-custom-card" class="modal" style="display:none">
     <div class="modal-overlay"></div>
@@ -1015,6 +1063,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=29"></script>
+  <script src="assets/main.js?v=30"></script>
 </body>
 </html>

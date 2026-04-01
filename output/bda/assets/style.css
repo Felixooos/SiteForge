@@ -1127,6 +1127,44 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 .defi-btn-edit { background: var(--primary); color: white; }
 .defi-btn-delete { background: var(--danger); color: white; }
 
+/* Defi admin 3-dot button */
+.defi-dots-btn {
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.2rem; font-weight: 900; cursor: pointer;
+  padding: 4px 8px; border-radius: 8px; line-height: 1;
+  flex-shrink: 0; margin-left: 4px;
+  letter-spacing: 2px;
+}
+.defi-dots-btn:hover, .defi-dots-btn:active {
+  background: var(--bg-card); color: var(--text-light);
+}
+
+/* Defi add button */
+.defi-add-btn {
+  width: 100%; margin-bottom: 12px;
+  font-size: 1rem; font-weight: 700;
+  padding: 12px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white; border: none; cursor: pointer;
+}
+.defi-add-btn:active { transform: scale(0.98); }
+
+/* Lot winner styles */
+.lot-card.lot-won {
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 16px rgba(250,204,21,0.2);
+}
+.lot-card:not(.lot-won):not(.sold-out) {
+  opacity: 0.6; filter: grayscale(0.5);
+}
+.lot-winners {
+  display: flex; flex-direction: column; gap: 3px; margin-top: 6px;
+}
+.lot-winner-chip {
+  font-size: 0.65rem; font-weight: 600;
+  color: var(--accent); text-align: center;
+}
+
 .admin-fab {
   position: fixed; bottom: calc(var(--bottom-nav-h) + 16px);
   right: 16px; width: 56px; height: 56px;
