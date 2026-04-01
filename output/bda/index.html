@@ -12,7 +12,7 @@
   <title>Dinos'Art</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=18">
+  <link rel="stylesheet" href="assets/style.css?v=20">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -22,50 +22,25 @@
     <div class="auth-card">
       <div class="auth-logo">Dinos'Art</div>
       <h1 class="auth-title">Dinos'Art</h1>
-      <p class="auth-subtitle">Collecte, dÃ©fie, domine.</p>
+      <p class="auth-subtitle">Collecte, d&#233;fie, domine.</p>
 
-      <!-- Login Form -->
-      <div id="auth-login" class="auth-form">
-        <input type="email" id="login-email" placeholder="Email" autocomplete="email">
-        <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
-        <button id="btn-login" class="btn-primary">Se connecter</button>
-        <p class="auth-switch">Pas de compte ? <a href="#" id="show-register">CrÃ©er un compte</a></p>
-        <p class="auth-switch"><a href="#" id="show-forgot">Mot de passe oubliÃ© ?</a></p>
-      </div>
-
-      <!-- Register Form -->
-      <div id="auth-register" class="auth-form" style="display:none">
-        <input type="text" id="register-pseudo" placeholder="Pseudo" maxlength="20">
-        <input type="email" id="register-email" placeholder="Email">
-        <input type="password" id="register-password" placeholder="Mot de passe (min. 6 car.)">
-        <button id="btn-register" class="btn-primary">CrÃ©er mon compte</button>
-        <p class="auth-switch">DÃ©jÃ  un compte ? <a href="#" id="show-login">Se connecter</a></p>
-      </div>
-
-      <!-- Forgot Password Form -->
-      <div id="auth-forgot" class="auth-form" style="display:none">
-        <div id="forgot-step-email">
-          <p class="auth-forgot-text">Entre ton email pour recevoir un code de rÃ©initialisation.</p>
-          <input type="email" id="forgot-email" placeholder="Email" autocomplete="email">
-          <button id="btn-forgot" class="btn-primary">Envoyer le code</button>
+      <!-- OTP Login/Register (single flow) -->
+      <div id="auth-otp" class="auth-form">
+        <div id="otp-step-email">
+          <input type="text" id="otp-pseudo" placeholder="Pseudo (nouveaux comptes)" maxlength="20">
+          <input type="email" id="otp-email" placeholder="Email" autocomplete="email">
+          <button id="btn-send-otp" class="btn-primary">Envoyer le code</button>
         </div>
-        <div id="forgot-step-code" style="display:none">
-          <p class="auth-forgot-text">Code envoyÃ© ! Entre le code reÃ§u par email.</p>
-          <input type="text" id="forgot-code" placeholder="Code Ã  8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
-          <button id="btn-verify-code" class="btn-primary">VÃ©rifier le code</button>
+        <div id="otp-step-code" style="display:none">
+          <p class="auth-forgot-text">Code envoy&#233; ! Entre le code re&#231;u par email.</p>
+          <input type="text" id="otp-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+          <button id="btn-verify-otp" class="btn-primary">V&#233;rifier le code</button>
+          <p class="auth-switch"><a href="#" id="otp-back">Changer d'email</a></p>
         </div>
-        <div id="forgot-step-newpw" style="display:none">
-          <p class="auth-forgot-text">Code validÃ© ! Choisis ton nouveau mot de passe.</p>
-          <input type="password" id="forgot-newpw" placeholder="Nouveau mot de passe (min. 6 car.)" autocomplete="new-password">
-          <input type="password" id="forgot-confirmpw" placeholder="Confirmer le mot de passe" autocomplete="new-password">
-          <button id="btn-set-newpw" class="btn-primary">Enregistrer le mot de passe</button>
-        </div>
-        <p id="forgot-success" class="auth-success" style="display:none">Mot de passe mis Ã  jour ! Tu peux te connecter.</p>
-        <p class="auth-switch"><a href="#" id="back-to-login">Retour Ã  la connexion</a></p>
       </div>
 
       <div class="auth-divider"><span>ou</span></div>
-      <button id="btn-guest" class="btn-guest">Mode InvitÃ©</button>
+      <button id="btn-guest" class="btn-guest">Mode Invit&#233;</button>
       <p id="auth-error" class="auth-error"></p>
     </div>
   </div>
@@ -104,7 +79,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Boutique</h2>
-              <p>AchÃ¨te des packs, joue au Sutom et gagne des piÃ¨ces</p>
+              <p>Achète des packs, joue au Sutom et gagne des pièces</p>
             </div>
             <div id="sutom-widget" class="sutom-widget">
               <!-- Sutom rendered by JS -->
@@ -125,7 +100,7 @@
             <div class="pokedex-tabs">
               <button class="tab-btn active" data-tab="normal">Normales <span id="count-normal">0</span>/24</button>
               <button class="tab-btn" data-tab="shiny">Shiny <span id="count-shiny">0</span>/24</button>
-              <button class="tab-btn" data-tab="creations">CrÃ©ations</button>
+              <button class="tab-btn" data-tab="creations">Créations</button>
             </div>
             <div id="pokedex-grid" class="pokedex-grid">
               <!-- Dynamically filled -->
@@ -142,7 +117,7 @@
             </div>
             <!-- My position banner -->
             <div id="my-position" class="my-position" style="display:none">
-              <div class="my-pos-rank" id="my-pos-rank">#â€”</div>
+              <div class="my-pos-rank" id="my-pos-rank">#—</div>
               <div class="my-pos-info">
                 <div class="my-pos-label">Ta position</div>
                 <div class="my-pos-coins" id="my-pos-coins">0</div>
@@ -187,7 +162,7 @@
             <div id="profil-guest" style="display:none">
               <div class="guest-prompt">
                 <div class="guest-icon"></div>
-                <h3>Connecte-toi pour accÃ©der Ã  ton profil</h3>
+                <h3>Connecte-toi pour accéder à ton profil</h3>
                 <button class="btn-primary" id="btn-guest-login">Se connecter</button>
               </div>
             </div>
@@ -196,14 +171,13 @@
               <div class="profil-header">
                 <div class="profil-avatar" id="profil-avatar">
                   <img id="profil-avatar-img" src="" alt="Avatar">
-                  <button class="avatar-edit" id="btn-edit-avatar">Modifier</button>
                 </div>
                 <h2 id="profil-pseudo">Pseudo</h2>
                 <p id="profil-email" class="profil-email">email@example.com</p>
                 <div class="profil-stats">
-                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">PiÃ¨ces</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pièces</span></div>
                   <div class="stat"><span class="stat-value" id="profil-cards">0</span><span class="stat-label">Cartes</span></div>
-                  <div class="stat"><span class="stat-value" id="profil-rank">#â€”</span><span class="stat-label">Rang</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-rank">#—</span><span class="stat-label">Rang</span></div>
                 </div>
               </div>
 
@@ -230,7 +204,7 @@
                     <input type="text" id="cc-name" placeholder="Nom de la carte" maxlength="30">
                     <textarea id="cc-desc" placeholder="Description" maxlength="100"></textarea>
                     <input type="text" id="cc-attack" placeholder="Nom d'attaque" maxlength="25">
-                    <input type="number" id="cc-damage" placeholder="DÃ©gÃ¢ts" min="0" max="999">
+                    <input type="number" id="cc-damage" placeholder="Dégâts" min="0" max="999">
                     <label class="file-upload">
                       Choisir une image
                       <input type="file" id="cc-image" accept="image/*" style="display:none">
@@ -264,7 +238,7 @@
                 </div>
               </div>
 
-              <button class="btn-logout" id="btn-logout">Se dÃ©connecter</button>
+              <button class="btn-logout" id="btn-logout">Se déconnecter</button>
             </div>
           </div>
         </section>
@@ -284,7 +258,7 @@
               <p>Nos partenaires</p>
             </div>
             <div id="sponsors-content">
-              <p class="sponsors-intro">Merci Ã  nos partenaires qui rendent tout Ã§a possible</p>
+              <p class="sponsors-intro">Merci à nos partenaires qui rendent tout ça possible</p>
               <div class="sponsors-grid">
                 <div class="sponsor-card"><div class="sponsor-text">Ali Baba</div></div>
                 <div class="sponsor-card"><div class="sponsor-text">Alpro</div></div>
@@ -352,7 +326,7 @@
                 <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.jpg">
                   <img src="images/goodies/Table_5.jpg" alt="Table Beer Pong Dinos'Art" class="goodie-table-img">
                 </div>
-                <p class="goodie-table-desc">La table officielle du Dinos'Art â€” faite main avec amour</p>
+                <p class="goodie-table-desc">La table officielle du Dinos'Art — faite main avec amour</p>
               </div>
             </div>
           </div>
@@ -441,12 +415,12 @@
         <section class="page" id="page-nous">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>L'Ã‰quipe</h2>
-              <p>Qui se cache derriÃ¨re le Dinos'Art ?</p>
+              <h2>L'équipe</h2>
+              <p>Qui se cache derrière le Dinos'Art ?</p>
             </div>
             <div id="team-content">
               <div class="team-group-photo">
-                <img src="images/team/Groupe.jpg" alt="L'Ã‰quipe Dinos'Art">
+                <img src="images/team/Groupe.jpg" alt="L'équipe Dinos'Art">
                 <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
               </div>
 
@@ -454,24 +428,24 @@
                 <div class="pole-header">
                   <div class="pole-info">
                     <h3 class="pole-name">Le Bureau</h3>
-                    <p class="pole-desc">L'Ã©quipe de direction qui coordonne tout : rÃ©unions, administratif, budget et organisation gÃ©nÃ©rale du Dinos'Art.</p>
+                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réunions, administratif, budget et organisation générale du Dinos'Art.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
                   <div class="member-card" data-member-modal="anne">
                     <img src="images/team/Anne.jpg" alt="Anne" class="member-photo">
                     <div class="member-name">Anne</div>
-                    <div class="member-role">PrÃ©sidente</div>
+                    <div class="member-role">Présidente</div>
                   </div>
                   <div class="member-card" data-member-modal="cyrielle">
                     <img src="images/team/Cyrielle.jpg" alt="Cyrielle" class="member-photo">
                     <div class="member-name">Cyrielle</div>
-                    <div class="member-role">TrÃ©soriÃ¨re</div>
+                    <div class="member-role">Trésorière</div>
                   </div>
                   <div class="member-card" data-member-modal="candy">
                     <img src="images/team/Candy.jpg" alt="Candy" class="member-photo">
                     <div class="member-name">Candy</div>
-                    <div class="member-role">SecrÃ©taire</div>
+                    <div class="member-role">Secrétaire</div>
                   </div>
                   <div class="member-card" data-member-modal="kimlee">
                     <img src="images/team/Kimlee.jpg" alt="Kimlee" class="member-photo">
@@ -479,14 +453,14 @@
                     <div class="member-role">VP Externe</div>
                   </div>
                   <div class="member-card" data-member-modal="anais">
-                    <img src="images/team/Anais.jpg" alt="AnaÃ¯s" class="member-photo">
-                    <div class="member-name">AnaÃ¯s</div>
+                    <img src="images/team/Anais.jpg" alt="Anaïs" class="member-photo">
+                    <div class="member-name">Anaïs</div>
                     <div class="member-role">VP Interne</div>
                   </div>
                   <div class="member-card" data-member-modal="ingrid">
                     <img src="images/team/Ingrid.jpg" alt="Ingrid" class="member-photo">
                     <div class="member-name">Ingrid</div>
-                    <div class="member-role">Vice-TrÃ©soriÃ¨re</div>
+                    <div class="member-role">Vice-Trésorière</div>
                   </div>
                 </div>
               </div>
@@ -494,8 +468,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">PÃ´le Communication</h3>
-                    <p class="pole-desc">RÃ©seaux sociaux, visuels, goodies, site web... C'est grÃ¢ce Ã  eux que le Dinos'Art brille partout !</p>
+                    <h3 class="pole-name">Pôle Communication</h3>
+                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le Dinos'Art brille partout !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -515,13 +489,13 @@
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="timothee">
-                    <img src="images/team/Thimote.jpg" alt="TimothÃ©e" class="member-photo">
-                    <div class="member-name">TimothÃ©e</div>
+                    <img src="images/team/Thimote.jpg" alt="Timothée" class="member-photo">
+                    <div class="member-name">Timothée</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="annael">
-                    <img src="images/team/Annael.jpg" alt="AnnaÃ«l" class="member-photo">
-                    <div class="member-name">AnnaÃ«l</div>
+                    <img src="images/team/Annael.jpg" alt="Annaël" class="member-photo">
+                    <div class="member-name">Annaël</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="ismail">
@@ -540,8 +514,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">PÃ´le Ã‰vÃ©nementiel</h3>
-                    <p class="pole-desc">Les architectes de vos moments mÃ©morables ! SoirÃ©es, activitÃ©s, voyages... ils gÃ¨rent tout de A Ã  Z.</p>
+                    <h3 class="pole-name">Pôle Événementiel</h3>
+                    <p class="pole-desc">Les architectes de vos moments mémorables ! Soirées, activités, voyages... ils gèrent tout de A à Z.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -571,8 +545,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">PÃ´le L3D</h3>
-                    <p class="pole-desc">Logistique, DÃ©marches et DÃ©veloppement Durable. Ils nÃ©gocient les partos, gÃ¨rent le matos et font gaffe Ã  la planÃ¨te !</p>
+                    <h3 class="pole-name">Pôle L3D</h3>
+                    <p class="pole-desc">Logistique, Démarches et Développement Durable. Ils négocient les partos, gèrent le matos et font gaffe à la planète !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -881,7 +855,7 @@
       <div id="pack-card-stage" class="pack-card-stage" style="display:none">
         <div class="pack-counter"><span id="pack-reveal-count">0</span> / <span id="pack-reveal-total">0</span></div>
         <div class="pack-card-container" id="pack-card-container">
-          <div class="pack-tap-prompt">Touche pour rÃ©vÃ©ler</div>
+          <div class="pack-tap-prompt">Touche pour révéler</div>
         </div>
       </div>
       <button id="pack-close" class="btn-secondary" style="display:none">Fermer</button>
@@ -905,7 +879,7 @@
       <div class="player-modal-header">
         <img id="player-avatar" src="" alt="" class="player-modal-avatar">
         <h3 id="player-pseudo">Joueur</h3>
-        <p id="player-score" class="player-score">0 piÃ¨ces</p>
+        <p id="player-score" class="player-score">0 pièces</p>
       </div>
       <div id="player-badges" class="badges-grid"></div>
       <div id="player-admin-actions" style="display:none">
@@ -931,13 +905,13 @@
   <div id="modal-challenge" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3 id="challenge-modal-title">Nouveau DÃ©fi</h3>
-      <input type="text" id="ch-titre" placeholder="Titre du dÃ©fi">
+      <h3 id="challenge-modal-title">Nouveau Défi</h3>
+      <input type="text" id="ch-titre" placeholder="Titre du défi">
       <textarea id="ch-desc" placeholder="Description"></textarea>
       <select id="ch-diff">
-        <option value="facile">Facile â€” 50 piÃ¨ces</option>
-        <option value="moyen">Moyen â€” 150 piÃ¨ces</option>
-        <option value="difficile">Difficile â€” 300 piÃ¨ces</option>
+        <option value="facile">Facile — 50 pièces</option>
+        <option value="moyen">Moyen — 150 pièces</option>
+        <option value="difficile">Difficile — 300 pièces</option>
       </select>
       <button class="btn-primary" id="btn-save-challenge">Enregistrer</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
@@ -948,10 +922,10 @@
   <div id="modal-validate" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3>Valider le dÃ©fi</h3>
+      <h3>Valider le défi</h3>
       <p id="validate-challenge-name"></p>
       <select id="validate-user-select">
-        <option value="">Choisir un joueurâ€¦</option>
+        <option value="">Choisir un joueur—</option>
       </select>
       <button class="btn-primary" id="btn-confirm-validate">Valider</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
@@ -1025,6 +999,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=18"></script>
+  <script src="assets/main.js?v=20"></script>
 </body>
 </html>

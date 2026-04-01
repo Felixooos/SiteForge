@@ -1,9 +1,44 @@
 -- ============================================================
---  BDA — RPC admin : changer le mot du Sutom
+--  BDA — TABLE bda_sutom_words + RPC admin
 --  Execute dans Supabase SQL Editor
---
---  Permet aux admins/creators de changer le mot actif
---  de facon securisee (SECURITY DEFINER bypass RLS).
+-- ============================================================
+
+-- 1) Creer la table si elle n existe pas
+CREATE TABLE IF NOT EXISTS bda_sutom_words (
+  id          BIGSERIAL PRIMARY KEY,
+  site_id     TEXT        NOT NULL DEFAULT 'bda',
+  play_date   DATE        NOT NULL,
+  word        TEXT        NOT NULL,
+  points      INTEGER     NOT NULL DEFAULT 120,
+  created_by  TEXT        NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (site_id, play_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bda_sutom_words_date ON bda_sutom_words(site_id, play_date);
+
+-- 2) Activer RLS
+ALTER TABLE bda_sutom_words ENABLE ROW LEVEL SECURITY;
+
+-- 3) Politique lecture : tout le monde
+DROP POLICY IF EXISTS "bda_sutom_select" ON bda_sutom_words;
+CREATE POLICY "bda_sutom_select" ON bda_sutom_words FOR SELECT USING (true);
+
+-- 4) Politiques ecriture : admins seulement
+DROP POLICY IF EXISTS "bda_sutom_insert" ON bda_sutom_words;
+CREATE POLICY "bda_sutom_insert" ON bda_sutom_words FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_sutom_words.site_id AND (is_creator OR is_admin OR is_super_admin))
+);
+DROP POLICY IF EXISTS "bda_sutom_update" ON bda_sutom_words;
+CREATE POLICY "bda_sutom_update" ON bda_sutom_words FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_sutom_words.site_id AND (is_creator OR is_admin OR is_super_admin))
+);
+DROP POLICY IF EXISTS "bda_sutom_delete" ON bda_sutom_words;
+CREATE POLICY "bda_sutom_delete" ON bda_sutom_words FOR DELETE USING (
+  EXISTS (SELECT 1 FROM etudiants WHERE email = auth.jwt() ->> 'email' AND site_id = bda_sutom_words.site_id AND (is_creator OR is_admin OR is_super_admin))
+);
+
+-- 5) RPC admin pour changer le mot (SECURITY DEFINER)
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION rpc_admin_set_sutom_word(

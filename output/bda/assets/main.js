@@ -1,5 +1,5 @@
 ﻿/* ============================================================
-   BDA â€” Main Application JS
+   BDA — Main Application JS
    Mobile-first swipe app (Clash Royale style)
    ============================================================ */
 
@@ -116,7 +116,7 @@
       btn.classList.toggle('active', i === index);
     });
 
-    // Hide admin FAB when not on dÃ©fis page
+    // Hide admin FAB when not on défis page
     const fab = document.querySelector('.admin-fab');
     if (fab && index !== 3) fab.style.display = 'none';
 
@@ -159,7 +159,7 @@
       isDragging = false;
       els.swipeTrack.classList.remove('dragging');
 
-      // Pure tap or vertical scroll â€” don't interfere with click events
+      // Pure tap or vertical scroll — don't interfere with click events
       if (isScrolling === null || isScrolling === true) return;
 
       if (deltaX > threshold && state.currentPage > 0) {
@@ -303,30 +303,30 @@
 
   // ==================== TEAM MEMBERS DATA ====================
   const membersData = {
-    anne:      { name: 'Anne',      role: 'PrÃ©sidente',            pole: 'Le Bureau',          photo: 'images/team/Anne.jpg',      desc: 'La cheffe d\'orchestre du Dinos\'Art ! Anne coordonne toutes les opÃ©rations et veille Ã  ce que chaque projet avance dans les temps.' },
-    cyrielle:  { name: 'Cyrielle',  role: 'TrÃ©soriÃ¨re',            pole: 'Le Bureau',          photo: 'images/team/Cyrielle.jpg',  desc: 'La gardienne des finances ! Cyrielle s\'assure que chaque centime est bien dÃ©pensÃ© et que le budget tient la route.' },
-    candy:     { name: 'Candy',     role: 'SecrÃ©taire',            pole: 'Le Bureau',          photo: 'images/team/Candy.jpg',     desc: 'La mÃ©moire du Dinos\'Art. Candy rÃ©dige les comptes-rendus, organise les rÃ©unions et garde une trace de tout.' },
-    kimlee:    { name: 'Kimlee',    role: 'VP Externe',            pole: 'Le Bureau',          photo: 'images/team/Kimlee.jpg',    desc: 'Kimlee gÃ¨re les relations avec les partenaires extÃ©rieurs et reprÃ©sente le Dinos\'Art auprÃ¨s des sponsors et associations.' },
-    anais:     { name: 'AnaÃ¯s',     role: 'VP Interne',            pole: 'Le Bureau',          photo: 'images/team/Anais.jpg',     desc: 'AnaÃ¯s veille Ã  la cohÃ©sion interne du Dinos\'Art, coordonne les pÃ´les et s\'assure que tout le monde travaille dans de bonnes conditions.' },
-    ingrid:    { name: 'Ingrid',    role: 'Vice-TrÃ©soriÃ¨re / Event', pole: 'Le Bureau',        photo: 'images/team/Ingrid.jpg',    desc: 'Double casquette pour Ingrid : elle appuie la trÃ©soriÃ¨re sur les finances et donne un coup de main sur les events !' },
-    marie:     { name: 'Marie',     role: 'Respo Communication',   pole: 'Communication',      photo: 'images/team/Marie.jpg',     desc: 'Marie pilote toute la communication du Dinos\'Art : rÃ©seaux, affiches, identitÃ© visuelle... Rien ne lui Ã©chappe.' },
-    anouk:     { name: 'Anouk',     role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Anouk.jpg',     desc: 'Toujours crÃ©ative, Anouk apporte sa touche perso Ã  chaque visuel et post du Dinos\'Art.' },
+    anne:      { name: 'Anne',      role: 'Présidente',            pole: 'Le Bureau',          photo: 'images/team/Anne.jpg',      desc: 'La cheffe d\'orchestre du Dinos\'Art ! Anne coordonne toutes les opérations et veille à ce que chaque projet avance dans les temps.' },
+    cyrielle:  { name: 'Cyrielle',  role: 'Trésorière',            pole: 'Le Bureau',          photo: 'images/team/Cyrielle.jpg',  desc: 'La gardienne des finances ! Cyrielle s\'assure que chaque centime est bien dépensé et que le budget tient la route.' },
+    candy:     { name: 'Candy',     role: 'Secrétaire',            pole: 'Le Bureau',          photo: 'images/team/Candy.jpg',     desc: 'La mémoire du Dinos\'Art. Candy rédige les comptes-rendus, organise les réunions et garde une trace de tout.' },
+    kimlee:    { name: 'Kimlee',    role: 'VP Externe',            pole: 'Le Bureau',          photo: 'images/team/Kimlee.jpg',    desc: 'Kimlee gère les relations avec les partenaires extérieurs et représente le Dinos\'Art auprès des sponsors et associations.' },
+    anais:     { name: 'Anaïs',     role: 'VP Interne',            pole: 'Le Bureau',          photo: 'images/team/Anais.jpg',     desc: 'Anaïs veille à la cohésion interne du Dinos\'Art, coordonne les pôles et s\'assure que tout le monde travaille dans de bonnes conditions.' },
+    ingrid:    { name: 'Ingrid',    role: 'Vice-Trésorière / Event', pole: 'Le Bureau',        photo: 'images/team/Ingrid.jpg',    desc: 'Double casquette pour Ingrid : elle appuie la trésorière sur les finances et donne un coup de main sur les events !' },
+    marie:     { name: 'Marie',     role: 'Respo Communication',   pole: 'Communication',      photo: 'images/team/Marie.jpg',     desc: 'Marie pilote toute la communication du Dinos\'Art : réseaux, affiches, identité visuelle... Rien ne lui échappe.' },
+    anouk:     { name: 'Anouk',     role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Anouk.jpg',     desc: 'Toujours créative, Anouk apporte sa touche perso à chaque visuel et post du Dinos\'Art.' },
     jade:      { name: 'Jade',      role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Jade.jpg',      desc: 'Jade met son oeil artistique au service de la comm pour des contenus qui claquent.' },
-    timothee:  { name: 'TimothÃ©e', role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Thimote.jpg',   desc: 'TimothÃ©e est un couteau suisse de la communication, toujours partant pour un nouveau projet crÃ©atif.' },
-    annael:    { name: 'AnnaÃ«l',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Annael.jpg',    desc: 'AnnaÃ«l apporte son Ã©nergie et ses idÃ©es fraÃ®ches pour faire briller le Dinos\'Art sur les rÃ©seaux.' },
-    ismail:    { name: 'Ismail',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Ismail.jpg',    desc: 'Ismail est lÃ  pour tous les coups de main visuels et contribue Ã  l\'image du Dinos\'Art.' },
-    amicie:    { name: 'Amicie',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Amicie.jpg',    desc: 'Amicie complÃ¨te l\'Ã©quipe comm avec bonne humeur et crÃ©ativitÃ©.' },
-    bastien:   { name: 'Bastien',   role: 'Respo Ã‰vÃ©nementiel',    pole: 'Ã‰vÃ©nementiel',       photo: 'images/team/Bastien.jpg',   desc: 'Bastien planifie et orchestre les Ã©vÃ©nements du Dinos\'Art de A Ã  Z. Les soirÃ©es qui marquent, c\'est lui !' },
-    yann:      { name: 'Yann',      role: 'Respo Ã‰vÃ©nementiel',    pole: 'Ã‰vÃ©nementiel',       photo: 'images/team/Yann.jpg',      desc: 'Co-respo Ã©vÃ©nementiel, Yann s\'assure que chaque event se passe sans accroc et dans la bonne humeur.' },
-    edouard:   { name: 'Edouard',   role: 'Event',                 pole: 'Ã‰vÃ©nementiel',       photo: 'images/team/Edouard.jpg',   desc: 'Edouard est sur tous les fronts pendant les events : montage, ambiance, logistique.' },
-    manu:      { name: 'Manu',      role: 'Event',                 pole: 'Ã‰vÃ©nementiel',       photo: 'images/team/Manu.jpg',      desc: 'Manu c\'est le gars sur qui on peut toujours compter pour la logistique et le bon dÃ©roulement des events.' },
-    ambre:     { name: 'Ambre',     role: 'Respo Logistique',      pole: 'L3D',                photo: 'images/team/Ambre.jpg',     desc: 'Ambre sait exactement ce qu\'il faut, combien et oÃ¹ le trouver. La reine de la logistique !' },
-    gaetan:    { name: 'Gaetan',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Gaetan.jpg',    desc: 'Gaetan prÃªte main forte Ã  la logistique et ne recule devant aucune manutention.' },
-    eliott:    { name: 'Eliott',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Eliott.jpg',    desc: 'Eliott complÃ¨te l\'Ã©quipe logistique et veille Ã  ce que tout le matÃ©riel soit au bon endroit au bon moment.' },
-    nicolas:   { name: 'Nicolas',   role: 'Respo DÃ©marches',       pole: 'L3D',                photo: 'images/team/Nicolas.jpg',   desc: 'Nicolas parcourt la ville pour dÃ©crocher les meilleurs partenariats et s\'occupe de toutes les dÃ©marches administratives.' },
-    tanguy:    { name: 'Tanguy',    role: 'DÃ©marches',             pole: 'L3D',                photo: 'images/team/Tanguy.jpg',    desc: 'Tanguy appuie Nicolas sur les dÃ©marches et donne un coup de main pour les partenariats.' },
-    iuri:      { name: 'Iuri',      role: 'DÃ©marches',             pole: 'L3D',                photo: 'images/team/Iuri.jpg',      desc: 'Iuri ne recule devant aucun challenge et s\'implique dans toutes les dÃ©marches du Dinos\'Art.' },
-    pauline:   { name: 'Pauline',   role: 'Respo DÃ©v. Durable',    pole: 'L3D',                photo: 'images/team/Pauline.jpg',   desc: 'Pauline veille au dÃ©veloppement durable : Ã©cocups, tri, bilan carbone... La planÃ¨te, c\'est important !' },
+    timothee:  { name: 'Timothée', role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Thimote.jpg',   desc: 'Timothée est un couteau suisse de la communication, toujours partant pour un nouveau projet créatif.' },
+    annael:    { name: 'Annaël',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Annael.jpg',    desc: 'Annaël apporte son énergie et ses idées fraîches pour faire briller le Dinos\'Art sur les réseaux.' },
+    ismail:    { name: 'Ismail',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Ismail.jpg',    desc: 'Ismail est là pour tous les coups de main visuels et contribue à l\'image du Dinos\'Art.' },
+    amicie:    { name: 'Amicie',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Amicie.jpg',    desc: 'Amicie complète l\'équipe comm avec bonne humeur et créativité.' },
+    bastien:   { name: 'Bastien',   role: 'Respo Événementiel',    pole: 'Événementiel',       photo: 'images/team/Bastien.jpg',   desc: 'Bastien planifie et orchestre les événements du Dinos\'Art de A à Z. Les soirées qui marquent, c\'est lui !' },
+    yann:      { name: 'Yann',      role: 'Respo Événementiel',    pole: 'Événementiel',       photo: 'images/team/Yann.jpg',      desc: 'Co-respo événementiel, Yann s\'assure que chaque event se passe sans accroc et dans la bonne humeur.' },
+    edouard:   { name: 'Edouard',   role: 'Event',                 pole: 'Événementiel',       photo: 'images/team/Edouard.jpg',   desc: 'Edouard est sur tous les fronts pendant les events : montage, ambiance, logistique.' },
+    manu:      { name: 'Manu',      role: 'Event',                 pole: 'Événementiel',       photo: 'images/team/Manu.jpg',      desc: 'Manu c\'est le gars sur qui on peut toujours compter pour la logistique et le bon déroulement des events.' },
+    ambre:     { name: 'Ambre',     role: 'Respo Logistique',      pole: 'L3D',                photo: 'images/team/Ambre.jpg',     desc: 'Ambre sait exactement ce qu\'il faut, combien et où le trouver. La reine de la logistique !' },
+    gaetan:    { name: 'Gaetan',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Gaetan.jpg',    desc: 'Gaetan prête main forte à la logistique et ne recule devant aucune manutention.' },
+    eliott:    { name: 'Eliott',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Eliott.jpg',    desc: 'Eliott complète l\'équipe logistique et veille à ce que tout le matériel soit au bon endroit au bon moment.' },
+    nicolas:   { name: 'Nicolas',   role: 'Respo Démarches',       pole: 'L3D',                photo: 'images/team/Nicolas.jpg',   desc: 'Nicolas parcourt la ville pour décrocher les meilleurs partenariats et s\'occupe de toutes les démarches administratives.' },
+    tanguy:    { name: 'Tanguy',    role: 'Démarches',             pole: 'L3D',                photo: 'images/team/Tanguy.jpg',    desc: 'Tanguy appuie Nicolas sur les démarches et donne un coup de main pour les partenariats.' },
+    iuri:      { name: 'Iuri',      role: 'Démarches',             pole: 'L3D',                photo: 'images/team/Iuri.jpg',      desc: 'Iuri ne recule devant aucun challenge et s\'implique dans toutes les démarches du Dinos\'Art.' },
+    pauline:   { name: 'Pauline',   role: 'Respo Dév. Durable',    pole: 'L3D',                photo: 'images/team/Pauline.jpg',   desc: 'Pauline veille au développement durable : écocups, tri, bilan carbone... La planète, c\'est important !' },
   };
 
   function initTeamClicks() {
@@ -337,7 +337,7 @@
         if (!member) return;
         $('#member-detail-photo').src = member.photo;
         $('#member-detail-name').textContent = member.name;
-        $('#member-detail-role').textContent = member.role + ' â€” ' + member.pole;
+        $('#member-detail-role').textContent = member.role + ' — ' + member.pole;
         $('#member-detail-desc').textContent = member.desc;
         openModal('modal-member');
       });
@@ -447,206 +447,100 @@
   }
 
   function initAuth() {
-    $('#btn-login').addEventListener('click', handleLogin);
-    $('#btn-register').addEventListener('click', handleRegister);
+    $('#btn-send-otp').addEventListener('click', handleSendOtp);
+    $('#btn-verify-otp').addEventListener('click', handleVerifyOtp);
     $('#btn-guest').addEventListener('click', handleGuest);
-    $('#show-register').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-login').style.display = 'none';
-      $('#auth-register').style.display = 'block';
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-error').textContent = '';
-    });
-    $('#show-login').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-register').style.display = 'none';
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-login').style.display = 'block';
-      $('#auth-error').textContent = '';
-    });
-    $('#show-forgot').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-login').style.display = 'none';
-      $('#auth-register').style.display = 'none';
-      $('#auth-forgot').style.display = 'block';
-      $('#auth-error').textContent = '';
-      $('#forgot-success').style.display = 'none';
-    });
-    $('#back-to-login').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-login').style.display = 'block';
-      $('#auth-error').textContent = '';
-    });
-    $('#btn-forgot').addEventListener('click', handleForgotPassword);
     $('#btn-logout').addEventListener('click', handleLogout);
-    $('#btn-guest-login').addEventListener('click', () => {
-      handleLogout();
+    $('#btn-guest-login').addEventListener('click', () => { handleLogout(); });
+
+    $('#otp-back').addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#otp-step-code').style.display = 'none';
+      $('#otp-step-email').style.display = 'block';
+      $('#otp-code').value = '';
+      $('#auth-error').textContent = '';
     });
 
-    // Enter key on inputs
-    $('#login-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
-    $('#register-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
-    $('#forgot-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleForgotPassword(); });
-    $('#btn-verify-code').addEventListener('click', handleVerifyRecoveryCode);
-    $('#forgot-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyRecoveryCode(); });
-    $('#btn-set-newpw').addEventListener('click', handleSetNewPassword);
-    $('#forgot-newpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
-    $('#forgot-confirmpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
-
-    // Handle password recovery callback (when user clicks the email link)
-    handlePasswordRecovery();
+    // Enter key
+    $('#otp-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#otp-pseudo').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#otp-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp(); });
   }
 
-  async function handleForgotPassword() {
-    const email = $('#forgot-email').value.trim();
+  async function handleSendOtp() {
+    const email = $('#otp-email').value.trim();
+    const pseudo = ($('#otp-pseudo').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
-    $('#forgot-success').style.display = 'none';
+
     if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const opts = { shouldCreateUser: true };
+      if (pseudo) opts.data = { pseudo };
+      const { error } = await supabase.auth.signInWithOtp({ email, options: opts });
       if (error) { errEl.textContent = error.message; return; }
-      $('#forgot-success').style.display = 'block';
-      $('#forgot-step-email').style.display = 'none';
-      $('#forgot-step-code').style.display = 'block';
-      $('#forgot-code').focus();
+
+      // Store for verification step
+      state._otpEmail = email;
+      state._otpPseudo = pseudo;
+
+      // Show code step
+      $('#otp-step-email').style.display = 'none';
+      $('#otp-step-code').style.display = 'block';
+      $('#otp-code').focus();
     } catch (e) {
-      errEl.textContent = 'Erreur lors de l\'envoi.';
+      errEl.textContent = 'Erreur lors de l\'envoi du code.';
     }
   }
 
-  async function handleVerifyRecoveryCode() {
-    const email = $('#forgot-email').value.trim();
-    const token = ($('#forgot-code').value || '').trim();
+  async function handleVerifyOtp() {
+    const token = ($('#otp-code').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
+
     if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+
     try {
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: state._otpEmail,
+        token,
+        type: 'email'
+      });
       if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
-      // OTP valid â€” session is now open, show new password step
-      $('#forgot-step-code').style.display = 'none';
-      $('#forgot-step-newpw').style.display = 'block';
-      $('#forgot-newpw').focus();
+
+      state.user = data.user;
+      state.isGuest = false;
+
+      // Check if etudiants row exists, create if needed
+      const { data: profile } = await supabase
+        .from('etudiants')
+        .select('id')
+        .eq('site_id', SITE_ID)
+        .eq('email', state._otpEmail)
+        .single();
+
+      if (!profile) {
+        const pseudo = state._otpPseudo || state._otpEmail.split('@')[0];
+        const { error: insertErr } = await supabase.from('etudiants').insert({
+          site_id: SITE_ID,
+          email: state._otpEmail,
+          pseudo: pseudo,
+          solde: 0,
+          is_admin: false,
+          is_super_admin: false,
+          is_creator: false,
+        });
+        if (insertErr) console.warn('Profile insert:', insertErr);
+        toast('Bienvenue ' + pseudo + ' !', 'success');
+      }
+
+      await loadProfile();
+      showApp();
     } catch (e) {
       errEl.textContent = 'Erreur de v\u00e9rification.';
-    }
-  }
-
-  async function handleSetNewPassword() {
-    const newPw = $('#forgot-newpw').value;
-    const confirmPw = $('#forgot-confirmpw').value;
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-    if (!newPw) { errEl.textContent = 'Entre un nouveau mot de passe.'; return; }
-    if (newPw.length < 6) { errEl.textContent = 'Minimum 6 caract\u00e8res.'; return; }
-    if (newPw !== confirmPw) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPw });
-      if (error) { errEl.textContent = error.message; return; }
-      $('#forgot-step-newpw').style.display = 'none';
-      $('#forgot-success').style.display = 'block';
-      await supabase.auth.signOut();
-      setTimeout(() => {
-        $('#auth-forgot').style.display = 'none';
-        $('#auth-login').style.display = 'block';
-        $('#forgot-success').style.display = 'none';
-        $('#forgot-step-email').style.display = 'block';
-        $('#forgot-email').value = '';
-        $('#forgot-code').value = '';
-        $('#forgot-newpw').value = '';
-        $('#forgot-confirmpw').value = '';
-        $('#auth-error').textContent = '';
-      }, 2500);
-    } catch (e) {
-      errEl.textContent = 'Erreur lors de la mise \u00e0 jour.';
-    }
-  }
-
-  async function handlePasswordRecovery() {
-    // Supabase appends #access_token=...&type=recovery to URL
-    if (!supabase) return;
-    const hash = window.location.hash;
-    if (hash && hash.includes('type=recovery')) {
-      // Supabase client handles the token exchange automatically
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        state.user = session.user;
-        state.isGuest = false;
-        await loadProfile();
-        showApp();
-        // Navigate to profile page so user can change password
-        goToPage(4);
-        toast('Connecte ! Change ton mot de passe ci-dessous.', 'success');
-        // Clean the URL hash
-        history.replaceState(null, '', window.location.pathname);
-      }
-    }
-  }
-
-  async function handleLogin() {
-    const email = $('#login-email').value.trim();
-    const password = $('#login-password').value;
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!email || !password) { errEl.textContent = 'Remplis tous les champs.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { errEl.textContent = error.message; return; }
-
-      state.user = data.user;
-      state.isGuest = false;
-      await loadProfile();
-      showApp();
-    } catch (e) {
-      errEl.textContent = 'Erreur de connexion.';
-    }
-  }
-
-  async function handleRegister() {
-    const pseudo = $('#register-pseudo').value.trim();
-    const email = $('#register-email').value.trim();
-    const password = $('#register-password').value;
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!pseudo || !email || !password) { errEl.textContent = 'Remplis tous les champs.'; return; }
-    if (password.length < 6) { errEl.textContent = 'Mot de passe : 6 caractÃ¨res minimum.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-
-    // Check blocked domains
-    // (will be configurable later via siteConfig)
-
-    try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { errEl.textContent = error.message; return; }
-
-      // Create etudiants row
-      const { error: insertErr } = await supabase.from('etudiants').insert({
-        site_id: SITE_ID,
-        email: email,
-        pseudo: pseudo,
-        solde: 0,
-        is_admin: false,
-        is_super_admin: false,
-        is_creator: false,
-      });
-      if (insertErr) console.warn('Profile insert:', insertErr);
-
-      state.user = data.user;
-      state.isGuest = false;
-      await loadProfile();
-      showApp();
-      toast('Bienvenue ' + pseudo + ' !', 'success');
-    } catch (e) {
-      errEl.textContent = 'Erreur lors de l\'inscription.';
     }
   }
 
@@ -656,7 +550,7 @@
     state.isGuest = true;
     state.isAdmin = false;
     showApp();
-    toast('Mode InvitÃ© â€” Lecture seule', '');
+    toast('Mode Invit\u00e9 \u2014 Lecture seule', '');
   }
 
   async function handleLogout() {
@@ -852,7 +746,7 @@
     renderSutom();
   }
 
-  /* ===== SUTOM â€” fullscreen game engine ===== */
+  /* ===== SUTOM — fullscreen game engine ===== */
   const SUTOM_MAX = 6;
   const AZERTY = [
     ['A','Z','E','R','T','Y','U','I','O','P'],
@@ -1299,7 +1193,7 @@
     renderSutom();
   }
 
-  /* ===== HOTLINES â€” food ordering system ===== */
+  /* ===== HOTLINES — food ordering system ===== */
   async function loadHotlinesConfig() {
     if (!supabase) return;
     const { data } = await supabase.from('bda_hotlines_config').select('*').eq('site_id', SITE_ID).single();
@@ -1692,7 +1586,7 @@
     if (state.isGuest) { toast('Connecte-toi pour acheter !', 'error'); return; }
     const pack = state.packs.find(p => p.id === packId);
     if (!pack || !state.profile) return;
-    if (state.profile.solde < pack.price) { toast('Pas assez de piÃ¨ces !', 'error'); return; }
+    if (state.profile.solde < pack.price) { toast('Pas assez de pièces !', 'error'); return; }
 
     // Show pack opening modal
     const modal = $('#modal-pack');
@@ -1709,7 +1603,7 @@
     stage.style.display = 'none';
     closeBtn.style.display = 'none';
 
-    // Deduct coins via transaction (le trigger DB met Ã  jour etudiants.solde automatiquement)
+    // Deduct coins via transaction (le trigger DB met à jour etudiants.solde automatiquement)
     await supabase.from('transactions').insert({
       site_id: SITE_ID,
       destinataire_email: state.user.email,
@@ -1740,7 +1634,7 @@
 
     if (insertRows.length > 0) {
       await supabase.from('bda_user_cards').insert(insertRows);
-      // Update local state immediately so pokÃ©dex reflects new cards
+      // Update local state immediately so pokédex reflects new cards
       insertRows.forEach(row => state.userCards.push({ ...row }));
     }
 
@@ -1888,7 +1782,7 @@
     }
     if (available.length === 0) return [];
 
-    // Variable card count: base Â± 1-2
+    // Variable card count: base ± 1-2
     var base = pack.cards_count || 5;
     var variance = Math.floor(base * 0.3) || 1;
     var count = base + Math.floor(Math.random() * (variance * 2 + 1)) - variance;
@@ -2006,7 +1900,7 @@
     if (state.isGuest || !supabase || !state.user) return;
     const card = state.cards.find(c => c.id === cardId);
     if (!card || card.is_shiny) {
-      toast('Seul un admin peut dÃ©bloquer les cartes Shiny !', 'error');
+      toast('Seul un admin peut débloquer les cartes Shiny !', 'error');
       return;
     }
 
@@ -2102,7 +1996,7 @@
         e.stopPropagation();
         const id = parseInt(btn.dataset.approveId);
         await supabase.from('bda_custom_cards').update({ approved: true }).eq('id', id);
-        toast('Carte approuvÃ©e !', 'success');
+        toast('Carte approuvée !', 'success');
         await loadCustomCards();
         renderPokedex();
       });
@@ -2121,7 +2015,7 @@
       ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="" style="width:100%;max-height:50vh;object-fit:contain;border-radius:16px;margin-bottom:16px">` : '<div style="font-size:80px;margin:20px 0;opacity:0.3">?</div>'}
       <div class="ccr-name" style="font-size:1.4rem;margin-bottom:6px">${escHtml(card.name)}</div>
       <div class="ccr-desc">${escHtml(card.description)}</div>
-      <div class="ccr-author" style="margin:8px 0">CrÃ©Ã© par ${escHtml(authorName)}</div>
+      <div class="ccr-author" style="margin:8px 0">Créé par ${escHtml(authorName)}</div>
       ${card.attack_name ? `
         <div class="ccr-attack" style="margin-top:12px">
           <span class="ccr-atk-name">${escHtml(card.attack_name)}</span>
@@ -2139,7 +2033,7 @@
     if (approveBtn) {
       approveBtn.addEventListener('click', async () => {
         await supabase.from('bda_custom_cards').update({ approved: true }).eq('id', card.id);
-        toast('Carte approuvÃ©e !', 'success');
+        toast('Carte approuvée !', 'success');
         closeAllModals();
         await loadCustomCards();
         renderPokedex();
@@ -2182,7 +2076,7 @@
     ctx.fillStyle = '#fbbf24';
     ctx.font = 'bold 12px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('CARTE PERSONNALISÃ‰E', W / 2, 24);
+    ctx.fillText('CARTE PERSONNALISÉE', W / 2, 24);
 
     // Card name
     ctx.fillStyle = '#ffffff';
@@ -2198,7 +2092,7 @@
     // Author
     ctx.fillStyle = '#64748b';
     ctx.font = '11px Inter, sans-serif';
-    ctx.fillText('CrÃ©Ã© par ' + (authorName || ''), W / 2, H - 60);
+    ctx.fillText('Créé par ' + (authorName || ''), W / 2, H - 60);
 
     // Attack bar
     if (card.attack_name) {
@@ -2265,7 +2159,7 @@
 
   function downloadCanvas(canvas, name) {
     const link = document.createElement('a');
-    link.download = (name || 'carte').replace(/[^a-zA-Z0-9Ã Ã¢Ã©Ã¨ÃªÃ«Ã®Ã¯Ã´Ã¹Ã»Ã§_-]/gi, '_') + '.jpg';
+    link.download = (name || 'carte').replace(/[^a-zA-Z0-9àâéèêëîïôùûç_-]/gi, '_') + '.jpg';
     link.href = canvas.toDataURL('image/png');
     link.click();
     toast('Image t\u00e9l\u00e9charg\u00e9e !', 'success');
@@ -2303,7 +2197,7 @@
 
     let html = '';
 
-    // Podium (top 3) â€” only when not searching
+    // Podium (top 3) — only when not searching
     if (!query && filtered.length >= 3) {
       const podiumOrder = [filtered[1], filtered[0], filtered[2]]; // silver, gold, bronze
       const ranks = ['2e', '1er', '3e'];
@@ -2355,7 +2249,7 @@
     }
 
     if (filtered.length === 0) {
-      html = '<div class="empty-state"><p>Aucun rÃ©sultat pour "' + escHtml(query) + '"</p></div>';
+      html = '<div class="empty-state"><p>Aucun résultat pour "' + escHtml(query) + '"</p></div>';
     }
 
     container.innerHTML = html;
@@ -2725,7 +2619,7 @@
 
   function openChallengeEditor(challengeId = null) {
     const ch = challengeId ? state.challenges.find(c => c.id === challengeId) : null;
-    $('#challenge-modal-title').textContent = ch ? 'Modifier le DÃ©fi' : 'Nouveau DÃ©fi';
+    $('#challenge-modal-title').textContent = ch ? 'Modifier le Défi' : 'Nouveau Défi';
     $('#ch-titre').value = ch ? ch.titre : '';
     $('#ch-desc').value = ch ? ch.description : '';
     $('#ch-diff').value = ch ? ch.difficulte : 'facile';
@@ -2741,7 +2635,7 @@
       if (ch) {
         const { error: updErr } = await supabase.from('challenges').update({ titre, description: desc, difficulte: diff, points }).eq('id', ch.id);
         if (updErr) { toast('Erreur: ' + updErr.message, 'error'); return; }
-        toast('DÃ©fi modifiÃ©', 'success');
+        toast('Défi modifié', 'success');
       } else {
         const { error: insErr } = await supabase.from('challenges').insert({
           site_id: SITE_ID,
@@ -2749,7 +2643,7 @@
           published: true, created_by: state.user.email,
         });
         if (insErr) { toast('Erreur: ' + insErr.message, 'error'); return; }
-        toast('DÃ©fi crÃ©Ã© !', 'success');
+        toast('Défi créé !', 'success');
       }
 
       closeAllModals();
@@ -2766,7 +2660,7 @@
     $('#validate-challenge-name').textContent = ch.titre + ' (' + ch.points + ' pts)';
 
     const select = $('#validate-user-select');
-    select.innerHTML = '<option value="">Choisir un joueurâ€¦</option>';
+    select.innerHTML = '<option value="">Choisir un joueur…</option>';
     state.allUsers.forEach(u => {
       const opt = document.createElement('option');
       opt.value = u.email;
@@ -2776,7 +2670,7 @@
 
     $('#btn-confirm-validate').onclick = async () => {
       const email = select.value;
-      if (!email) { toast('SÃ©lectionne un joueur', 'error'); return; }
+      if (!email) { toast('Sélectionne un joueur', 'error'); return; }
 
       const { data, error } = await supabase.rpc('bda_validate_challenge', {
         p_site_id: SITE_ID,
@@ -2785,7 +2679,7 @@
       });
 
       if (error) { toast('Erreur: ' + error.message, 'error'); return; }
-      if (data?.error === 'already_validated') { toast('DÃ©jÃ  validÃ© pour ce joueur', 'error'); return; }
+      if (data?.error === 'already_validated') { toast('Déjà validé pour ce joueur', 'error'); return; }
       if (data?.error) { toast('Erreur: ' + data.error, 'error'); return; }
 
       toast('D\u00e9fi valid\u00e9 ! +' + ch.points + ' pts', 'success');
@@ -2837,9 +2731,9 @@
   }
 
   async function deleteChallenge(challengeId) {
-    if (!confirm('Supprimer ce dÃ©fi ?')) return;
+    if (!confirm('Supprimer ce défi ?')) return;
     await supabase.from('challenges').update({ admin_deleted: true }).eq('id', challengeId);
-    toast('DÃ©fi supprimÃ©', 'success');
+    toast('Défi supprimé', 'success');
     await loadChallenges();
     renderDefis();
   }
@@ -2876,7 +2770,7 @@
 
     // Rank
     const rank = state.leaderboard.findIndex(l => l.email === state.user?.email);
-    $('#profil-rank').textContent = rank >= 0 ? `#${rank + 1}` : '#â€”';
+    $('#profil-rank').textContent = rank >= 0 ? `#${rank + 1}` : '#—';
 
     // Badges
     const badgesContainer = $('#profil-badges');
@@ -2902,14 +2796,14 @@
       if (!pseudo) return;
       await supabase.from('etudiants').update({ pseudo }).eq('id', state.profile.id);
       state.profile.pseudo = pseudo;
-      toast('Pseudo mis Ã  jour !', 'success');
+      toast('Pseudo mis à jour !', 'success');
       renderProfil();
       await loadLeaderboard();
       renderClassement();
     });
 
     // Avatar upload
-    $('#btn-edit-avatar').addEventListener('click', () => {
+    $('#profil-avatar').addEventListener('click', () => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
@@ -3112,7 +3006,7 @@
           site_id: SITE_ID, user_email: state.user.email, badge_id: badge.id,
         });
         if (!error) {
-          toast(`Badge dÃ©bloquÃ© : ${badge.icon} ${badge.name} !`, 'success');
+          toast(`Badge débloqué : ${badge.icon} ${badge.name} !`, 'success');
           state.userBadges.push({ badge_id: badge.id, user_email: state.user.email });
         }
       }
