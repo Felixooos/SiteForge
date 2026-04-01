@@ -2602,9 +2602,8 @@
       html += '</div>';
     }
 
-    // Rest of leaderboard
-    const start = (!query && filtered.length >= 3) ? 3 : 0;
-    for (let i = start; i < filtered.length; i++) {
+    // Rest of leaderboard (top 3 also shown in list)
+    for (let i = 0; i < filtered.length; i++) {
       const player = filtered[i];
       const avatarContent = player.photo_profil
         ? `<img src="${escAttr(player.photo_profil)}" alt="">`
