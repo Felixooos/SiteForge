@@ -73,6 +73,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   background-clip: text;
 }
 .auth-subtitle { color: var(--text-dim); margin: 5px 0 25px; font-size: 0.95rem; }
+.auth-choice { display: flex; flex-direction: column; }
 .auth-form input {
   width: 100%; padding: 14px 18px; margin-bottom: 12px;
   background: var(--bg-dark); border: 1.5px solid var(--border);

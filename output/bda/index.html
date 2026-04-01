@@ -12,7 +12,7 @@
   <title>Dinos'Art</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=20">
+  <link rel="stylesheet" href="assets/style.css?v=21">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -24,23 +24,45 @@
       <h1 class="auth-title">Dinos'Art</h1>
       <p class="auth-subtitle">Collecte, d&#233;fie, domine.</p>
 
-      <!-- OTP Login/Register (single flow) -->
-      <div id="auth-otp" class="auth-form">
-        <div id="otp-step-email">
-          <input type="text" id="otp-pseudo" placeholder="Pseudo (nouveaux comptes)" maxlength="20">
-          <input type="email" id="otp-email" placeholder="Email" autocomplete="email">
-          <button id="btn-send-otp" class="btn-primary">Envoyer le code</button>
+      <!-- Step 0: Choose action -->
+      <div id="auth-choice" class="auth-choice">
+        <button id="btn-go-register" class="btn-primary">Cr&#233;er un compte</button>
+        <button id="btn-go-login" class="btn-secondary" style="margin-top:10px;">Se connecter</button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button id="btn-guest" class="btn-guest">Mode Invit&#233;</button>
+      </div>
+
+      <!-- Step 1a: Register (pseudo + email) -->
+      <div id="auth-register" class="auth-form" style="display:none">
+        <div id="register-step-email">
+          <input type="text" id="register-pseudo" placeholder="Pseudo" maxlength="20">
+          <input type="email" id="register-email" placeholder="Email" autocomplete="email">
+          <button id="btn-send-register" class="btn-primary">Envoyer le code</button>
+          <p class="auth-switch"><a href="#" id="register-back">Retour</a></p>
         </div>
-        <div id="otp-step-code" style="display:none">
+        <div id="register-step-code" style="display:none">
           <p class="auth-forgot-text">Code envoy&#233; ! Entre le code re&#231;u par email.</p>
-          <input type="text" id="otp-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
-          <button id="btn-verify-otp" class="btn-primary">V&#233;rifier le code</button>
-          <p class="auth-switch"><a href="#" id="otp-back">Changer d'email</a></p>
+          <input type="text" id="register-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+          <button id="btn-verify-register" class="btn-primary">V&#233;rifier le code</button>
+          <p class="auth-switch"><a href="#" id="register-code-back">Changer d'email</a></p>
         </div>
       </div>
 
-      <div class="auth-divider"><span>ou</span></div>
-      <button id="btn-guest" class="btn-guest">Mode Invit&#233;</button>
+      <!-- Step 1b: Login (email only) -->
+      <div id="auth-login" class="auth-form" style="display:none">
+        <div id="login-step-email">
+          <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+          <button id="btn-send-login" class="btn-primary">Envoyer le code</button>
+          <p class="auth-switch"><a href="#" id="login-back">Retour</a></p>
+        </div>
+        <div id="login-step-code" style="display:none">
+          <p class="auth-forgot-text">Code envoy&#233; ! Entre le code re&#231;u par email.</p>
+          <input type="text" id="login-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+          <button id="btn-verify-login" class="btn-primary">V&#233;rifier le code</button>
+          <p class="auth-switch"><a href="#" id="login-code-back">Changer d'email</a></p>
+        </div>
+      </div>
+
       <p id="auth-error" class="auth-error"></p>
     </div>
   </div>
@@ -999,6 +1021,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=20"></script>
+  <script src="assets/main.js?v=21"></script>
 </body>
 </html>
