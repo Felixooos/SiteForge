@@ -522,6 +522,10 @@
     errEl.textContent = '';
 
     if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    var allowedDomains = ['@centrale.centralelille.fr', '@iteem.centralelille.fr', '@enscl.centralelille.fr'];
+    if (!allowedDomains.some(function(d) { return email.toLowerCase().endsWith(d); })) {
+      errEl.textContent = 'Seules les adresses @centrale.centralelille.fr, @iteem.centralelille.fr et @enscl.centralelille.fr sont autoris\u00e9es.'; return;
+    }
     if (!pseudo) { errEl.textContent = 'Entre un pseudo.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
 
@@ -611,6 +615,10 @@
     errEl.textContent = '';
 
     if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    var allowedDomains2 = ['@centrale.centralelille.fr', '@iteem.centralelille.fr', '@enscl.centralelille.fr'];
+    if (!allowedDomains2.some(function(d) { return email.toLowerCase().endsWith(d); })) {
+      errEl.textContent = 'Seules les adresses @centrale.centralelille.fr, @iteem.centralelille.fr et @enscl.centralelille.fr sont autoris\u00e9es.'; return;
+    }
     if (!password) { errEl.textContent = 'Entre ton mot de passe.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
 
