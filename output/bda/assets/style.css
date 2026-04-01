@@ -348,6 +348,13 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   color: var(--text-dim);
   font-size: 0.65rem;
 }
+.lot-card.sold-out {
+  opacity: 0.4;
+}
+.lot-card.sold-out .lot-qty {
+  color: #ef4444;
+  font-weight: 700;
+}
 .lots-proba-info {
   background: var(--bg-card);
   border: 1px solid var(--border);

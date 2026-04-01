@@ -78,6 +78,7 @@
     hotlinesOrders: [],
     hotlinesMyOrder: null,
     hotlinesCart: {},
+    lots: [],
   };
 
   // ==================== DOM REFS ====================
@@ -303,30 +304,30 @@
 
   // ==================== TEAM MEMBERS DATA ====================
   const membersData = {
-    anne:      { name: 'Anne',      role: 'Présidente',            pole: 'Le Bureau',          photo: 'images/team/Anne.jpg',      desc: 'La cheffe d\'orchestre du Dinos\'Art ! Anne coordonne toutes les opérations et veille à ce que chaque projet avance dans les temps.' },
-    cyrielle:  { name: 'Cyrielle',  role: 'Trésorière',            pole: 'Le Bureau',          photo: 'images/team/Cyrielle.jpg',  desc: 'La gardienne des finances ! Cyrielle s\'assure que chaque centime est bien dépensé et que le budget tient la route.' },
-    candy:     { name: 'Candy',     role: 'Secrétaire',            pole: 'Le Bureau',          photo: 'images/team/Candy.jpg',     desc: 'La mémoire du Dinos\'Art. Candy rédige les comptes-rendus, organise les réunions et garde une trace de tout.' },
-    kimlee:    { name: 'Kimlee',    role: 'VP Externe',            pole: 'Le Bureau',          photo: 'images/team/Kimlee.jpg',    desc: 'Kimlee gère les relations avec les partenaires extérieurs et représente le Dinos\'Art auprès des sponsors et associations.' },
-    anais:     { name: 'Anaïs',     role: 'VP Interne',            pole: 'Le Bureau',          photo: 'images/team/Anais.jpg',     desc: 'Anaïs veille à la cohésion interne du Dinos\'Art, coordonne les pôles et s\'assure que tout le monde travaille dans de bonnes conditions.' },
-    ingrid:    { name: 'Ingrid',    role: 'Vice-Trésorière / Event', pole: 'Le Bureau',        photo: 'images/team/Ingrid.jpg',    desc: 'Double casquette pour Ingrid : elle appuie la trésorière sur les finances et donne un coup de main sur les events !' },
-    marie:     { name: 'Marie',     role: 'Respo Communication',   pole: 'Communication',      photo: 'images/team/Marie.jpg',     desc: 'Marie pilote toute la communication du Dinos\'Art : réseaux, affiches, identité visuelle... Rien ne lui échappe.' },
-    anouk:     { name: 'Anouk',     role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Anouk.jpg',     desc: 'Toujours créative, Anouk apporte sa touche perso à chaque visuel et post du Dinos\'Art.' },
-    jade:      { name: 'Jade',      role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Jade.jpg',      desc: 'Jade met son oeil artistique au service de la comm pour des contenus qui claquent.' },
-    timothee:  { name: 'Timothée', role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Thimote.jpg',   desc: 'Timothée est un couteau suisse de la communication, toujours partant pour un nouveau projet créatif.' },
-    annael:    { name: 'Annaël',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Annael.jpg',    desc: 'Annaël apporte son énergie et ses idées fraîches pour faire briller le Dinos\'Art sur les réseaux.' },
-    ismail:    { name: 'Ismail',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Ismail.jpg',    desc: 'Ismail est là pour tous les coups de main visuels et contribue à l\'image du Dinos\'Art.' },
-    amicie:    { name: 'Amicie',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Amicie.jpg',    desc: 'Amicie complète l\'équipe comm avec bonne humeur et créativité.' },
-    bastien:   { name: 'Bastien',   role: 'Respo Événementiel',    pole: 'Événementiel',       photo: 'images/team/Bastien.jpg',   desc: 'Bastien planifie et orchestre les événements du Dinos\'Art de A à Z. Les soirées qui marquent, c\'est lui !' },
-    yann:      { name: 'Yann',      role: 'Respo Événementiel',    pole: 'Événementiel',       photo: 'images/team/Yann.jpg',      desc: 'Co-respo événementiel, Yann s\'assure que chaque event se passe sans accroc et dans la bonne humeur.' },
-    edouard:   { name: 'Edouard',   role: 'Event',                 pole: 'Événementiel',       photo: 'images/team/Edouard.jpg',   desc: 'Edouard est sur tous les fronts pendant les events : montage, ambiance, logistique.' },
-    manu:      { name: 'Manu',      role: 'Event',                 pole: 'Événementiel',       photo: 'images/team/Manu.jpg',      desc: 'Manu c\'est le gars sur qui on peut toujours compter pour la logistique et le bon déroulement des events.' },
-    ambre:     { name: 'Ambre',     role: 'Respo Logistique',      pole: 'L3D',                photo: 'images/team/Ambre.jpg',     desc: 'Ambre sait exactement ce qu\'il faut, combien et où le trouver. La reine de la logistique !' },
-    gaetan:    { name: 'Gaetan',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Gaetan.jpg',    desc: 'Gaetan prête main forte à la logistique et ne recule devant aucune manutention.' },
-    eliott:    { name: 'Eliott',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Eliott.jpg',    desc: 'Eliott complète l\'équipe logistique et veille à ce que tout le matériel soit au bon endroit au bon moment.' },
-    nicolas:   { name: 'Nicolas',   role: 'Respo Démarches',       pole: 'L3D',                photo: 'images/team/Nicolas.jpg',   desc: 'Nicolas parcourt la ville pour décrocher les meilleurs partenariats et s\'occupe de toutes les démarches administratives.' },
-    tanguy:    { name: 'Tanguy',    role: 'Démarches',             pole: 'L3D',                photo: 'images/team/Tanguy.jpg',    desc: 'Tanguy appuie Nicolas sur les démarches et donne un coup de main pour les partenariats.' },
-    iuri:      { name: 'Iuri',      role: 'Démarches',             pole: 'L3D',                photo: 'images/team/Iuri.jpg',      desc: 'Iuri ne recule devant aucun challenge et s\'implique dans toutes les démarches du Dinos\'Art.' },
-    pauline:   { name: 'Pauline',   role: 'Respo Dév. Durable',    pole: 'L3D',                photo: 'images/team/Pauline.jpg',   desc: 'Pauline veille au développement durable : écocups, tri, bilan carbone... La planète, c\'est important !' },
+    anne:      { name: 'Anne',      role: 'Pr\u00e9sidente',            pole: 'Le Bureau',          photo: 'images/team/Anne.jpg',      desc: 'Anne, notre saltimbanque, est notre pr\u00e9sidente \u00e0 tous et toutes passe la majorit\u00e9 de son temps \u00e0 se trouver des nouveaux hobbies les plus loufoques les uns que les autres. Entre son charisme naturel et son imagination surpuissante, elle m\u00e9rite aussi bien son r\u00f4le de Prez qu\'elle m\u00e9riterait qu\'on l\'appelle Annick.' },
+    cyrielle:  { name: 'Cyrielle',  role: 'Tr\u00e9sori\u00e8re',            pole: 'Le Bureau',          photo: 'images/team/Cyrielle.jpg',  desc: 'Cyrielle - ou Cycy-m\u00e9trie - est de loin la plus tryhardeuse de notre fi\u00e8re \u00e9quipe. Pr\u00eate \u00e0 vendre ses pieds pour la liste, elle donnera aussi sa vie pour vous servir des cr\u00eapes avec le meilleur rapport qualit\u00e9 prix.' },
+    candy:     { name: 'Candy',     role: 'Secr\u00e9taire',            pole: 'Le Bureau',          photo: 'images/team/Candy.jpg',     desc: 'Candy, ou Pandy, est un fashion dino hors pair. Elle slay tout autant ses plannings de staff que ses outfits et aura toujours le juste mot pour exprimer au mieux son sarcasme premium.' },
+    kimlee:    { name: 'Kimlee',    role: 'VP Externe',            pole: 'Le Bureau',          photo: 'images/team/Kimlee.jpg',    desc: 'Kimlee, notre dramakim pr\u00e9f\u00e9r\u00e9e est peut-\u00eatre notre dinosaure le plus styl\u00e9. Avec ces matchas performatifs, ce specimen tahitien saura vous \u00e9pater par ses performances sur le dancefloor quand elle est sous teqpaf.' },
+    anais:     { name: 'Ana\u00efs',     role: 'VP Interne',            pole: 'Le Bureau',          photo: 'images/team/Anais.jpg',     desc: 'Qu\'il s\'agisse de nous nourrir ou d\'essayer tant bien que mal d\'utiliser la technologie (elle a d\u00e9couvert l\'IA il y a 2 semaines) Ana\u00efs est vraiment notre grand m\u00e8re \u00e0 nous. Mais ne vous y trompez pas : une fois sur la piste de danse, Ana\u00efs se transforme et devient tout simplement incontr\u00f4lable.' },
+    ingrid:    { name: 'Ingrid',    role: 'Vice-Tr\u00e9sori\u00e8re / Event', pole: 'Le Bureau',        photo: 'images/team/Ingrid.jpg',    desc: 'Ingrid, ou miss Frenglish, a autant d\'aura qu\'elle a de nationalit\u00e9s (beaucoup). Il est rare de croiser ce fashion dino sans ses lunettes en coeur mais si par chance elle les enl\u00e8ve en votre pr\u00e9sence, vous verrez toute la douceur qu\'un dino peut donner.' },
+    marie:     { name: 'Marie',     role: 'Respo Communication',   pole: 'Communication',      photo: 'images/team/Marie.jpg',     desc: 'Marie, notre respo dodo, est sans doute le dino le plus famous de l\'\u00e9quipe. Cette v\u00e9ritable Boss Lady au charisme \u00e0 toute \u00e9preuve parviendra sans peine \u00e0 assumer ses obligations dans les 53 assos dont elle fait partie malgr\u00e9 ses habituelles 2 heures de sommeil.' },
+    anouk:     { name: 'Anouk',     role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Anouk.jpg',     desc: 'Anouk, notre raveuse en chef, est un m\u00e9lange de douceur et de folie armoricaine. Cette bretonne pure souche a du chouchen \u00e0 la place du sang et \u00e7a se voit. Elle rit de tout, et avec tout le monde, laissez vous vous faire entra\u00eener dans sa ronde.' },
+    jade:      { name: 'Jade',      role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Jade.jpg',      desc: 'Jade, notre latina rawr, est une folasse de premier plan. Toujours pr\u00e9sente pour slay sur le dancefloor. Elle a le twerk aussi facile que le rire et saura vous \u00e9pater par ses makeups de star.' },
+    timothee:  { name: 'Timoth\u00e9e', role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Thimote.jpg',   desc: 'Timoth\u00e9e, notre guitariste en non devenir, est un jeune Padawan dans tous les domaines. Pacifique de la Pacifie, vous le trouverez peut \u00eatre errant d\u00e9sesp\u00e9r\u00e9ment dans les rues de Roubaix \u00e0 la recherche de puffs qu\'il ne fume pas.' },
+    annael:    { name: 'Anna\u00ebl',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Annael.jpg',    desc: 'Anna\u00ebl, notre Boss Lady, queen parmi les queens est un ange dans la liste. Ce dinosaure de grand talent a drop la DA de cette liste comme elle met un panier au basket, avec magnificence.' },
+    ismail:    { name: 'Ismail',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Ismail.jpg',    desc: 'Ismail, notre Ismagnifique \u00e0 nous, innonde la liste de son talent. Les m\u00e9disants diront qu\'il fait trop la star mais la v\u00e9rit\u00e9 est que c\'en est r\u00e9ellement une, qui saura vous le montrer sur sc\u00e8ne. M\u00e9fiez vous s\'il a un pistolet \u00e0 eau entre les mains mais aussi s\'il n\'en a pas.' },
+    amicie:    { name: 'Amicie',    role: 'Comm',                  pole: 'Communication',      photo: 'images/team/Amicie.jpg',    desc: 'Amicie, notre schtroumfette \u00e0 nous, a atteint la majorit\u00e9 il y a moins de 2 jours mais est tout de m\u00eame la meilleure maman que le p\u00f4le comm aurait pu avoir. Cette dinosaurette est peut \u00eatre la plus blonde de la troupe mais r\u00e9ussis \u00e0 contrer le sort en slayant chacune de ses id\u00e9es.' },
+    bastien:   { name: 'Bastien',   role: 'Respo \u00c9v\u00e9nementiel',    pole: '\u00c9v\u00e9nementiel',       photo: 'images/team/Bastien.jpg',   desc: 'Bastien, notre dragon performatif, a aussi bien sa place dans notre DA mimi que notre DA collector. Notre respo Event est \u00e0 la fois gomuscu de renom, r\u00e9put\u00e9 pour avoir \u00e9chou\u00e9 au pied du podium du G1 d\'or et un fier adepte du Rock et des Mots-dits. Son antre est bien gard\u00e9e par notre Manu national mais vous l\'entendrez s\u00fbrement rugir fr\u00e9quemment, le niveau de sa voix ne pouvant descendre en dessous du seuil de dangerosit\u00e9 auditive.' },
+    yann:      { name: 'Yann',      role: 'Respo \u00c9v\u00e9nementiel',    pole: '\u00c9v\u00e9nementiel',       photo: 'images/team/Yann.jpg',      desc: 'Yann - notre peintre sans peinture - a une r\u00e9putation de clown \u00e0 tenir. Toujours pr\u00e9sent pour vous tacler, c\'est aussi un petit bonhomme d\'amour qui ne n\u00e9cessite qu\'un peu d\'alcool pour \u00eatre heureux. Vous le comprendrez en le rencontrant, il est vraiment attachant.' },
+    edouard:   { name: 'Edouard',   role: 'Event',                 pole: '\u00c9v\u00e9nementiel',       photo: 'images/team/Edouard.jpg',   desc: '\u00c9douard, l\'Ed ou art ?, est l\'un des Dins qui a le plus \u00e0 cacher. Son grand sourire dissimule un humour digne de ce nom qui m\u00e9riterait d\'\u00e9clater au grand jour. Ne vous laissez pas avoir par son air de dino sage, cet \u00e9nergum\u00e8ne est un professionnel de la subtilisation de palettes, au plus grand plaisir du p\u00f4le d\u00e9cos.' },
+    manu:      { name: 'Manu',      role: 'Event',                 pole: '\u00c9v\u00e9nementiel',       photo: 'images/team/Manu.jpg',      desc: 'Manu, ou le p\u00eacheur performatif, a le don pour faire les trucs les plus wtfs les uns que les autres tout en montrant des \u00e9clairs de g\u00e9nie.' },
+    ambre:     { name: 'Ambre',     role: 'Respo Logistique',      pole: 'L3D',                photo: 'images/team/Ambre.jpg',     desc: 'Ambre, notre rayon de soleil, est notre respo rigolog. Toujours partante pour partager un g\u00e2teau, elle aimera aussi partager le th\u00e9 avec vous pour \u00e9changer tous vos potins, et vos popotins.' },
+    gaetan:    { name: 'Ga\u00ebtan',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Gaetan.jpg',    desc: 'Ga\u00ebtan, notre s\u00e9ducteur en chef (c\'est un avis partag\u00e9 par tous) est le meilleur zoukeur de tout centrale. Il joue aussi bien au football avec ses pieds qu\'avec son coeur et saura vous s\u00e9duire en un regard.' },
+    eliott:    { name: 'Eliott',    role: 'Logistique',            pole: 'L3D',                photo: 'images/team/Eliott.jpg',    desc: 'Eliott, notre casseur de genoux, est un dino chill et toujours souriant qui a le don de mettre tout le monde \u00e0 l\'aise. Ce sp\u00e9cimen rare est tellement ouvert d\'esprit qu\'il participe avec entrain \u00e0 des activit\u00e9s tr\u00e8s Lilloises, impliquant parfois des parapluies.' },
+    nicolas:   { name: 'Nicolas',   role: 'Respo D\u00e9marches',       pole: 'L3D',                photo: 'images/team/Nicolas.jpg',   desc: 'Nicolas, ou Legoman, est un dino discret mais efficace. Raflant toute la dem du p\u00f4le, ce boss de la n\u00e9goce est \u00e9galement le fier respo Relais Cubi de Centrale Br\u00fblure, il saura vous mettre le feu !' },
+    tanguy:    { name: 'Tanguy',    role: 'D\u00e9marches',             pole: 'L3D',                photo: 'images/team/Tanguy.jpg',    desc: 'Tanguy, ou Angry Bird, est une formidable dramaqueen qui cache son grand coeur derri\u00e8re son humour ravageur. Ce diplodocus qui se fait passer pour un pliosaure est \u00e9galement un grand fan de basket, il ne lui reste plus qu\'\u00e0 marquer des paniers.' },
+    iuri:      { name: 'Iuri',      role: 'D\u00e9marches',             pole: 'L3D',                photo: 'images/team/Iuri.jpg',      desc: 'Iuri, notre ambassadeur latino, est l\'un des plus aimables de tous nos dinosaures. Pr\u00e9sident du Club Time, notre cher br\u00e9silien saura vous s\u00e9duire par ses sambas gratt\u00e9es \u00e0 la guitare et son rire communicatif.' },
+    pauline:   { name: 'Pauline',   role: 'Respo D\u00e9v. Durable',    pole: 'L3D',                photo: 'images/team/Pauline.jpg',   desc: 'Pauline, notre tunelleuse de talent, est en effet un dino pipelette capable de vous expliquer avec tr\u00e8s beaucoup de d\u00e9licatesse que votre riz est mauvais. Sa sp\u00e9cialit\u00e9 ? le bowling (???). Cela d\u00e9finit d\'ailleurs un grand pan de sa personne.' },
   };
 
   function initTeamClicks() {
@@ -666,8 +667,15 @@
       loadHotlinesConfig(),
       loadHotlinesMenu(),
       loadHotlinesOrders(),
+      loadLots(),
     ]);
     updateUI();
+  }
+
+  async function loadLots() {
+    if (!supabase) return;
+    const { data } = await supabase.from('bda_lots').select('*').eq('site_id', SITE_ID);
+    state.lots = data || [];
   }
 
   async function loadSutomWords() {
@@ -767,31 +775,6 @@
 
   // ==================== PAGE 0: BOUTIQUE ====================
   // ==================== LOTS (PRIZES) ====================
-  const LOTS = [
-    // Lots principaux
-    { id: 'pass_royale', name: 'Pass Royale', qty: 7, category: 'principal', image: 'images/lots/pass_royale.png' },
-    { id: 'uber_eats', name: 'Carte Uber Eats 20\u20ac', qty: 4, category: 'principal', image: 'images/lots/uber_eats.png' },
-    { id: 'jbl_go2', name: 'JBL Go 2', qty: 1, category: 'principal', image: 'images/lots/jbl_go2.png' },
-    { id: 'cinema', name: 'Cartes cin\u00e9ma 24\u20ac', qty: 2, category: 'principal', image: 'images/lots/cinema.png' },
-    { id: 'fnac', name: 'Carte Fnac 20\u20ac', qty: 2, category: 'principal', image: 'images/lots/fnac.png' },
-    { id: 'ruban_led', name: 'Ruban Led Philips', qty: 2, category: 'principal', image: 'images/lots/ruban_led.png' },
-    // Lots partenaires (dem)
-    { id: 'lush', name: 'Lush \u2014 Bombes de bain, massage bars & savons', qty: 1, category: 'partenaire', image: 'images/lots/lush.png' },
-    { id: 'ngo_shoes', name: 'NGo Shoes \u2014 5 paires + 15% pendant 1 an', qty: 1, category: 'partenaire', image: 'images/lots/ngo_shoes.png' },
-    { id: 'goolfy', name: 'Goolfy Lille \u2014 3 entr\u00e9es mini golf', qty: 1, category: 'partenaire', image: 'images/lots/goolfy.png' },
-    { id: 'weembi', name: 'Weembi \u2014 10 bons de r\u00e9duc simulateur de chute libre', qty: 1, category: 'partenaire', image: 'images/lots/weembi.png' },
-    { id: 'weezpark', name: 'Weezpark \u2014 2 places LaserWeez + 2 places WeezJump', qty: 1, category: 'partenaire', image: 'images/lots/weezpark.png' },
-    { id: 'team_break', name: 'Team Break \u2014 Code r\u00e9duc escape game', qty: 1, category: 'partenaire', image: 'images/lots/team_break.png' },
-    { id: 'metrobowling', name: 'M\u00e9trobowling \u2014 6 places bowling + tarifs pr\u00e9f\u00e9rentiels', qty: 1, category: 'partenaire', image: 'images/lots/metrobowling.png' },
-    { id: 'starship_laser', name: 'Starship Laser Lille \u2014 4 places laser game', qty: 1, category: 'partenaire', image: 'images/lots/starship_laser.png' },
-    { id: 'planet_bowling', name: 'Planet Bowling \u2014 Places', qty: 1, category: 'partenaire', image: 'images/lots/planet_bowling.png' },
-    { id: 'musee_piscine', name: 'Mus\u00e9e La Piscine Roubaix \u2014 4 places', qty: 1, category: 'partenaire', image: 'images/lots/musee_piscine.png' },
-    { id: 'eve_co', name: 'Eve & Co \u2014 -25%', qty: 1, category: 'partenaire', image: 'images/lots/eve_co.png' },
-    { id: 'garten', name: 'Garten on the Beach \u2014 R\u00e9duc festival', qty: 1, category: 'partenaire', image: 'images/lots/garten.png' },
-    // Lot goodies
-    { id: 'ecocup_collector', name: '20 Ecocups Collectors + 20 Stickers Collectors', qty: 1, category: 'goodies', image: 'images/lots/ecocup_collector.png' },
-  ];
-
   // Lot chance per egg tier: index 0=basic, 1=rare, 2=legendary
   const LOT_CHANCES = [0.01, 0.03, 0.07];
   const SHINY_CHANCES = [0.05, 0.10, 0.15];
@@ -851,17 +834,20 @@
       { key: 'partenaire', title: 'Lots Partenaires' },
       { key: 'goodies', title: 'Lots Goodies' },
     ];
+    var lots = state.lots || [];
     var html = '';
     categories.forEach(function(cat) {
-      var items = LOTS.filter(function(l) { return l.category === cat.key; });
+      var items = lots.filter(function(l) { return l.category === cat.key; });
       if (items.length === 0) return;
       html += '<div class="lots-category"><h4 class="lots-category-title">' + escHtml(cat.title) + '</h4>';
       html += '<div class="lots-grid">';
       items.forEach(function(lot) {
-        html += '<div class="lot-card">' +
-          '<div class="lot-img-wrap"><img src="' + escAttr(lot.image) + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' +
+        var remaining = lot.qty_remaining != null ? lot.qty_remaining : lot.qty_total;
+        var soldOut = remaining <= 0;
+        html += '<div class="lot-card' + (soldOut ? ' sold-out' : '') + '">' +
+          '<div class="lot-img-wrap"><img src="' + escAttr(lot.image_url || '') + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' +
           '<div class="lot-name">' + escHtml(lot.name) + '</div>' +
-          '<div class="lot-qty">x' + lot.qty + ' disponible' + (lot.qty > 1 ? 's' : '') + '</div>' +
+          '<div class="lot-qty">' + (soldOut ? 'Epuis\u00e9' : remaining + '/' + lot.qty_total + ' disponible' + (remaining > 1 ? 's' : '')) + '</div>' +
         '</div>';
       });
       html += '</div></div>';
@@ -1747,6 +1733,23 @@
     // Draw cards
     const drawnCards = drawCardsFromPack(pack);
 
+    // Claim lots atomically via RPC (decrement stock, record win)
+    for (let ci = drawnCards.length - 1; ci >= 0; ci--) {
+      if (drawnCards[ci].is_lot && drawnCards[ci].lot_db_id) {
+        const { data: claimResult } = await supabase.rpc('bda_claim_lot', {
+          p_site_id: SITE_ID,
+          p_user_email: state.user.email,
+          p_lot_id: drawnCards[ci].lot_db_id,
+        });
+        if (!claimResult || !claimResult.success) {
+          // Stock depleted by another user — remove lot from draw
+          drawnCards.splice(ci, 1);
+        }
+      }
+    }
+    // Reload lots to update local stock
+    loadLots();
+
     // Save to inventory
     const insertRows = [];
     for (const card of drawnCards) {
@@ -1801,7 +1804,7 @@
 
     closeBtn.onclick = () => {
       modal.style.display = 'none';
-      Promise.all([loadUserCards(), loadProfile()]).then(() => {
+      Promise.all([loadUserCards(), loadProfile(), loadLots()]).then(() => {
         updateCoins();
         renderPokedex();
         renderBoutique();
@@ -1962,13 +1965,14 @@
     for (var i = 0; i < count; i++) {
       // Check for lot drop (once per pack max)
       if (!gotLot && Math.random() < lotChance) {
-        var availableLots = LOTS.filter(function(l) { return l.qty > 0; });
-        if (availableLots.length > 0) {
-          var lot = availableLots[Math.floor(Math.random() * availableLots.length)];
+        var lotsAvailable = (state.lots || []).filter(function(l) { return (l.qty_remaining != null ? l.qty_remaining : l.qty_total) > 0; });
+        if (lotsAvailable.length > 0) {
+          var lot = lotsAvailable[Math.floor(Math.random() * lotsAvailable.length)];
           drawn.push({
             id: 'lot_' + lot.id,
+            lot_db_id: lot.id,
             name: lot.name,
-            image_url: lot.image,
+            image_url: lot.image_url || '',
             is_shiny: false,
             is_lot: true,
           });
