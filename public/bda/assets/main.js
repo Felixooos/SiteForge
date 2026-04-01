@@ -221,13 +221,22 @@
     const track = $('#swipe-track-info');
     if (!container || !track) return;
 
-    let startX = 0, startY = 0, deltaX = 0, isDragging = false, isScrolling = null;
+    let startX = 0, startY = 0, deltaX = 0, isDragging = false, isScrolling = null, inScrollable = false;
     const threshold = 50;
 
     container.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       deltaX = 0; isDragging = true; isScrolling = null;
+      // Check if touch started inside a horizontally scrollable element
+      inScrollable = false;
+      var el = e.target;
+      while (el && el !== container) {
+        if (el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).overflowX !== 'hidden' && getComputedStyle(el).overflowX !== 'visible') {
+          inScrollable = true; break;
+        }
+        el = el.parentElement;
+      }
     }, { passive: true });
 
     container.addEventListener('touchmove', (e) => {
@@ -236,6 +245,7 @@
       const dy = e.touches[0].clientY - startY;
       if (isScrolling === null) isScrolling = Math.abs(dy) > Math.abs(dx);
       if (isScrolling) return;
+      if (inScrollable) return;
       deltaX = dx;
       const offset = -(state.infoPage * 100) + (deltaX / window.innerWidth * 100);
       track.classList.add('dragging');
@@ -246,7 +256,7 @@
       if (!isDragging) return;
       isDragging = false;
       track.classList.remove('dragging');
-      if (isScrolling === null || isScrolling === true) return;
+      if (isScrolling === null || isScrolling === true || inScrollable) return;
       if (deltaX > threshold && state.infoPage > 0) {
         goToInfoPage(state.infoPage - 1);
       } else if (deltaX < -threshold && state.infoPage < 4) {
@@ -765,8 +775,18 @@
     // Try RPC first (ranks by total_earned), fallback to direct query
     var res = await supabase.rpc('bda_leaderboard', { p_site_id: SITE_ID });
     if (res.error || !res.data) {
-      res = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde').eq('site_id', SITE_ID).order('solde', { ascending: false });
-      state.leaderboard = (res.data || []).map(function(p) { p.total_earned = p.solde; return p; });
+      // Fallback: compute gains (positive transactions only) per user
+      var etuRes = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde').eq('site_id', SITE_ID);
+      var etudiants = etuRes.data || [];
+      var txRes = await supabase.from('transactions').select('destinataire_email, montant').eq('site_id', SITE_ID).gt('montant', 0);
+      var txData = txRes.data || [];
+      var gainsMap = {};
+      for (var ti = 0; ti < txData.length; ti++) {
+        var tx = txData[ti];
+        gainsMap[tx.destinataire_email] = (gainsMap[tx.destinataire_email] || 0) + tx.montant;
+      }
+      state.leaderboard = etudiants.map(function(p) { p.total_earned = gainsMap[p.email] || 0; return p; });
+      state.leaderboard.sort(function(a, b) { return b.total_earned - a.total_earned; });
     } else {
       state.leaderboard = res.data;
     }
@@ -1867,6 +1887,9 @@
     const closeBtn = $('#pack-close');
 
     modal.style.display = 'flex';
+    // Block overlay dismiss during opening
+    var packOverlay = modal.querySelector('.modal-overlay');
+    if (packOverlay) packOverlay.style.pointerEvents = 'none';
     egg.style.display = 'block';
     var packIdx = state.packs.indexOf(pack);
     var eggTier = packIdx <= 0 ? 'green' : packIdx === 1 ? 'purple' : 'gold';
@@ -1960,6 +1983,9 @@
 
     closeBtn.onclick = () => {
       modal.style.display = 'none';
+      // Re-enable overlay clicks for other modals
+      var packOverlay = modal.querySelector('.modal-overlay');
+      if (packOverlay) packOverlay.style.pointerEvents = '';
       Promise.all([loadUserCards(), loadProfile(), loadLots()]).then(() => {
         updateCoins();
         renderPokedex();
@@ -2669,7 +2695,7 @@
       adminDiv.style.display = 'block';
       $('#btn-admin-points').onclick = async () => {
         const points = parseInt($('#admin-points-input').value);
-        if (!points || points <= 0) { toast('Entre un nombre de points valide', 'error'); return; }
+        if (!points || points === 0) { toast('Entre un nombre de points valide', 'error'); return; }
 
         const { data, error } = await supabase.rpc('bda_add_points', {
           p_site_id: SITE_ID,
@@ -2680,7 +2706,8 @@
         if (error) { toast('Erreur: ' + error.message, 'error'); return; }
         if (data?.error) { toast('Erreur: ' + data.error, 'error'); return; }
 
-        toast(`+${points} pi\u00e8ces pour ${player.pseudo || email} !`, 'success');
+        var sign = points > 0 ? '+' : '';
+        toast(`${sign}${points} pi\u00e8ces pour ${player.pseudo || email} !`, 'success');
         $('#admin-points-input').value = '';
         closeAllModals();
         await loadLeaderboard();
