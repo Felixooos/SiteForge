@@ -79,6 +79,7 @@
     hotlinesMyOrder: null,
     hotlinesCart: {},
     lots: [],
+    defiTransactions: [], // transactions related to defi validations
   };
 
   // ==================== DOM REFS ====================
@@ -661,6 +662,7 @@
       loadAllUserBadges(),
       loadChallenges(),
       loadValidations(),
+      loadDefiTransactions(),
       loadLeaderboard(),
       loadCustomCards(),
       loadSutomWords(),
@@ -724,6 +726,12 @@
     if (!supabase || state.isGuest) { state.validations = []; return; }
     const { data } = await supabase.from('challenge_validations').select('*').eq('site_id', SITE_ID).eq('user_email', state.user.email);
     state.validations = data || [];
+  }
+
+  async function loadDefiTransactions() {
+    if (!supabase) { state.defiTransactions = []; return; }
+    const { data } = await supabase.from('transactions').select('destinataire_email, montant, raison, created_at').eq('site_id', SITE_ID).like('raison', 'D\u00e9fi:%');
+    state.defiTransactions = data || [];
   }
 
   async function loadLeaderboard() {
@@ -2207,22 +2215,19 @@
     const authorName = author ? (author.pseudo || card.creator_email) : card.creator_email;
 
     const render = $('#custom-card-render');
-    render.innerHTML = `
-      ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="" style="width:100%;max-height:50vh;object-fit:contain;border-radius:16px;margin-bottom:16px">` : '<div style="font-size:80px;margin:20px 0;opacity:0.3">?</div>'}
-      <div class="ccr-name" style="font-size:1.4rem;margin-bottom:6px">${escHtml(card.name)}</div>
-      <div class="ccr-desc">${escHtml(card.description)}</div>
-      <div class="ccr-author" style="margin:8px 0">Créé par ${escHtml(authorName)}</div>
-      ${card.attack_name ? `
-        <div class="ccr-attack" style="margin-top:12px">
-          <span class="ccr-atk-name">${escHtml(card.attack_name)}</span>
-          <span class="ccr-atk-dmg">${card.attack_damage} DMG</span>
-        </div>
-      ` : ''}
-      ${state.isAdmin && !card.approved ? `
-        <button class="btn-primary" style="margin-top:16px;background:var(--success)" id="btn-modal-approve">Approuver cette carte</button>
-      ` : ''}
-      ${card.approved ? '<div style="margin-top:12px;color:var(--success);font-weight:700">Carte approuv\u00e9e</div>' : ''}
-    `;
+    render.innerHTML =
+      '<div class="ccr-rarity">CARTE PERSONNALIS\u00c9E</div>' +
+      '<div class="ccr-img">' +
+        (card.image_url ? '<img src="' + escAttr(card.image_url) + '" alt="">' : '<div style="font-size:60px;opacity:0.3">?</div>') +
+      '</div>' +
+      '<div class="ccr-body">' +
+        '<div class="ccr-name">' + escHtml(card.name) + '</div>' +
+        '<div class="ccr-desc">' + escHtml(card.description) + '</div>' +
+        '<div class="ccr-author">Cr\u00e9\u00e9 par ' + escHtml(authorName) + '</div>' +
+        (card.attack_name ? '<div class="ccr-attack"><span class="ccr-atk-name">' + escHtml(card.attack_name) + '</span><span class="ccr-atk-dmg">' + card.attack_damage + ' DMG</span></div>' : '') +
+      '</div>' +
+      (state.isAdmin && !card.approved ? '<button class="btn-primary" style="margin:8px 14px 14px;background:var(--success)" id="btn-modal-approve">Approuver cette carte</button>' : '') +
+      (card.approved ? '<div style="text-align:center;padding:8px;color:var(--success);font-weight:700">Carte approuv\u00e9e</div>' : '');
 
     // Approve handler in modal
     const approveBtn = render.querySelector('#btn-modal-approve');
@@ -2331,7 +2336,7 @@
       ctx.fillStyle = '#64748b';
       ctx.font = '60px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('ðŸƒ', W / 2, 210);
+      ctx.fillText('?', W / 2, 210);
       downloadCanvas(canvas, card.name);
     }
   }
@@ -2699,6 +2704,20 @@
     const container = $('#defis-list');
     if (!container) return;
 
+    // Build lookup: defi title → list of validated players
+    var defiPlayers = {};
+    for (var ti = 0; ti < state.defiTransactions.length; ti++) {
+      var tx = state.defiTransactions[ti];
+      var defiTitle = (tx.raison || '').replace(/^D\u00e9fi:\s*/, '');
+      if (!defiTitle) continue;
+      if (!defiPlayers[defiTitle]) defiPlayers[defiTitle] = [];
+      var u = state.allUsers.find(function(u2) { return u2.email === tx.destinataire_email; });
+      defiPlayers[defiTitle].push({
+        name: u ? (u.pseudo || tx.destinataire_email) : tx.destinataire_email,
+        pts: tx.montant,
+      });
+    }
+
     let levels = DEFI_LEVELS;
     if (state.defiFilter !== 'all') {
       levels = levels.filter(l => l.id === state.defiFilter);
@@ -2717,8 +2736,14 @@
         for (const item of group.items) {
           if (searchQuery && normalize(item.t).indexOf(normalize(searchQuery)) === -1) continue;
           const tagClass = item.tag === 'DD' ? 'tag-dd' : 'tag-standard';
-          groupHtml += '<div class="defi-card' + (state.isAdmin ? ' defi-admin-clickable' : '') + '" data-static-defi="' + defiIdx + '" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">' +
+          var players = defiPlayers[item.t] || [];
+          var playerCount = players.length;
+          groupHtml += '<div class="defi-card defi-expandable" data-static-defi="' + defiIdx + '" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">' +
             '<div class="defi-top"><div class="defi-title">' + escHtml(item.t) + '<span class="defi-tag ' + tagClass + '">' + escHtml(item.tag) + '</span></div><div class="defi-points ' + level.id + '">' + group.points + ' pts</div></div>' +
+            (playerCount > 0 ? '<div class="defi-validated-count">' + playerCount + ' valid\u00e9' + (playerCount > 1 ? 's' : '') + '</div>' : '') +
+            '<div class="defi-players-detail" style="display:none">' +
+              (playerCount > 0 ? players.map(function(p) { return '<span class="defi-player-chip">' + escHtml(p.name) + ' <small>(+' + p.pts + ')</small></span>'; }).join('') : '<span class="defi-no-players">Aucune validation pour le moment</span>') +
+            '</div>' +
             (state.isAdmin ? '<div class="defi-admin-actions"><button class="defi-btn-validate-static" data-static-pts="' + group.points + '" data-static-title="' + escAttr(item.t) + '">Valider pour un joueur</button></div>' : '') +
             '</div>';
           defiIdx++;
@@ -2741,6 +2766,19 @@
     }
 
     container.innerHTML = html;
+
+    // Click to expand/collapse validated players
+    container.querySelectorAll('.defi-expandable').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.defi-admin-actions')) return;
+        var detail = card.querySelector('.defi-players-detail');
+        if (detail) {
+          var isOpen = detail.style.display !== 'none';
+          detail.style.display = isOpen ? 'none' : 'flex';
+          card.classList.toggle('defi-expanded', !isOpen);
+        }
+      });
+    });
 
     // Admin handlers for static defis
     container.querySelectorAll('.defi-btn-validate-static').forEach(btn => {
@@ -2774,6 +2812,16 @@
     if (!state.isAdmin) return;
     $('#validate-challenge-name').textContent = title + ' (' + points + ' pts)';
 
+    var bonusInput = $('#validate-bonus');
+    var totalPtsEl = $('#validate-total-pts');
+    if (bonusInput) bonusInput.value = '0';
+    function updateTotalDisplay() {
+      var bonus = parseInt(bonusInput ? bonusInput.value : 0) || 0;
+      if (totalPtsEl) totalPtsEl.textContent = 'Total : ' + (points + bonus) + ' pts' + (bonus > 0 ? ' (' + points + ' + ' + bonus + ' bonus)' : '');
+    }
+    updateTotalDisplay();
+    if (bonusInput) bonusInput.oninput = updateTotalDisplay;
+
     const select = $('#validate-user-select');
     select.innerHTML = '<option value="">Choisir un joueur\u2026</option>';
     state.allUsers.forEach(u => {
@@ -2787,21 +2835,25 @@
       const email = select.value;
       if (!email) { toast('S\u00e9lectionne un joueur', 'error'); return; }
 
+      var bonus = parseInt(bonusInput ? bonusInput.value : 0) || 0;
+      var totalPoints = points + bonus;
+
       const { data, error } = await supabase.rpc('bda_validate_static_defi', {
         p_site_id: SITE_ID,
         p_target_email: email,
-        p_points: points,
+        p_points: totalPoints,
         p_defi_title: title,
       });
 
       if (error) { toast('Erreur: ' + error.message, 'error'); return; }
       if (data?.error) { toast('Erreur: ' + data.error, 'error'); return; }
 
-      toast('D\u00e9fi valid\u00e9 ! +' + points + ' pts pour ' + (state.allUsers.find(u => u.email === email)?.pseudo || email), 'success');
+      toast('D\u00e9fi valid\u00e9 ! +' + totalPoints + ' pts pour ' + (state.allUsers.find(u => u.email === email)?.pseudo || email), 'success');
       closeAllModals();
-      await loadLeaderboard();
+      await Promise.all([loadLeaderboard(), loadDefiTransactions()]);
       if (email === state.user?.email) { await loadProfile(); updateCoins(); }
       renderClassement();
+      renderDefis();
     };
 
     openModal('modal-validate');
@@ -2919,6 +2971,7 @@
   function initCardCreator() {
     const imgInput = $('#cc-image');
     let selectedFile = null;
+    let cropData = null; // { imgEl, naturalW, naturalH, posX (0-100), posY (0-100) }
 
     // Live preview updates
     const liveName = $('#cc-live-name');
@@ -2927,6 +2980,7 @@
     const liveAtkDmg = $('#cc-live-atk-dmg');
     const liveImgArea = $('#cc-live-img-area');
     const submitBtn = $('#btn-create-card');
+    const cropHint = $('#cc-crop-hint');
 
     function updateButtonLabel() {
       if (state.isGuest || !state.user) return;
@@ -2953,16 +3007,103 @@
       liveAtkDmg.textContent = (e.target.value || '0') + ' DMG';
     });
 
+    // Drag-to-crop handlers
+    function initCropDrag(imgEl) {
+      let dragging = false, startY = 0, startPos = 50;
+      const onStart = function(e) {
+        dragging = true;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startPos = cropData ? cropData.posY : 50;
+        e.preventDefault();
+      };
+      const onMove = function(e) {
+        if (!dragging || !cropData) return;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        const delta = y - startY;
+        const areaH = liveImgArea.offsetHeight;
+        const pctDelta = (delta / areaH) * 100;
+        cropData.posY = Math.max(0, Math.min(100, startPos + pctDelta));
+        imgEl.style.objectPosition = '50% ' + cropData.posY + '%';
+      };
+      const onEnd = function() { dragging = false; };
+      liveImgArea.addEventListener('mousedown', onStart);
+      liveImgArea.addEventListener('touchstart', onStart, { passive: false });
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchend', onEnd);
+    }
+
     imgInput.addEventListener('change', (e) => {
       selectedFile = e.target.files[0];
       if (selectedFile) {
         const reader = new FileReader();
         reader.onload = (ev) => {
-          liveImgArea.innerHTML = '<img src="' + ev.target.result + '" alt="Preview">';
+          const img = new Image();
+          img.onload = function() {
+            cropData = { imgEl: img, naturalW: img.naturalWidth, naturalH: img.naturalHeight, posY: 50 };
+            liveImgArea.innerHTML = '';
+            const previewImg = document.createElement('img');
+            previewImg.src = ev.target.result;
+            previewImg.alt = 'Preview';
+            previewImg.style.objectPosition = '50% 50%';
+            previewImg.draggable = false;
+            liveImgArea.appendChild(previewImg);
+            cropData.imgEl = previewImg;
+            if (cropHint) cropHint.style.display = 'block';
+            initCropDrag(previewImg);
+          };
+          img.src = ev.target.result;
         };
         reader.readAsDataURL(selectedFile);
       }
     });
+
+    // Crop image to visible area using canvas
+    function cropImageToFile() {
+      return new Promise(function(resolve) {
+        if (!selectedFile || !cropData) { resolve(selectedFile); return; }
+        const img = new Image();
+        img.onload = function() {
+          const targetRatio = 4 / 3; // width / height of the image area
+          const imgRatio = img.width / img.height;
+          var cropW, cropH, cropX, cropY;
+          if (imgRatio > targetRatio) {
+            // Image wider than target: crop sides, full height used, user controls Y
+            cropH = img.height;
+            cropW = img.height * targetRatio;
+            cropX = (img.width - cropW) / 2;
+            cropY = 0;
+            // User adjusts vertical position
+            var maxOffsetY = img.height - cropH;
+            cropY = maxOffsetY * (cropData.posY / 100);
+          } else {
+            // Image taller than target: full width, crop top/bottom based on posY
+            cropW = img.width;
+            cropH = img.width / targetRatio;
+            cropX = 0;
+            var maxOffsetY2 = img.height - cropH;
+            cropY = maxOffsetY2 * (cropData.posY / 100);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = Math.min(cropW, 800);
+          canvas.height = Math.min(cropH, 600);
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(function(blob) {
+            if (blob) {
+              resolve(new File([blob], selectedFile.name, { type: 'image/jpeg' }));
+            } else {
+              resolve(selectedFile);
+            }
+          }, 'image/jpeg', 0.85);
+        };
+        img.onerror = function() { resolve(selectedFile); };
+        var fr = new FileReader();
+        fr.onload = function(ev2) { img.src = ev2.target.result; };
+        fr.readAsDataURL(selectedFile);
+      });
+    }
 
     $('#btn-create-card').addEventListener('click', async () => {
       if (state.isGuest) { toast('Connecte-toi pour creer une carte', 'error'); return; }
@@ -2987,7 +3128,8 @@
       let imageUrl = '';
       if (selectedFile) {
         try {
-          imageUrl = await uploadImageToStorage(selectedFile, 'custom-cards');
+          var croppedFile = await cropImageToFile();
+          imageUrl = await uploadImageToStorage(croppedFile, 'custom-cards');
         } catch (e) {
           console.warn('Image upload failed:', e);
           toast('Erreur upload image', 'error');
@@ -3018,6 +3160,7 @@
       if (!error) {
         toast(cost > 0 ? 'Carte soumise ! -200 pts' : 'Carte soumise ! En attente d\'approbation.', 'success');
         selectedFile = null;
+        cropData = null;
         await loadCustomCards();
         // Reset form
         $('#cc-name').value = '';
@@ -3029,6 +3172,7 @@
         liveAtkName.textContent = 'Attaque';
         liveAtkDmg.textContent = '0 DMG';
         liveImgArea.innerHTML = '<span class="cc-live-placeholder">Photo</span>';
+        if (cropHint) cropHint.style.display = 'none';
         updateButtonLabel();
       } else {
         // Refund if insert failed and we already deducted

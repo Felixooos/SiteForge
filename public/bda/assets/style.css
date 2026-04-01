@@ -1094,6 +1094,26 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   margin-top: 10px; font-size: 0.8rem; font-weight: 600;
   color: var(--success);
 }
+.defi-expandable { cursor: pointer; }
+.defi-expandable:hover { border-color: var(--primary); }
+.defi-validated-count {
+  font-size: 0.75rem; font-weight: 600; color: var(--success);
+  margin-top: 8px;
+}
+.defi-players-detail {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.defi-player-chip {
+  font-size: 0.72rem; font-weight: 500;
+  padding: 3px 10px; border-radius: 20px;
+  background: rgba(34,197,94,0.12); color: #22c55e;
+}
+.defi-player-chip small { opacity: 0.7; }
+.defi-no-players {
+  font-size: 0.75rem; color: var(--text-dim); font-style: italic;
+}
 .defi-admin-actions {
   display: flex; gap: 8px; margin-top: 12px;
 }
@@ -1242,10 +1262,16 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 .cc-live-img-area {
   flex: 1; display: flex; align-items: center; justify-content: center;
   background: var(--bg-card-end); overflow: hidden;
-  min-height: 80px;
+  min-height: 80px; cursor: grab; touch-action: none;
+  user-select: none; -webkit-user-select: none;
 }
-.cc-live-img-area img { width: 100%; height: 100%; object-fit: cover; image-orientation: from-image; }
+.cc-live-img-area:active { cursor: grabbing; }
+.cc-live-img-area img { width: 100%; height: 100%; object-fit: cover; image-orientation: from-image; pointer-events: none; }
 .cc-live-placeholder { font-size: 36px; opacity: 0.3; }
+.cc-crop-hint {
+  font-size: 0.75rem; color: var(--text-dim); text-align: center;
+  margin: 6px 0 0; font-style: italic;
+}
 .cc-live-body { padding: 10px; }
 .cc-live-name {
   font-family: var(--font-heading); font-weight: 700;
@@ -1380,6 +1406,15 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   border-color: var(--primary);
 }
 .modal-close-btn { margin-top: 12px; }
+.validate-bonus-row {
+  display: flex; align-items: center; gap: 10px; margin: 8px 0;
+}
+.validate-bonus-row label {
+  font-size: 0.85rem; color: var(--text-dim); white-space: nowrap;
+}
+.validate-bonus-row input {
+  width: 80px; text-align: center;
+}
 
 /* Pack opening animation */
 .pack-opening {

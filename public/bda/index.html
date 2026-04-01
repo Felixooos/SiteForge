@@ -13,7 +13,7 @@
   <link rel="icon" type="image/png" href="images/team/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=27">
+  <link rel="stylesheet" href="assets/style.css?v=28">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -94,7 +94,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Boutique</h2>
-              <p>Ach�te des packs, joue au Sutom et gagne des pi�ces</p>
+              <p>Achète des packs, joue au Sutom et gagne des pièces</p>
             </div>
             <div id="sutom-widget" class="sutom-widget">
               <!-- Sutom rendered by JS -->
@@ -132,7 +132,7 @@
             </div>
             <!-- My position banner -->
             <div id="my-position" class="my-position" style="display:none">
-              <div class="my-pos-rank" id="my-pos-rank">#�</div>
+              <div class="my-pos-rank" id="my-pos-rank">#-</div>
               <div class="my-pos-info">
                 <div class="my-pos-label">Ta position</div>
                 <div class="my-pos-coins" id="my-pos-coins">0</div>
@@ -177,7 +177,7 @@
             <div id="profil-guest" style="display:none">
               <div class="guest-prompt">
                 <div class="guest-icon"></div>
-                <h3>Connecte-toi pour acc�der � ton profil</h3>
+                <h3>Connecte-toi pour accéder à ton profil</h3>
                 <button class="btn-primary" id="btn-guest-login">Se connecter</button>
               </div>
             </div>
@@ -190,9 +190,9 @@
                 <h2 id="profil-pseudo">Pseudo</h2>
                 <p id="profil-email" class="profil-email">email@example.com</p>
                 <div class="profil-stats">
-                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pi�ces</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pièces</span></div>
                   <div class="stat"><span class="stat-value" id="profil-cards">0</span><span class="stat-label">Cartes</span></div>
-                  <div class="stat"><span class="stat-value" id="profil-rank">#�</span><span class="stat-label">Rang</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-rank">#-</span><span class="stat-label">Rang</span></div>
                 </div>
               </div>
 
@@ -219,11 +219,12 @@
                     <input type="text" id="cc-name" placeholder="Nom de la carte" maxlength="30">
                     <textarea id="cc-desc" placeholder="Description" maxlength="100"></textarea>
                     <input type="text" id="cc-attack" placeholder="Nom d'attaque" maxlength="25">
-                    <input type="number" id="cc-damage" placeholder="D�g�ts" min="0" max="999">
+                    <input type="number" id="cc-damage" placeholder="D&eacute;g&acirc;ts" min="0" max="999">
                     <label class="file-upload">
                       Choisir une image
                       <input type="file" id="cc-image" accept="image/*" style="display:none">
                     </label>
+                    <p id="cc-crop-hint" class="cc-crop-hint" style="display:none">Fais glisser l'image pour recadrer</p>
                     <button class="btn-primary" id="btn-create-card">Soumettre la carte</button>
                   </div>
                 </div>
@@ -253,7 +254,7 @@
                 </div>
               </div>
 
-              <button class="btn-logout" id="btn-logout">Se d�connecter</button>
+              <button class="btn-logout" id="btn-logout">Se déconnecter</button>
             </div>
           </div>
         </section>
@@ -273,7 +274,7 @@
               <p>Nos partenaires</p>
             </div>
             <div id="sponsors-content">
-              <p class="sponsors-intro">Merci � nos partenaires qui rendent tout �a possible</p>
+              <p class="sponsors-intro">Merci à nos partenaires qui rendent tout ça possible</p>
               <div class="sponsors-grid">
                 <div class="sponsor-card"><div class="sponsor-text">Ali Baba</div></div>
                 <div class="sponsor-card"><div class="sponsor-text">Alpro</div></div>
@@ -341,7 +342,7 @@
                 <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.png">
                   <img src="images/goodies/Table_5.png" alt="Table Beer Pong Dinoz'Art" class="goodie-table-img">
                 </div>
-                <p class="goodie-table-desc">La table officielle du Dinoz'Art � faite main avec amour</p>
+                <p class="goodie-table-desc">La table officielle du Dinoz'Art — faite main avec amour</p>
               </div>
             </div>
           </div>
@@ -430,12 +431,12 @@
         <section class="page" id="page-nous">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>L'�quipe</h2>
-              <p>Qui se cache derri�re le Dinoz'Art ?</p>
+              <h2>L'équipe</h2>
+              <p>Qui se cache derrière le Dinoz'Art ?</p>
             </div>
             <div id="team-content">
               <div class="team-group-photo">
-                <img src="images/team/Groupe.jpg" alt="L'�quipe Dinoz'Art">
+                <img src="images/team/Groupe.jpg" alt="L'équipe Dinoz'Art">
                 <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
               </div>
 
@@ -443,24 +444,24 @@
                 <div class="pole-header">
                   <div class="pole-info">
                     <h3 class="pole-name">Le Bureau</h3>
-                    <p class="pole-desc">L'�quipe de direction qui coordonne tout : r�unions, administratif, budget et organisation g�n�rale du Dinoz'Art.</p>
+                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réunions, administratif, budget et organisation générale du Dinoz'Art.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
                   <div class="member-card" data-member-modal="anne">
                     <img src="images/team/Anne.jpg" alt="Anne" class="member-photo">
                     <div class="member-name">Anne</div>
-                    <div class="member-role">Pr�sidente</div>
+                    <div class="member-role">Présidente</div>
                   </div>
                   <div class="member-card" data-member-modal="cyrielle">
                     <img src="images/team/Cyrielle.jpg" alt="Cyrielle" class="member-photo">
                     <div class="member-name">Cyrielle</div>
-                    <div class="member-role">Tr�sori�re</div>
+                    <div class="member-role">Trésorière</div>
                   </div>
                   <div class="member-card" data-member-modal="candy">
                     <img src="images/team/Candy.jpg" alt="Candy" class="member-photo">
                     <div class="member-name">Candy</div>
-                    <div class="member-role">Secr�taire</div>
+                    <div class="member-role">Secrétaire</div>
                   </div>
                   <div class="member-card" data-member-modal="kimlee">
                     <img src="images/team/Kimlee.jpg" alt="Kimlee" class="member-photo">
@@ -468,14 +469,14 @@
                     <div class="member-role">VP Externe</div>
                   </div>
                   <div class="member-card" data-member-modal="anais">
-                    <img src="images/team/Anais.jpg" alt="Ana�s" class="member-photo">
-                    <div class="member-name">Ana�s</div>
+                    <img src="images/team/Anais.jpg" alt="Anaïs" class="member-photo">
+                    <div class="member-name">Anaïs</div>
                     <div class="member-role">VP Interne</div>
                   </div>
                   <div class="member-card" data-member-modal="ingrid">
                     <img src="images/team/Ingrid.jpg" alt="Ingrid" class="member-photo">
                     <div class="member-name">Ingrid</div>
-                    <div class="member-role">Vice-Tr�sori�re</div>
+                    <div class="member-role">Vice-Trésorière</div>
                   </div>
                 </div>
               </div>
@@ -483,8 +484,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">P�le Communication</h3>
-                    <p class="pole-desc">R�seaux sociaux, visuels, goodies, site web... C'est gr�ce � eux que le Dinoz'Art brille partout !</p>
+                    <h3 class="pole-name">Pôle Communication</h3>
+                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le Dinoz'Art brille partout !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -504,13 +505,13 @@
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="timothee">
-                    <img src="images/team/Thimote.jpg" alt="Timoth�e" class="member-photo">
-                    <div class="member-name">Timoth�e</div>
+                    <img src="images/team/Thimote.jpg" alt="Timothée" class="member-photo">
+                    <div class="member-name">Timothée</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="annael">
-                    <img src="images/team/Annael.jpg" alt="Anna�l" class="member-photo">
-                    <div class="member-name">Anna�l</div>
+                    <img src="images/team/Annael.jpg" alt="Annaël" class="member-photo">
+                    <div class="member-name">Annaël</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="ismail">
@@ -529,8 +530,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">P�le �v�nementiel</h3>
-                    <p class="pole-desc">Les architectes de vos moments m�morables ! Soir�es, activit�s, voyages... ils g�rent tout de A � Z.</p>
+                    <h3 class="pole-name">Pôle Événementiel</h3>
+                    <p class="pole-desc">Les architectes de vos moments mémorables ! Soirées, activités, voyages... ils gèrent tout de A à Z.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -560,8 +561,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">P�le L3D</h3>
-                    <p class="pole-desc">Logistique, D�marches et D�veloppement Durable. Ils n�gocient les partos, g�rent le matos et font gaffe � la plan�te !</p>
+                    <h3 class="pole-name">Pôle L3D</h3>
+                    <p class="pole-desc">Logistique, D&eacute;marches et D&eacute;veloppement Durable. Ils n&eacute;gocient les partos, g&egrave;rent le matos et font gaffe &agrave; la plan&egrave;te !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -870,7 +871,7 @@
       <div id="pack-card-stage" class="pack-card-stage" style="display:none">
         <div class="pack-counter"><span id="pack-reveal-count">0</span> / <span id="pack-reveal-total">0</span></div>
         <div class="pack-card-container" id="pack-card-container">
-          <div class="pack-tap-prompt">Touche pour r�v�ler</div>
+          <div class="pack-tap-prompt">Touche pour révéler</div>
         </div>
       </div>
       <button id="pack-close" class="btn-secondary" style="display:none">Fermer</button>
@@ -904,7 +905,7 @@
       <div class="player-modal-header">
         <img id="player-avatar" src="" alt="" class="player-modal-avatar">
         <h3 id="player-pseudo">Joueur</h3>
-        <p id="player-score" class="player-score">0 pi�ces</p>
+        <p id="player-score" class="player-score">0 pièces</p>
       </div>
       <div id="player-badges" class="badges-grid"></div>
       <div id="player-admin-actions" style="display:none">
@@ -930,11 +931,16 @@
   <div id="modal-validate" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3>Valider le d�fi</h3>
+      <h3>Valider le d&eacute;fi</h3>
       <p id="validate-challenge-name"></p>
       <select id="validate-user-select">
-        <option value="">Choisir un joueur�</option>
+        <option value="">Choisir un joueur&hellip;</option>
       </select>
+      <div class="validate-bonus-row">
+        <label for="validate-bonus">Bonus suppl&eacute;mentaire</label>
+        <input type="number" id="validate-bonus" placeholder="0" min="0" max="2000" value="0">
+      </div>
+      <p id="validate-total-pts" style="font-size:0.85rem;color:var(--text-dim);margin:4px 0 12px"></p>
       <button class="btn-primary" id="btn-confirm-validate">Valider</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
     </div>
@@ -1007,6 +1013,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=27"></script>
+  <script src="assets/main.js?v=28"></script>
 </body>
 </html>
