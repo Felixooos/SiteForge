@@ -762,9 +762,15 @@
 
   async function loadLeaderboard() {
     if (!supabase) return;
-    const { data } = await supabase.rpc('bda_leaderboard', { p_site_id: SITE_ID });
-    state.leaderboard = data || [];
-    state.allUsers = (data || []).map(function(p) { return { email: p.email, pseudo: p.pseudo, photo_profil: p.photo_profil, solde: p.solde }; });
+    // Try RPC first (ranks by total_earned), fallback to direct query
+    var res = await supabase.rpc('bda_leaderboard', { p_site_id: SITE_ID });
+    if (res.error || !res.data) {
+      res = await supabase.from('etudiants').select('email, pseudo, photo_profil, solde').eq('site_id', SITE_ID).order('solde', { ascending: false });
+      state.leaderboard = (res.data || []).map(function(p) { p.total_earned = p.solde; return p; });
+    } else {
+      state.leaderboard = res.data;
+    }
+    state.allUsers = state.leaderboard.map(function(p) { return { email: p.email, pseudo: p.pseudo, photo_profil: p.photo_profil, solde: p.solde }; });
   }
 
   async function loadAllUserBadges() {
