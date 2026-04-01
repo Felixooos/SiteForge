@@ -585,7 +585,14 @@
           is_super_admin: false,
           is_creator: false,
         });
-        if (insertErr) console.warn('Profile insert:', insertErr);
+        if (insertErr) {
+          if (insertErr.message && insertErr.message.indexOf('uq_etudiants_site_pseudo') !== -1) {
+            errEl.textContent = 'Ce pseudo est d\u00e9j\u00e0 pris, choisis-en un autre.';
+            await supabase.auth.signOut();
+            return;
+          }
+          console.warn('Profile insert:', insertErr);
+        }
         toast('Bienvenue ' + pseudo + ' !', 'success');
       }
 
@@ -3279,9 +3286,13 @@
     $('#btn-save-pseudo').addEventListener('click', async () => {
       const pseudo = $('#edit-pseudo').value.trim();
       if (!pseudo) return;
-      await supabase.from('etudiants').update({ pseudo }).eq('id', state.profile.id);
+      var { error: pseudoErr } = await supabase.from('etudiants').update({ pseudo }).eq('id', state.profile.id);
+      if (pseudoErr && pseudoErr.message && pseudoErr.message.indexOf('uq_etudiants_site_pseudo') !== -1) {
+        toast('Ce pseudo est d\u00e9j\u00e0 pris !', 'error'); return;
+      }
+      if (pseudoErr) { toast('Erreur: ' + pseudoErr.message, 'error'); return; }
       state.profile.pseudo = pseudo;
-      toast('Pseudo mis à jour !', 'success');
+      toast('Pseudo mis \u00e0 jour !', 'success');
       renderProfil();
       await loadLeaderboard();
       renderClassement();
