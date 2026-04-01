@@ -395,8 +395,8 @@
     ecocupsInitialized = true;
 
     const cups = [
-      { canvasId: 'ecocup-canvas-normal', texture: 'images/goodies/Ecocup.jpg' },
-      { canvasId: 'ecocup-canvas-collector', texture: 'images/goodies/Ecocup_Collector.jpg' },
+      { canvasId: 'ecocup-canvas-normal', texture: 'images/goodies/Ecocup.png' },
+      { canvasId: 'ecocup-canvas-collector', texture: 'images/goodies/Ecocup_Collector.png' },
     ];
 
     cups.forEach(({ canvasId, texture }) => {
@@ -766,6 +766,36 @@
   }
 
   // ==================== PAGE 0: BOUTIQUE ====================
+  // ==================== LOTS (PRIZES) ====================
+  const LOTS = [
+    // Lots principaux
+    { id: 'pass_royale', name: 'Pass Royale', qty: 7, category: 'principal', image: 'images/lots/pass_royale.png' },
+    { id: 'uber_eats', name: 'Carte Uber Eats 20\u20ac', qty: 4, category: 'principal', image: 'images/lots/uber_eats.png' },
+    { id: 'jbl_go2', name: 'JBL Go 2', qty: 1, category: 'principal', image: 'images/lots/jbl_go2.png' },
+    { id: 'cinema', name: 'Cartes cin\u00e9ma 24\u20ac', qty: 2, category: 'principal', image: 'images/lots/cinema.png' },
+    { id: 'fnac', name: 'Carte Fnac 20\u20ac', qty: 2, category: 'principal', image: 'images/lots/fnac.png' },
+    { id: 'ruban_led', name: 'Ruban Led Philips', qty: 2, category: 'principal', image: 'images/lots/ruban_led.png' },
+    // Lots partenaires (dem)
+    { id: 'lush', name: 'Lush \u2014 Bombes de bain, massage bars & savons', qty: 1, category: 'partenaire', image: 'images/lots/lush.png' },
+    { id: 'ngo_shoes', name: 'NGo Shoes \u2014 5 paires + 15% pendant 1 an', qty: 1, category: 'partenaire', image: 'images/lots/ngo_shoes.png' },
+    { id: 'goolfy', name: 'Goolfy Lille \u2014 3 entr\u00e9es mini golf', qty: 1, category: 'partenaire', image: 'images/lots/goolfy.png' },
+    { id: 'weembi', name: 'Weembi \u2014 10 bons de r\u00e9duc simulateur de chute libre', qty: 1, category: 'partenaire', image: 'images/lots/weembi.png' },
+    { id: 'weezpark', name: 'Weezpark \u2014 2 places LaserWeez + 2 places WeezJump', qty: 1, category: 'partenaire', image: 'images/lots/weezpark.png' },
+    { id: 'team_break', name: 'Team Break \u2014 Code r\u00e9duc escape game', qty: 1, category: 'partenaire', image: 'images/lots/team_break.png' },
+    { id: 'metrobowling', name: 'M\u00e9trobowling \u2014 6 places bowling + tarifs pr\u00e9f\u00e9rentiels', qty: 1, category: 'partenaire', image: 'images/lots/metrobowling.png' },
+    { id: 'starship_laser', name: 'Starship Laser Lille \u2014 4 places laser game', qty: 1, category: 'partenaire', image: 'images/lots/starship_laser.png' },
+    { id: 'planet_bowling', name: 'Planet Bowling \u2014 Places', qty: 1, category: 'partenaire', image: 'images/lots/planet_bowling.png' },
+    { id: 'musee_piscine', name: 'Mus\u00e9e La Piscine Roubaix \u2014 4 places', qty: 1, category: 'partenaire', image: 'images/lots/musee_piscine.png' },
+    { id: 'eve_co', name: 'Eve & Co \u2014 -25%', qty: 1, category: 'partenaire', image: 'images/lots/eve_co.png' },
+    { id: 'garten', name: 'Garten on the Beach \u2014 R\u00e9duc festival', qty: 1, category: 'partenaire', image: 'images/lots/garten.png' },
+    // Lot goodies
+    { id: 'ecocup_collector', name: '20 Ecocups Collectors + 20 Stickers Collectors', qty: 1, category: 'goodies', image: 'images/lots/ecocup_collector.png' },
+  ];
+
+  // Lot chance per egg tier: index 0=basic, 1=rare, 2=legendary
+  const LOT_CHANCES = [0.01, 0.03, 0.07];
+  const SHINY_CHANCES = [0.05, 0.10, 0.15];
+
   function renderBoutique() {
     const container = $('#packs-list');
     if (!container) return;
@@ -775,13 +805,20 @@
       return;
     }
 
-    container.innerHTML = state.packs.map(function(pack, i) {
+    const tierDescs = [
+      '1\u20137 cartes \u00b7 5% shiny \u00b7 1% lot',
+      '3\u20139 cartes \u00b7 10% shiny \u00b7 3% lot',
+      '5\u201312 cartes \u00b7 15% shiny \u00b7 7% lot',
+    ];
+
+    container.innerHTML = '<button class="lots-view-btn" id="lots-view-btn">Voir les lots</button>' +
+      state.packs.map(function(pack, i) {
       var eggTier = i === 0 ? 'green' : i === 1 ? 'purple' : 'gold';
       return '<div class="pack-card tier-' + i + '">' +
         '<div class="pack-egg-icon">' + getEggSVG(eggTier, 80) + '</div>' +
         '<div class="pack-info">' +
           '<div class="pack-name">' + escHtml(pack.name) + '</div>' +
-          '<div class="pack-desc">' + (i === 0 ? '1\u20137 cartes \u00b7 1% shiny' : i === 1 ? '3\u20139 cartes \u00b7 5% shiny' : '5\u201312 cartes \u00b7 10% shiny') + '</div>' +
+          '<div class="pack-desc">' + tierDescs[i] + '</div>' +
           '<div class="pack-actions">' +
             '<button class="pack-price" data-pack-id="' + pack.id + '"' + (state.isGuest || (state.profile && state.profile.solde < pack.price) ? ' disabled' : '') + '>' +
               pack.price +
@@ -801,7 +838,42 @@
       btn.addEventListener('click', () => showPackInfo(parseInt(btn.dataset.packInfo)));
     });
 
+    // Lots button
+    const lotsBtn = $('#lots-view-btn');
+    if (lotsBtn) lotsBtn.addEventListener('click', showLotsModal);
+
     renderSutom();
+  }
+
+  function showLotsModal() {
+    const categories = [
+      { key: 'principal', title: 'Lots Principaux' },
+      { key: 'partenaire', title: 'Lots Partenaires' },
+      { key: 'goodies', title: 'Lots Goodies' },
+    ];
+    var html = '';
+    categories.forEach(function(cat) {
+      var items = LOTS.filter(function(l) { return l.category === cat.key; });
+      if (items.length === 0) return;
+      html += '<div class="lots-category"><h4 class="lots-category-title">' + escHtml(cat.title) + '</h4>';
+      html += '<div class="lots-grid">';
+      items.forEach(function(lot) {
+        html += '<div class="lot-card">' +
+          '<div class="lot-img-wrap"><img src="' + escAttr(lot.image) + '" alt="" class="lot-img" onerror="this.style.display=\'none\'"></div>' +
+          '<div class="lot-name">' + escHtml(lot.name) + '</div>' +
+          '<div class="lot-qty">x' + lot.qty + ' disponible' + (lot.qty > 1 ? 's' : '') + '</div>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '<div class="lots-proba-info">' +
+      '<h4>Chances de lot par oeuf</h4>' +
+      '<div class="lots-proba-row"><span class="lots-proba-egg egg-green">Basique</span><span>1%</span></div>' +
+      '<div class="lots-proba-row"><span class="lots-proba-egg egg-purple">Rare</span><span>3%</span></div>' +
+      '<div class="lots-proba-row"><span class="lots-proba-egg egg-gold">L\u00e9gendaire</span><span>7%</span></div>' +
+    '</div>';
+    $('#lots-modal-content').innerHTML = html;
+    openModal('modal-lots');
   }
 
   /* ===== SUTOM — fullscreen game engine ===== */
@@ -1749,7 +1821,37 @@
 
     const container = $('#pack-card-container');
 
-    if (card.is_shiny) {
+    if (card.is_lot) {
+      // ===== LOT REVEAL (ultra dramatic) =====
+      container.classList.add('lot-reveal-active');
+      container.innerHTML = `
+        <div class="lot-reveal-card">
+          <div class="lot-card-inner">
+            <div class="lot-card-back"><span>LOT</span></div>
+            <div class="lot-card-front">
+              ${card.image_url ? `<img src="${escAttr(card.image_url)}" alt="" onerror="this.style.display='none'">` : ''}
+              <div class="lot-card-label">${escHtml(card.name)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="lot-confetti"></div>
+      `;
+      const flipEl = container.querySelector('.lot-reveal-card');
+      flipEl.classList.add('phase-spin');
+      setTimeout(() => {
+        flipEl.classList.remove('phase-spin');
+        flipEl.classList.add('phase-reveal');
+        container.classList.remove('lot-reveal-active');
+      }, 3200);
+      container.onclick = null;
+      setTimeout(() => {
+        if (state.packRevealIndex >= cards.length) {
+          showPackSummary();
+        } else {
+          container.onclick = revealNextCard;
+        }
+      }, 4800);
+    } else if (card.is_shiny) {
       // ===== SHINY SUSPENSE (Clash Royale legendary style) =====
       container.classList.add('shiny-reveal-active');
       container.innerHTML = `
@@ -1808,16 +1910,17 @@
     var html = '';
     for (var si = 0; si < cards.length; si++) {
       var sc = cards[si];
-      html += '<div class="pack-summary-item' + (sc.is_shiny ? ' shiny' : '') + '" style="animation-delay:' + (si * 0.06) + 's">' +
-        '<div class="pack-grid-card' + (sc.is_shiny ? ' shiny' : '') + ' flipped">' +
+      var extraClass = sc.is_lot ? ' lot' : sc.is_shiny ? ' shiny' : '';
+      html += '<div class="pack-summary-item' + extraClass + '" style="animation-delay:' + (si * 0.06) + 's">' +
+        '<div class="pack-grid-card' + extraClass + ' flipped">' +
           '<div class="pack-grid-card-inner">' +
-            '<div class="pack-grid-card-back"><span>?</span></div>' +
+            '<div class="pack-grid-card-back"><span>' + (sc.is_lot ? 'LOT' : '?') + '</span></div>' +
             '<div class="pack-grid-card-front">' +
-              (sc.image_url ? '<img src="' + escAttr(sc.image_url) + '" alt="">' : '<div style="font-size:28px;color:var(--text-dim)">?</div>') +
+              (sc.image_url ? '<img src="' + escAttr(sc.image_url) + '" alt=""' + (sc.is_lot ? ' onerror="this.style.display=\'none\'"' : '') + '>' : '<div style="font-size:28px;color:var(--text-dim)">?</div>') +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="pack-summary-card-name">' + escHtml(sc.name) + (sc.is_shiny ? '<span class="pack-summary-shiny"> S</span>' : '') + '</div>' +
+        '<div class="pack-summary-card-name">' + escHtml(sc.name) + (sc.is_lot ? '<span class="pack-summary-lot"> LOT</span>' : sc.is_shiny ? '<span class="pack-summary-shiny"> S</span>' : '') + '</div>' +
       '</div>';
     }
     container.innerHTML = html;
@@ -1847,9 +1950,34 @@
     if (count < 2) count = 2;
     if (count > 12) count = 12;
 
+    // Determine tier index from pack position
+    var packIdx = state.packs.indexOf(pack);
+    if (packIdx < 0) packIdx = 0;
+    var shinyChance = SHINY_CHANCES[packIdx] || 0.05;
+    var lotChance = LOT_CHANCES[packIdx] || 0.01;
+
     var drawn = [];
+    var gotLot = false;
+
     for (var i = 0; i < count; i++) {
-      var isShiny = Math.random() < (pack.shiny_chance || 0.01);
+      // Check for lot drop (once per pack max)
+      if (!gotLot && Math.random() < lotChance) {
+        var availableLots = LOTS.filter(function(l) { return l.qty > 0; });
+        if (availableLots.length > 0) {
+          var lot = availableLots[Math.floor(Math.random() * availableLots.length)];
+          drawn.push({
+            id: 'lot_' + lot.id,
+            name: lot.name,
+            image_url: lot.image,
+            is_shiny: false,
+            is_lot: true,
+          });
+          gotLot = true;
+          continue;
+        }
+      }
+
+      var isShiny = Math.random() < shinyChance;
       var pool = available.filter(function(c) { return c.is_shiny === isShiny; });
       if (pool.length === 0) pool = available.filter(function(c) { return !c.is_shiny; });
       if (pool.length === 0) pool = available;
@@ -1864,10 +1992,16 @@
     const pack = state.packs.find(p => p.id === packId);
     if (!pack) return;
 
+    var packIdx = state.packs.indexOf(pack);
+    if (packIdx < 0) packIdx = 0;
+    var shinyPct = (SHINY_CHANCES[packIdx] * 100).toFixed(0);
+    var lotPct = (LOT_CHANCES[packIdx] * 100).toFixed(0);
+
     $('#info-pack-name').textContent = pack.name;
     $('#info-pack-stats').innerHTML = `
       <div class="info-stat-row"><span class="info-stat-label">Cartes par pack</span><span class="info-stat-value">${pack.cards_count}</span></div>
-      <div class="info-stat-row"><span class="info-stat-label">Chance Shiny</span><span class="info-stat-value">${((pack.shiny_chance || 0.01) * 100).toFixed(0)}%</span></div>
+      <div class="info-stat-row"><span class="info-stat-label">Chance Shiny</span><span class="info-stat-value">${shinyPct}%</span></div>
+      <div class="info-stat-row"><span class="info-stat-label">Chance Lot</span><span class="info-stat-value">${lotPct}%</span></div>
     `;
     openModal('modal-pack-info');
   }
