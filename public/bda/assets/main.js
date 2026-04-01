@@ -447,237 +447,98 @@
   }
 
   function initAuth() {
-    $('#btn-login').addEventListener('click', handleLogin);
-    $('#btn-register').addEventListener('click', handleRegister);
+    $('#btn-send-otp').addEventListener('click', handleSendOtp);
+    $('#btn-verify-otp').addEventListener('click', handleVerifyOtp);
     $('#btn-guest').addEventListener('click', handleGuest);
-    $('#show-register').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-login').style.display = 'none';
-      $('#auth-register').style.display = 'block';
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-error').textContent = '';
-      // Reset register steps
-      $('#register-step-info').style.display = 'block';
-      $('#register-step-code').style.display = 'none';
-      $('#register-code').value = '';
-    });
-    $('#show-login').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-register').style.display = 'none';
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-login').style.display = 'block';
-      $('#auth-error').textContent = '';
-    });
-    $('#show-forgot').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-login').style.display = 'none';
-      $('#auth-register').style.display = 'none';
-      $('#auth-forgot').style.display = 'block';
-      $('#auth-error').textContent = '';
-      $('#forgot-success').style.display = 'none';
-    });
-    $('#back-to-login').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#auth-forgot').style.display = 'none';
-      $('#auth-login').style.display = 'block';
-      $('#auth-error').textContent = '';
-    });
-    $('#btn-forgot').addEventListener('click', handleForgotPassword);
     $('#btn-logout').addEventListener('click', handleLogout);
-    $('#btn-guest-login').addEventListener('click', () => {
-      handleLogout();
+    $('#btn-guest-login').addEventListener('click', () => { handleLogout(); });
+
+    $('#otp-back').addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#otp-step-code').style.display = 'none';
+      $('#otp-step-email').style.display = 'block';
+      $('#otp-code').value = '';
+      $('#auth-error').textContent = '';
     });
 
-    // Enter key on inputs
-    $('#login-password').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
-    $('#register-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
-    $('#forgot-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleForgotPassword(); });
-    $('#btn-verify-code').addEventListener('click', handleVerifyRecoveryCode);
-    $('#forgot-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyRecoveryCode(); });
-    $('#btn-set-newpw').addEventListener('click', handleSetNewPassword);
-    $('#forgot-newpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
-    $('#forgot-confirmpw').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSetNewPassword(); });
-    $('#btn-verify-register').addEventListener('click', handleVerifyRegister);
-    $('#register-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyRegister(); });
-
-    // Handle password recovery callback (when user clicks the email link)
-    handlePasswordRecovery();
+    // Enter key
+    $('#otp-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#otp-pseudo').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp(); });
+    $('#otp-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp(); });
   }
 
-  async function handleForgotPassword() {
-    const email = $('#forgot-email').value.trim();
+  async function handleSendOtp() {
+    const email = $('#otp-email').value.trim();
+    const pseudo = ($('#otp-pseudo').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
-    $('#forgot-success').style.display = 'none';
+
     if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) { errEl.textContent = error.message; return; }
-      $('#forgot-success').style.display = 'block';
-      $('#forgot-step-email').style.display = 'none';
-      $('#forgot-step-code').style.display = 'block';
-      $('#forgot-code').focus();
-    } catch (e) {
-      errEl.textContent = 'Erreur lors de l\'envoi.';
-    }
-  }
-
-  async function handleVerifyRecoveryCode() {
-    const email = $('#forgot-email').value.trim();
-    const token = ($('#forgot-code').value || '').trim();
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-    if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-    try {
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
-      if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
-      // OTP valid — session is now open, show new password step
-      $('#forgot-step-code').style.display = 'none';
-      $('#forgot-step-newpw').style.display = 'block';
-      $('#forgot-newpw').focus();
-    } catch (e) {
-      errEl.textContent = 'Erreur de v\u00e9rification.';
-    }
-  }
-
-  async function handleSetNewPassword() {
-    const newPw = $('#forgot-newpw').value;
-    const confirmPw = $('#forgot-confirmpw').value;
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-    if (!newPw) { errEl.textContent = 'Entre un nouveau mot de passe.'; return; }
-    if (newPw.length < 6) { errEl.textContent = 'Minimum 6 caract\u00e8res.'; return; }
-    if (newPw !== confirmPw) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPw });
-      if (error) { errEl.textContent = error.message; return; }
-      $('#forgot-step-newpw').style.display = 'none';
-      $('#forgot-success').style.display = 'block';
-      await supabase.auth.signOut();
-      setTimeout(() => {
-        $('#auth-forgot').style.display = 'none';
-        $('#auth-login').style.display = 'block';
-        $('#forgot-success').style.display = 'none';
-        $('#forgot-step-email').style.display = 'block';
-        $('#forgot-email').value = '';
-        $('#forgot-code').value = '';
-        $('#forgot-newpw').value = '';
-        $('#forgot-confirmpw').value = '';
-        $('#auth-error').textContent = '';
-      }, 2500);
-    } catch (e) {
-      errEl.textContent = 'Erreur lors de la mise \u00e0 jour.';
-    }
-  }
-
-  async function handlePasswordRecovery() {
-    // Supabase appends #access_token=...&type=recovery to URL
-    if (!supabase) return;
-    const hash = window.location.hash;
-    if (hash && hash.includes('type=recovery')) {
-      // Supabase client handles the token exchange automatically
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        state.user = session.user;
-        state.isGuest = false;
-        await loadProfile();
-        showApp();
-        // Navigate to profile page so user can change password
-        goToPage(4);
-        toast('Connecte ! Change ton mot de passe ci-dessous.', 'success');
-        // Clean the URL hash
-        history.replaceState(null, '', window.location.pathname);
-      }
-    }
-  }
-
-  async function handleLogin() {
-    const email = $('#login-email').value.trim();
-    const password = $('#login-password').value;
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!email || !password) { errEl.textContent = 'Remplis tous les champs.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { errEl.textContent = error.message; return; }
-
-      state.user = data.user;
-      state.isGuest = false;
-      await loadProfile();
-      showApp();
-    } catch (e) {
-      errEl.textContent = 'Erreur de connexion.';
-    }
-  }
-
-  async function handleRegister() {
-    const pseudo = $('#register-pseudo').value.trim();
-    const email = $('#register-email').value.trim();
-    const errEl = $('#auth-error');
-    errEl.textContent = '';
-
-    if (!pseudo || !email) { errEl.textContent = 'Remplis tous les champs.'; return; }
-    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true, data: { pseudo } }
-      });
+      const opts = { shouldCreateUser: true };
+      if (pseudo) opts.data = { pseudo };
+      const { error } = await supabase.auth.signInWithOtp({ email, options: opts });
       if (error) { errEl.textContent = error.message; return; }
 
       // Store for verification step
-      state._registerPseudo = pseudo;
-      state._registerEmail = email;
+      state._otpEmail = email;
+      state._otpPseudo = pseudo;
 
       // Show code step
-      $('#register-step-info').style.display = 'none';
-      $('#register-step-code').style.display = 'block';
-      $('#register-code').focus();
+      $('#otp-step-email').style.display = 'none';
+      $('#otp-step-code').style.display = 'block';
+      $('#otp-code').focus();
     } catch (e) {
-      errEl.textContent = 'Erreur lors de l\'inscription.';
+      errEl.textContent = 'Erreur lors de l\'envoi du code.';
     }
   }
 
-  async function handleVerifyRegister() {
-    const token = ($('#register-code').value || '').trim();
+  async function handleVerifyOtp() {
+    const token = ($('#otp-code').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
 
-    if (!token || token.length !== 6) { errEl.textContent = 'Entre le code \u00e0 6 chiffres.'; return; }
+    if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
 
     try {
       const { data, error } = await supabase.auth.verifyOtp({
-        email: state._registerEmail,
+        email: state._otpEmail,
         token,
         type: 'email'
       });
       if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
 
-      // Create etudiants row
-      const { error: insertErr } = await supabase.from('etudiants').insert({
-        site_id: SITE_ID,
-        email: state._registerEmail,
-        pseudo: state._registerPseudo,
-        solde: 0,
-        is_admin: false,
-        is_super_admin: false,
-        is_creator: false,
-      });
-      if (insertErr) console.warn('Profile insert:', insertErr);
-
       state.user = data.user;
       state.isGuest = false;
+
+      // Check if etudiants row exists, create if needed
+      const { data: profile } = await supabase
+        .from('etudiants')
+        .select('id')
+        .eq('site_id', SITE_ID)
+        .eq('email', state._otpEmail)
+        .single();
+
+      if (!profile) {
+        const pseudo = state._otpPseudo || state._otpEmail.split('@')[0];
+        const { error: insertErr } = await supabase.from('etudiants').insert({
+          site_id: SITE_ID,
+          email: state._otpEmail,
+          pseudo: pseudo,
+          solde: 0,
+          is_admin: false,
+          is_super_admin: false,
+          is_creator: false,
+        });
+        if (insertErr) console.warn('Profile insert:', insertErr);
+        toast('Bienvenue ' + pseudo + ' !', 'success');
+      }
+
       await loadProfile();
       showApp();
-      toast('Bienvenue ' + state._registerPseudo + ' !', 'success');
     } catch (e) {
       errEl.textContent = 'Erreur de v\u00e9rification.';
     }
@@ -689,7 +550,7 @@
     state.isGuest = true;
     state.isAdmin = false;
     showApp();
-    toast('Mode Invité — Lecture seule', '');
+    toast('Mode Invit\u00e9 \u2014 Lecture seule', '');
   }
 
   async function handleLogout() {
