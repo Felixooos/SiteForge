@@ -774,7 +774,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 }
 .cat-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
 
-.defis-list { display: flex; flex-direction: column; gap: 16px; }
+.defis-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
 
 .defi-card {
   background: var(--bg-card); border: 1px solid var(--border);
@@ -1366,7 +1366,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   .pack-card { padding: 28px 32px; }
   .defis-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
   }
   .sponsors-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
@@ -1405,7 +1405,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
-  .defis-list { grid-template-columns: repeat(3, 1fr); }
+  .defis-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
   .leaderboard {
     max-width: 800px;
     margin: 0 auto;
