@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -9,10 +9,11 @@
   <meta name="theme-color" content="#0a1a0d">
   <meta name="supabase-url" content="https://pkzdzbhykshhnipzxpeu.supabase.co">
   <meta name="supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBremR6Ymh5a3NoaG5pcHp4cGV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNzI1NTUsImV4cCI6MjA4NDg0ODU1NX0.CFmD3DUtODibWM-KFcgJoJN79JOWjicHx3sP4cLjTbA">
-  <title>Dinos'Art</title>
+  <title>Dinoz'Art</title>
+  <link rel="icon" type="image/png" href="images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=21">
+  <link rel="stylesheet" href="assets/style.css?v=22">
   <script src="assets/supabase.min.js"></script>
 </head>
 <body>
@@ -20,9 +21,8 @@
   <!-- ========== AUTH GATE ========== -->
   <div id="auth-gate" class="auth-gate">
     <div class="auth-card">
-      <div class="auth-logo">Dinos'Art</div>
-      <h1 class="auth-title">Dinos'Art</h1>
-      <p class="auth-subtitle">Collecte, d&#233;fie, domine.</p>
+      <img src="images/logo.png" alt="" class="auth-logo-img">
+      <h1 class="auth-title">Dinoz'Art</h1>
 
       <!-- Step 0: Choose action -->
       <div id="auth-choice" class="auth-choice">
@@ -48,19 +48,13 @@
         </div>
       </div>
 
-      <!-- Step 1b: Login (email only) -->
+      <!-- Step 1b: Login (email + code on same screen) -->
       <div id="auth-login" class="auth-form" style="display:none">
-        <div id="login-step-email">
-          <input type="email" id="login-email" placeholder="Email" autocomplete="email">
-          <button id="btn-send-login" class="btn-primary">Envoyer le code</button>
-          <p class="auth-switch"><a href="#" id="login-back">Retour</a></p>
-        </div>
-        <div id="login-step-code" style="display:none">
-          <p class="auth-forgot-text">Code envoy&#233; ! Entre le code re&#231;u par email.</p>
-          <input type="text" id="login-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
-          <button id="btn-verify-login" class="btn-primary">V&#233;rifier le code</button>
-          <p class="auth-switch"><a href="#" id="login-code-back">Changer d'email</a></p>
-        </div>
+        <p class="auth-forgot-text">Entre ton email et le code re&#231;u.</p>
+        <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+        <input type="text" id="login-code" placeholder="Code &#224; 8 chiffres" maxlength="8" inputmode="numeric" autocomplete="one-time-code" style="letter-spacing:6px;text-align:center;font-size:1.2rem;">
+        <button id="btn-verify-login" class="btn-primary">Se connecter</button>
+        <p class="auth-switch"><a href="#" id="login-resend">Renvoyer un code</a> &middot; <a href="#" id="login-back">Retour</a></p>
       </div>
 
       <p id="auth-error" class="auth-error"></p>
@@ -73,8 +67,8 @@
     <!-- Top Bar -->
     <header class="top-bar">
       <div class="top-bar-left">
-        <img src="images/logo.jpg" alt="" class="top-bar-logo">
-        <span class="top-bar-title">Dinos'Art</span>
+        <img src="images/logo.png" alt="" class="top-bar-logo">
+        <span class="top-bar-title">Dinoz'Art</span>
       </div>
       <div class="top-bar-right">
         <div class="coins-display">
@@ -101,7 +95,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Boutique</h2>
-              <p>Achète des packs, joue au Sutom et gagne des pièces</p>
+              <p>Ach�te des packs, joue au Sutom et gagne des pi�ces</p>
             </div>
             <div id="sutom-widget" class="sutom-widget">
               <!-- Sutom rendered by JS -->
@@ -122,7 +116,7 @@
             <div class="pokedex-tabs">
               <button class="tab-btn active" data-tab="normal">Normales <span id="count-normal">0</span>/24</button>
               <button class="tab-btn" data-tab="shiny">Shiny <span id="count-shiny">0</span>/24</button>
-              <button class="tab-btn" data-tab="creations">Créations</button>
+              <button class="tab-btn" data-tab="creations">Cr�ations</button>
             </div>
             <div id="pokedex-grid" class="pokedex-grid">
               <!-- Dynamically filled -->
@@ -139,7 +133,7 @@
             </div>
             <!-- My position banner -->
             <div id="my-position" class="my-position" style="display:none">
-              <div class="my-pos-rank" id="my-pos-rank">#—</div>
+              <div class="my-pos-rank" id="my-pos-rank">#�</div>
               <div class="my-pos-info">
                 <div class="my-pos-label">Ta position</div>
                 <div class="my-pos-coins" id="my-pos-coins">0</div>
@@ -184,7 +178,7 @@
             <div id="profil-guest" style="display:none">
               <div class="guest-prompt">
                 <div class="guest-icon"></div>
-                <h3>Connecte-toi pour accéder à ton profil</h3>
+                <h3>Connecte-toi pour acc�der � ton profil</h3>
                 <button class="btn-primary" id="btn-guest-login">Se connecter</button>
               </div>
             </div>
@@ -197,9 +191,9 @@
                 <h2 id="profil-pseudo">Pseudo</h2>
                 <p id="profil-email" class="profil-email">email@example.com</p>
                 <div class="profil-stats">
-                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pièces</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-coins">0</span><span class="stat-label">Pi�ces</span></div>
                   <div class="stat"><span class="stat-value" id="profil-cards">0</span><span class="stat-label">Cartes</span></div>
-                  <div class="stat"><span class="stat-value" id="profil-rank">#—</span><span class="stat-label">Rang</span></div>
+                  <div class="stat"><span class="stat-value" id="profil-rank">#�</span><span class="stat-label">Rang</span></div>
                 </div>
               </div>
 
@@ -226,7 +220,7 @@
                     <input type="text" id="cc-name" placeholder="Nom de la carte" maxlength="30">
                     <textarea id="cc-desc" placeholder="Description" maxlength="100"></textarea>
                     <input type="text" id="cc-attack" placeholder="Nom d'attaque" maxlength="25">
-                    <input type="number" id="cc-damage" placeholder="Dégâts" min="0" max="999">
+                    <input type="number" id="cc-damage" placeholder="D�g�ts" min="0" max="999">
                     <label class="file-upload">
                       Choisir une image
                       <input type="file" id="cc-image" accept="image/*" style="display:none">
@@ -260,7 +254,7 @@
                 </div>
               </div>
 
-              <button class="btn-logout" id="btn-logout">Se déconnecter</button>
+              <button class="btn-logout" id="btn-logout">Se d�connecter</button>
             </div>
           </div>
         </section>
@@ -280,7 +274,7 @@
               <p>Nos partenaires</p>
             </div>
             <div id="sponsors-content">
-              <p class="sponsors-intro">Merci à nos partenaires qui rendent tout ça possible</p>
+              <p class="sponsors-intro">Merci � nos partenaires qui rendent tout �a possible</p>
               <div class="sponsors-grid">
                 <div class="sponsor-card"><div class="sponsor-text">Ali Baba</div></div>
                 <div class="sponsor-card"><div class="sponsor-text">Alpro</div></div>
@@ -303,7 +297,7 @@
                 <div class="sponsor-card"><div class="sponsor-text">Wonderbox</div></div>
               </div>
               <div class="sponsors-cta">
-                <p>Envie de devenir partenaire du Dinos'Art ? Contactez-nous !</p>
+                <p>Envie de devenir partenaire du Dinoz'Art ? Contactez-nous !</p>
               </div>
             </div>
           </div>
@@ -314,15 +308,15 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Goodies</h2>
-              <p>Nos produits Dinos'Art</p>
+              <p>Nos produits Dinoz'Art</p>
             </div>
             <div id="goodies-content" class="goodies-layout">
               <div class="goodies-products">
                 <div class="goodie-item" data-lightbox="images/goodies/Sticker.jpg">
                   <div class="goodie-img-wrap">
-                    <img src="images/goodies/Sticker.jpg" alt="Sticker Dinos'Art" class="goodie-float">
+                    <img src="images/goodies/Sticker.jpg" alt="Sticker Dinoz'Art" class="goodie-float">
                   </div>
-                  <div class="goodie-label">Sticker Dinos'Art</div>
+                  <div class="goodie-label">Sticker Dinoz'Art</div>
                 </div>
                 <div class="goodie-item" data-lightbox="images/goodies/Sticker_Collector.jpg">
                   <div class="goodie-img-wrap">
@@ -334,7 +328,7 @@
                   <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-normal">
                     <canvas id="ecocup-canvas-normal"></canvas>
                   </div>
-                  <div class="goodie-label">Ecocup Dinos'Art</div>
+                  <div class="goodie-label">Ecocup Dinoz'Art</div>
                 </div>
                 <div class="goodie-item">
                   <div class="goodie-img-wrap ecocup-3d-container" id="ecocup-3d-collector">
@@ -346,9 +340,9 @@
               <div class="goodie-table-section">
                 <h3 class="goodie-table-title">Table de Beer Pong</h3>
                 <div class="goodie-table-wrap" data-lightbox="images/goodies/Table_5.jpg">
-                  <img src="images/goodies/Table_5.jpg" alt="Table Beer Pong Dinos'Art" class="goodie-table-img">
+                  <img src="images/goodies/Table_5.jpg" alt="Table Beer Pong Dinoz'Art" class="goodie-table-img">
                 </div>
-                <p class="goodie-table-desc">La table officielle du Dinos'Art — faite main avec amour</p>
+                <p class="goodie-table-desc">La table officielle du Dinoz'Art � faite main avec amour</p>
               </div>
             </div>
           </div>
@@ -359,7 +353,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Planning</h2>
-              <p>Campagnes Dinos'Art 2026</p>
+              <p>Campagnes Dinoz'Art 2026</p>
             </div>
             <div id="planning-content" class="planning-timeline">
               <div class="planning-phase">
@@ -417,7 +411,7 @@
                 <div class="planning-date-badge"><span class="planning-day">07</span><span class="planning-month">AVR</span></div>
                 <div class="planning-details">
                   <div class="planning-title">Mardi &mdash; Debat des prez</div>
-                  <div class="planning-desc">Petit-dejeuner livre, dejeuner puis debat des presidents Dinos'Art.</div>
+                  <div class="planning-desc">Petit-dejeuner livre, dejeuner puis debat des presidents Dinoz'Art.</div>
                   <div class="planning-meta">07h30 &rarr; 20h00</div>
                 </div>
               </div>
@@ -437,12 +431,12 @@
         <section class="page" id="page-nous">
           <div class="page-scroll">
             <div class="page-header">
-              <h2>L'équipe</h2>
-              <p>Qui se cache derrière le Dinos'Art ?</p>
+              <h2>L'�quipe</h2>
+              <p>Qui se cache derri�re le Dinoz'Art ?</p>
             </div>
             <div id="team-content">
               <div class="team-group-photo">
-                <img src="images/team/Groupe.jpg" alt="L'équipe Dinos'Art">
+                <img src="images/team/Groupe.jpg" alt="L'�quipe Dinoz'Art">
                 <div class="team-group-overlay">Ensemble, on va tout dino-miner !</div>
               </div>
 
@@ -450,24 +444,24 @@
                 <div class="pole-header">
                   <div class="pole-info">
                     <h3 class="pole-name">Le Bureau</h3>
-                    <p class="pole-desc">L'équipe de direction qui coordonne tout : réunions, administratif, budget et organisation générale du Dinos'Art.</p>
+                    <p class="pole-desc">L'�quipe de direction qui coordonne tout : r�unions, administratif, budget et organisation g�n�rale du Dinoz'Art.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
                   <div class="member-card" data-member-modal="anne">
                     <img src="images/team/Anne.jpg" alt="Anne" class="member-photo">
                     <div class="member-name">Anne</div>
-                    <div class="member-role">Présidente</div>
+                    <div class="member-role">Pr�sidente</div>
                   </div>
                   <div class="member-card" data-member-modal="cyrielle">
                     <img src="images/team/Cyrielle.jpg" alt="Cyrielle" class="member-photo">
                     <div class="member-name">Cyrielle</div>
-                    <div class="member-role">Trésorière</div>
+                    <div class="member-role">Tr�sori�re</div>
                   </div>
                   <div class="member-card" data-member-modal="candy">
                     <img src="images/team/Candy.jpg" alt="Candy" class="member-photo">
                     <div class="member-name">Candy</div>
-                    <div class="member-role">Secrétaire</div>
+                    <div class="member-role">Secr�taire</div>
                   </div>
                   <div class="member-card" data-member-modal="kimlee">
                     <img src="images/team/Kimlee.jpg" alt="Kimlee" class="member-photo">
@@ -475,14 +469,14 @@
                     <div class="member-role">VP Externe</div>
                   </div>
                   <div class="member-card" data-member-modal="anais">
-                    <img src="images/team/Anais.jpg" alt="Anaïs" class="member-photo">
-                    <div class="member-name">Anaïs</div>
+                    <img src="images/team/Anais.jpg" alt="Ana�s" class="member-photo">
+                    <div class="member-name">Ana�s</div>
                     <div class="member-role">VP Interne</div>
                   </div>
                   <div class="member-card" data-member-modal="ingrid">
                     <img src="images/team/Ingrid.jpg" alt="Ingrid" class="member-photo">
                     <div class="member-name">Ingrid</div>
-                    <div class="member-role">Vice-Trésorière</div>
+                    <div class="member-role">Vice-Tr�sori�re</div>
                   </div>
                 </div>
               </div>
@@ -490,8 +484,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle Communication</h3>
-                    <p class="pole-desc">Réseaux sociaux, visuels, goodies, site web... C'est grâce à eux que le Dinos'Art brille partout !</p>
+                    <h3 class="pole-name">P�le Communication</h3>
+                    <p class="pole-desc">R�seaux sociaux, visuels, goodies, site web... C'est gr�ce � eux que le Dinoz'Art brille partout !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -511,13 +505,13 @@
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="timothee">
-                    <img src="images/team/Thimote.jpg" alt="Timothée" class="member-photo">
-                    <div class="member-name">Timothée</div>
+                    <img src="images/team/Thimote.jpg" alt="Timoth�e" class="member-photo">
+                    <div class="member-name">Timoth�e</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="annael">
-                    <img src="images/team/Annael.jpg" alt="Annaël" class="member-photo">
-                    <div class="member-name">Annaël</div>
+                    <img src="images/team/Annael.jpg" alt="Anna�l" class="member-photo">
+                    <div class="member-name">Anna�l</div>
                     <div class="member-role">Comm</div>
                   </div>
                   <div class="member-card" data-member-modal="ismail">
@@ -536,8 +530,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle Événementiel</h3>
-                    <p class="pole-desc">Les architectes de vos moments mémorables ! Soirées, activités, voyages... ils gèrent tout de A à Z.</p>
+                    <h3 class="pole-name">P�le �v�nementiel</h3>
+                    <p class="pole-desc">Les architectes de vos moments m�morables ! Soir�es, activit�s, voyages... ils g�rent tout de A � Z.</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -567,8 +561,8 @@
               <div class="pole-section">
                 <div class="pole-header">
                   <div class="pole-info">
-                    <h3 class="pole-name">Pôle L3D</h3>
-                    <p class="pole-desc">Logistique, Démarches et Développement Durable. Ils négocient les partos, gèrent le matos et font gaffe à la planète !</p>
+                    <h3 class="pole-name">P�le L3D</h3>
+                    <p class="pole-desc">Logistique, D�marches et D�veloppement Durable. Ils n�gocient les partos, g�rent le matos et font gaffe � la plan�te !</p>
                   </div>
                 </div>
                 <div class="pole-members-grid">
@@ -618,7 +612,7 @@
           <div class="page-scroll">
             <div class="page-header">
               <h2>Programme</h2>
-              <p>Le programme des Dinos'Art 2026&ndash;2027</p>
+              <p>Le programme des Dinoz'Art 2026&ndash;2027</p>
             </div>
             <div id="programme-content" class="programme-sections">
 
@@ -636,10 +630,10 @@
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Soiree dansante</div>
-                    <div class="prog-item-desc">Maintenir la soiree dansante de l'integration permettant de faire connaitre le Dinos'Art, par le biais de differentes activites.</div>
+                    <div class="prog-item-desc">Maintenir la soiree dansante de l'integration permettant de faire connaitre le Dinoz'Art, par le biais de differentes activites.</div>
                   </div>
                   <div class="prog-item">
-                    <div class="prog-item-name">Aprem Dinos'Art</div>
+                    <div class="prog-item-name">Aprem Dinoz'Art</div>
                     <div class="prog-item-desc">Retour a une apres-midi a la residence pendant l'integration ou les assos d'arts pourront proposer des stands decouverte.</div>
                   </div>
                   <div class="prog-item">
@@ -688,7 +682,7 @@
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Le B'art a Jeux</div>
-                    <div class="prog-item-desc">Un bar a jeux en collaboration avec CAG. Vous pourrez vous assoir, un jeu vous est conseille et le Dinos'Art proposerait boisson et nourriture. L'occasion de se decouvrir notamment en debut d'annee.</div>
+                    <div class="prog-item-desc">Un bar a jeux en collaboration avec CAG. Vous pourrez vous assoir, un jeu vous est conseille et le Dinoz'Art proposerait boisson et nourriture. L'occasion de se decouvrir notamment en debut d'annee.</div>
                   </div>
                   <div class="prog-item">
                     <div class="prog-item-name">Newsletter</div>
@@ -877,7 +871,7 @@
       <div id="pack-card-stage" class="pack-card-stage" style="display:none">
         <div class="pack-counter"><span id="pack-reveal-count">0</span> / <span id="pack-reveal-total">0</span></div>
         <div class="pack-card-container" id="pack-card-container">
-          <div class="pack-tap-prompt">Touche pour révéler</div>
+          <div class="pack-tap-prompt">Touche pour r�v�ler</div>
         </div>
       </div>
       <button id="pack-close" class="btn-secondary" style="display:none">Fermer</button>
@@ -901,7 +895,7 @@
       <div class="player-modal-header">
         <img id="player-avatar" src="" alt="" class="player-modal-avatar">
         <h3 id="player-pseudo">Joueur</h3>
-        <p id="player-score" class="player-score">0 pièces</p>
+        <p id="player-score" class="player-score">0 pi�ces</p>
       </div>
       <div id="player-badges" class="badges-grid"></div>
       <div id="player-admin-actions" style="display:none">
@@ -927,13 +921,13 @@
   <div id="modal-challenge" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3 id="challenge-modal-title">Nouveau Défi</h3>
-      <input type="text" id="ch-titre" placeholder="Titre du défi">
+      <h3 id="challenge-modal-title">Nouveau D�fi</h3>
+      <input type="text" id="ch-titre" placeholder="Titre du d�fi">
       <textarea id="ch-desc" placeholder="Description"></textarea>
       <select id="ch-diff">
-        <option value="facile">Facile — 50 pièces</option>
-        <option value="moyen">Moyen — 150 pièces</option>
-        <option value="difficile">Difficile — 300 pièces</option>
+        <option value="facile">Facile � 50 pi�ces</option>
+        <option value="moyen">Moyen � 150 pi�ces</option>
+        <option value="difficile">Difficile � 300 pi�ces</option>
       </select>
       <button class="btn-primary" id="btn-save-challenge">Enregistrer</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
@@ -944,10 +938,10 @@
   <div id="modal-validate" class="modal" style="display:none">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <h3>Valider le défi</h3>
+      <h3>Valider le d�fi</h3>
       <p id="validate-challenge-name"></p>
       <select id="validate-user-select">
-        <option value="">Choisir un joueur—</option>
+        <option value="">Choisir un joueur�</option>
       </select>
       <button class="btn-primary" id="btn-confirm-validate">Valider</button>
       <button class="btn-secondary modal-close-btn">Annuler</button>
@@ -1021,6 +1015,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="assets/main.js?v=21"></script>
+  <script src="assets/main.js?v=22"></script>
 </body>
 </html>

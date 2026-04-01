@@ -65,6 +65,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 .auth-logo { font-size: 64px; margin-bottom: 10px; }
+.auth-logo-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; }
 .auth-title {
   font-family: var(--font-heading);
   font-size: 2.5rem; font-weight: 900;

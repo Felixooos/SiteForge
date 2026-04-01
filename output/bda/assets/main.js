@@ -468,24 +468,16 @@
       $('#auth-error').textContent = '';
     });
 
-    // Login flow
-    $('#btn-send-login').addEventListener('click', () => handleSendOtp('login'));
-    $('#btn-verify-login').addEventListener('click', () => handleVerifyOtp('login'));
+    // Login flow (single screen: email + code + verify)
+    $('#btn-verify-login').addEventListener('click', handleLoginVerify);
+    $('#login-resend').addEventListener('click', handleLoginResend);
     $('#login-back').addEventListener('click', (e) => { e.preventDefault(); showAuthStep('choice'); });
-    $('#login-code-back').addEventListener('click', (e) => {
-      e.preventDefault();
-      $('#login-step-code').style.display = 'none';
-      $('#login-step-email').style.display = 'block';
-      $('#login-code').value = '';
-      $('#auth-error').textContent = '';
-    });
 
     // Enter key
     $('#register-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp('register'); });
     $('#register-pseudo').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp('register'); });
     $('#register-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp('register'); });
-    $('#login-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOtp('login'); });
-    $('#login-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleVerifyOtp('login'); });
+    $('#login-code').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLoginVerify(); });
   }
 
   function showAuthStep(step) {
@@ -498,37 +490,23 @@
       $('#register-step-email').style.display = 'block';
       $('#register-step-code').style.display = 'none';
     }
-    if (step === 'login') {
-      $('#login-step-email').style.display = 'block';
-      $('#login-step-code').style.display = 'none';
-    }
   }
 
   async function handleSendOtp(mode) {
-    const isRegister = mode === 'register';
-    const email = $(isRegister ? '#register-email' : '#login-email').value.trim();
-    const pseudo = isRegister ? ($('#register-pseudo').value || '').trim() : '';
+    const email = $('#register-email').value.trim();
+    const pseudo = ($('#register-pseudo').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
 
     if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
-    if (isRegister && !pseudo) { errEl.textContent = 'Entre un pseudo.'; return; }
+    if (!pseudo) { errEl.textContent = 'Entre un pseudo.'; return; }
     if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
 
     try {
-      // For login: shouldCreateUser false (account must exist)
-      // For register: shouldCreateUser true
-      const opts = { shouldCreateUser: isRegister };
-      if (isRegister && pseudo) opts.data = { pseudo };
+      const opts = { shouldCreateUser: true };
+      if (pseudo) opts.data = { pseudo };
       const { error } = await supabase.auth.signInWithOtp({ email, options: opts });
-      if (error) {
-        if (!isRegister && error.message.toLowerCase().includes('user not found')) {
-          errEl.textContent = 'Aucun compte avec cet email. Cr\u00e9e un compte d\'abord.';
-        } else {
-          errEl.textContent = error.message;
-        }
-        return;
-      }
+      if (error) { errEl.textContent = error.message; return; }
 
       // Store for verification step
       state._otpEmail = email;
@@ -536,23 +514,76 @@
       state._otpMode = mode;
 
       // Show code step
-      if (isRegister) {
-        $('#register-step-email').style.display = 'none';
-        $('#register-step-code').style.display = 'block';
-        $('#register-code').focus();
-      } else {
-        $('#login-step-email').style.display = 'none';
-        $('#login-step-code').style.display = 'block';
-        $('#login-code').focus();
-      }
+      $('#register-step-email').style.display = 'none';
+      $('#register-step-code').style.display = 'block';
+      $('#register-code').focus();
     } catch (e) {
       errEl.textContent = 'Erreur lors de l\'envoi du code.';
     }
   }
 
-  async function handleVerifyOtp(mode) {
-    const isRegister = mode === 'register';
-    const token = ($(isRegister ? '#register-code' : '#login-code').value || '').trim();
+  // Login: resend code for existing account
+  async function handleLoginResend(e) {
+    if (e) e.preventDefault();
+    const email = $('#login-email').value.trim();
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+
+    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+      if (error) {
+        if (error.message.toLowerCase().includes('user not found')) {
+          errEl.textContent = 'Aucun compte avec cet email. Cr\u00e9e un compte d\'abord.';
+        } else {
+          errEl.textContent = error.message;
+        }
+        return;
+      }
+      toast('Code envoy\u00e9 !', 'success');
+    } catch (e) {
+      errEl.textContent = 'Erreur lors de l\'envoi du code.';
+    }
+  }
+
+  // Login: verify email + code on single screen
+  async function handleLoginVerify() {
+    const email = $('#login-email').value.trim();
+    const token = ($('#login-code').value || '').trim();
+    const errEl = $('#auth-error');
+    errEl.textContent = '';
+
+    if (!email) { errEl.textContent = 'Entre ton adresse email.'; return; }
+    if (!token || token.length !== 8) { errEl.textContent = 'Entre le code \u00e0 8 chiffres.'; return; }
+    if (!supabase) { errEl.textContent = 'Connexion au serveur impossible.'; return; }
+
+    state._otpEmail = email;
+    state._otpPseudo = '';
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email'
+      });
+      if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
+
+      state.user = data.user;
+      if (state.user && !state.user.email) state.user.email = email;
+      state.isGuest = false;
+
+      await loadProfile();
+      showApp();
+    } catch (e) {
+      errEl.textContent = 'Erreur de v\u00e9rification.';
+    }
+  }
+
+  // Register: verify OTP code
+  async function handleVerifyOtp() {
+    const token = ($('#register-code').value || '').trim();
     const errEl = $('#auth-error');
     errEl.textContent = '';
 
@@ -568,7 +599,6 @@
       if (error) { errEl.textContent = 'Code invalide ou expir\u00e9.'; return; }
 
       state.user = data.user;
-      // Ensure email is set even if Supabase response is incomplete
       if (state.user && !state.user.email) state.user.email = state._otpEmail;
       state.isGuest = false;
 
