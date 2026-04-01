@@ -979,7 +979,7 @@ button, a, input, select, textarea, .card-slot, .lb-row, .lb-podium-item, .defi-
 @keyframes shinyName {
   to { background-position: 200% center; }
 }
-.role-tag { display: inline-block; font-size: 0.55rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; letter-spacing: 0.5px; }
+.role-tag { display: inline-block; font-size: 0.55rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; letter-spacing: 0.5px; -webkit-text-fill-color: white; color: white !important; background-clip: border-box; -webkit-background-clip: padding-box; }
 .role-tag-admin { background: #ef4444; color: white; }
 .role-tag-creator { background: linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6); color: white; }
 .lb-admin-btn {
