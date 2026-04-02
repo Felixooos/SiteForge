@@ -2754,17 +2754,18 @@ body.mode-info .mode-seg-btn {
 .sponsor-card {
   background: linear-gradient(135deg, #2c1510, #3a1e17);
   border: 1px solid #4a2a20;
-  border-radius: 14px; padding: 14px 8px;
+  border-radius: 14px; padding: 12px;
   display: flex; align-items: center; justify-content: center;
   animation: cardAppear 0.4s ease-out backwards;
   transition: transform 0.2s, box-shadow 0.2s;
+  aspect-ratio: 1;
 }
 .sponsor-card:active {
   transform: scale(0.97);
   box-shadow: 0 4px 20px rgba(231,76,60,0.2);
 }
-.sponsor-card img {
-  max-width: 100%; max-height: 50px; object-fit: contain;
+.sponsor-card img, .sponsor-img {
+  max-width: 100%; max-height: 80px; object-fit: contain; border-radius: 8px;
 }
 .sponsor-text {
   font-weight: 700; font-size: 0.75rem; color: #f5f5f5;
