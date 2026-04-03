@@ -3,21 +3,21 @@
 -- A executer dans Supabase SQL Editor
 -- ============================================================
 
--- Pack 1 (basique) : 500 coins, 1% shiny
+-- Pack 1 (basique) : 350 coins, 1% shiny
 UPDATE bda_packs
-SET price = 500, shiny_chance = 0.01
+SET price = 350, shiny_chance = 0.01
 WHERE site_id = 'bda'
   AND id = (SELECT id FROM bda_packs WHERE site_id = 'bda' ORDER BY price ASC LIMIT 1 OFFSET 0);
 
--- Pack 2 (moyen) : 1500 coins, 5% shiny
+-- Pack 2 (moyen) : 700 coins, 5% shiny
 UPDATE bda_packs
-SET price = 1500, shiny_chance = 0.05
+SET price = 700, shiny_chance = 0.05
 WHERE site_id = 'bda'
   AND id = (SELECT id FROM bda_packs WHERE site_id = 'bda' ORDER BY price ASC LIMIT 1 OFFSET 1);
 
--- Pack 3 (rare) : 3000 coins, 10% shiny
+-- Pack 3 (rare) : 1300 coins, 10% shiny
 UPDATE bda_packs
-SET price = 3000, shiny_chance = 0.10
+SET price = 1300, shiny_chance = 0.10
 WHERE site_id = 'bda'
   AND id = (SELECT id FROM bda_packs WHERE site_id = 'bda' ORDER BY price ASC LIMIT 1 OFFSET 2);
 
